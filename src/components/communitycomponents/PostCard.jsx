@@ -12,17 +12,22 @@ const NEW_DAYS = 3;
 const POPULAR_DAYS = 30;
 const POPULAR_TOP_N = 8;
 
-const PostCard = ({ item, w, onClick, meNickname, allItems = [], onLikeToggle }) => {
+const PostCard = ({
+  item,
+  w,
+  onClick,
+  meNickname,
+  allItems = [],
+  onLikeToggle,
+}) => {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(item?.likes ?? 0);
 
   const handleLikeToggle = (e) => {
     e.stopPropagation();
 
-    //  부모가 로그인 체크/처리할 기회
     if (onLikeToggle) {
       onLikeToggle(item, () => {
-        //  로그인 통과했을 때만 실제 토글 실행
         setLiked((prev) => {
           setLikeCount((c) => (prev ? c - 1 : c + 1));
           return !prev;
@@ -31,40 +36,56 @@ const PostCard = ({ item, w, onClick, meNickname, allItems = [], onLikeToggle })
       return;
     }
 
-    // fallback(부모가 없으면 그냥 토글)
     setLiked((prev) => {
       setLikeCount((c) => (prev ? c - 1 : c + 1));
       return !prev;
     });
   };
 
+  // ===== 기본 데이터 =====
   const recipeImage =
     item?.images?.[0] ?? item?.recipeImage ?? "/assets/images/oatmeal.svg";
   const profileImage = item?.profileImage ?? "/assets/images/pinggu.svg";
   const recipeName = item?.recipeName ?? item?.recipeTitle ?? "김치찌개";
-  const nickname = item?.nickname ?? "굴곡밥러버";
+
+  // ✅ 닉네임 방어 (빈값 / 공백 방지)
+  const nickname = (item?.nickname || "").trim() || "닉네임 없음";
+
   const level = item?.level ?? 1;
   const xp = item?.xp ?? 0;
-  const createdAt = item?.createdAt ?? "방금 전";
+
+  // ✅ 날짜 짧게 가공 (닉네임 안 보이던 문제 해결 핵심)
+  const createdAtText = useMemo(() => {
+    const v = item?.createdAt;
+    if (!v) return "방금 전";
+
+    const s = String(v);
+
+    // ISO 포맷: 2026-02-28T13:21:08.367Z → 2026-02-28
+    if (s.includes("T")) return s.slice(0, 10);
+
+    // 기타 문자열도 너무 길면 앞 10자만
+    return s.length > 10 ? s.slice(0, 10) : s;
+  }, [item?.createdAt]);
+
   const desc =
     item?.desc ??
     item?.content ??
-    "매생이 향이 진해서 국을 뜨자마자 바다 향이 확 올라와요. 굴도 비린 맛 하나 없이 신선해서 씹을 때마다 탱글한 식감이 느껴졌어요.";
+    "매생이 향이 진해서 국을 뜨자마자 바다 향이 확 올라와요.";
 
-  // ✅ 내 글 판별
+  // ===== 내 글 판별 =====
   const isMine = useMemo(() => {
     const me = String(meNickname ?? "").trim();
     const author = String(nickname ?? "").trim();
     return !!me && !!author && me === author;
   }, [meNickname, nickname]);
 
-  // 날짜 파싱 헬퍼 (createdAt 포맷이 애매하면 여기서 최대한 안전하게)
+  // ===== 날짜 파싱 헬퍼 =====
   const parseDate = (v) => {
     if (!v) return null;
 
-    // "2026. 02. 28" 같은 포맷 대비
     if (typeof v === "string") {
-      const normalized = v.replace(/\./g, "-").replace(/\s+/g, "").slice(0, 10); // "2026-02-28"
+      const normalized = v.replace(/\./g, "-").replace(/\s+/g, "").slice(0, 10);
       const d1 = new Date(v);
       if (!Number.isNaN(d1.getTime())) return d1;
 
@@ -77,7 +98,7 @@ const PostCard = ({ item, w, onClick, meNickname, allItems = [], onLikeToggle })
     return d;
   };
 
-  // 🔥 NEW: 작성 후 3일 이내
+  // 🔥 NEW 배지
   const isNew = useMemo(() => {
     const d = parseDate(item?.createdAt);
     if (!d) return false;
@@ -85,7 +106,7 @@ const PostCard = ({ item, w, onClick, meNickname, allItems = [], onLikeToggle })
     return diffDays <= NEW_DAYS;
   }, [item?.createdAt]);
 
-  // ❤️ 인기: 최근 30일 글 중 좋아요 TOP N
+  // ❤️ 인기 배지
   const isPopular = useMemo(() => {
     if (!allItems?.length) return false;
 
@@ -111,12 +132,7 @@ const PostCard = ({ item, w, onClick, meNickname, allItems = [], onLikeToggle })
   }, [allItems, item?.id]);
 
   return (
-    <S.CarouselCard
-      type="button"
-      $w={w}
-      $mine={isMine}
-      onClick={onClick}
-    >
+    <S.CarouselCard type="button" $w={w} $mine={isMine} onClick={onClick}>
       {/* 이미지 영역 */}
       <S.CardImageWrap>
         {(isNew || isPopular) && (
@@ -154,12 +170,11 @@ const PostCard = ({ item, w, onClick, meNickname, allItems = [], onLikeToggle })
               <S.BadgeChipIcon src="/assets/icons/star.svg" alt="별 아이콘" />
               Lv.{level}
             </S.BadgeChip>
-
             <S.BadgeChip2>XP {xp}</S.BadgeChip2>
           </S.MetaCenter>
 
           <S.MetaRight>
-            <S.CardDateText>{createdAt}</S.CardDateText>
+            <S.CardDateText>{createdAtText}</S.CardDateText>
           </S.MetaRight>
         </S.CardMetaRow>
 

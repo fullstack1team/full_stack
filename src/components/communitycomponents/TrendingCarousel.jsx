@@ -50,7 +50,7 @@ const TrendingCarousel = ({ posts = [], onCardClick, meNickname, onLikeToggle  }
       return {
         id: p.id,
         recipeName: p.recipeTitle ?? p.recipeName ?? "",
-        nickname: p.author?.nickname ?? p.nickname ?? "익명",
+        nickname: String(p.author?.nickname ?? p.nickname ?? "").trim() || "익명",
         level: p.author?.level ?? p.level ?? 1,
         likes: p.likes ?? 0,
         images: p.images ?? [],

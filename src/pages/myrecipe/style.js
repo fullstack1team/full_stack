@@ -2,43 +2,38 @@ import { styled } from "styled-components";
 import { FONT_STYLE } from "../../styles/common";
 
 /* ===========================
-   SortTab (오른쪽 정렬 탭)
+   Layout (CommunityMain 컨셉과 동일)
 =========================== */
 
-export const SortTabWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end; /* 오른쪽으로 */
-  gap: 24px;
-  margin-bottom: 18px;
-  padding-right: 20px;
+export const Page = styled.main`
+  width: 100%;
+  min-height: 100vh;
+  background: ${({ theme }) => theme.PALLETE.background.white};
 `;
 
-export const SortTabButton = styled.button`
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+export const Container = styled.div`
+  max-width: 1420px;
+  margin: 0 auto;
+  padding: 24px 0 80px;
 
-  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
-
-  color: ${({ theme, $active }) =>
-    $active ? theme.PALLETE.mainblack : theme.PALLETE.gray[700]};
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
-
-  transition: color 0.15s ease;
-
-  &:hover {
-    color: ${({ theme }) => theme.PALLETE.mainblack};
+  @media (max-width: 1920px) {
+    width: 100%;
+    padding: 24px 20px 80px;
   }
 `;
 
+export const FullDivider = styled.div`
+  width: 100%;
+  height: 1px;
+  margin: 30px 0 0;
+  background-color: ${({ theme }) => theme.PALLETE.gray[100]};
+`;
 
 /* ===========================
    Empty State
 =========================== */
 
-export const EmptyWrap = styled.div`
+export const EmptyState = styled.div`
   width: 100%;
   min-height: 360px;
   display: flex;

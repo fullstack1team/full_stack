@@ -1,16 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, FullDivider, Page } from "../community/style";
-import { CommunityHeader } from "../../components/communitycomponents/CommunityHeader";
 import * as S from "./style";
+
+import { CommunityHeader } from "../../components/communitycomponents/CommunityHeader";
 import MyRecipeGrid from "../../components/myrecipecomponents/MyRecipeGrid";
 import SortTab from "../../components/myrecipecomponents/SortTab";
 import Pagination from "../../components/layoutcomponents/pagination/Pagination";
 import FloatingActions from "../../components/layoutcomponents/FloatingActions";
 import MyRecipeEmpty from "../../components/myrecipecomponents/MyRecipeEmpty";
 import useAuthStore from "../../store/authStore";
-import LoginRequireModal from
-  "../../components/layoutcomponents/loginrequiremodal/LoginRequireModal";
+import LoginRequireModal from "../../components/layoutcomponents/loginrequiremodal/LoginRequireModal";
 
 export const MYRECIPE_SORT_OPTIONS = [
   { key: "saved_latest", label: "최신순" },
@@ -193,8 +192,7 @@ const MyRecipe = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
 
-  const isLoggedIn = !!isAuthenticated && !!user; // 로그인 모달 띄우려면 저 조건
-
+  const isLoggedIn = !!isAuthenticated && !!user;
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const requireLogin = useCallback(
@@ -213,40 +211,33 @@ const MyRecipe = () => {
   const [sortKey, setSortKey] = useState("saved_latest");
   const [savedList, setSavedList] = useState(MOCK_SAVED_RECIPES);
 
-  const handleCardClick = (recipeId) => {
-    const recipe = pagedItems.find((r) => r.id === recipeId);
-    if (!recipe) return;
-
-    // 상세(추천요리) 페이지로 이동 + state로 recipe 전달
-    navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
-      state: { recipe },
-    });
-  };
-
   const [page, setPage] = useState(1);
   const pageSize = 12;
 
   // 그리드 상단 스크롤 타겟
   const gridTopRef = useRef(null);
 
-  const compareBySortKey = (a, b) => {
-    const tieBreaker = () => b.id - a.id;
+  const compareBySortKey = useCallback(
+    (a, b) => {
+      const tieBreaker = () => b.id - a.id;
 
-    if (sortKey === "saved_latest") return b.id - a.id;
+      if (sortKey === "saved_latest") return b.id - a.id;
 
-    if (sortKey === "cook_fast") {
-      const diff = (a.cookTimeMin ?? 9999) - (b.cookTimeMin ?? 9999);
-      return diff !== 0 ? diff : tieBreaker();
-    }
+      if (sortKey === "cook_fast") {
+        const diff = (a.cookTimeMin ?? 9999) - (b.cookTimeMin ?? 9999);
+        return diff !== 0 ? diff : tieBreaker();
+      }
 
-    if (sortKey === "difficulty_low") {
-      const rank = { 하: 0, 중: 1, 상: 2 };
-      const diff = (rank[a.difficulty] ?? 99) - (rank[b.difficulty] ?? 99);
-      return diff !== 0 ? diff : tieBreaker();
-    }
+      if (sortKey === "difficulty_low") {
+        const rank = { 하: 0, 중: 1, 상: 2 };
+        const diff = (rank[a.difficulty] ?? 99) - (rank[b.difficulty] ?? 99);
+        return diff !== 0 ? diff : tieBreaker();
+      }
 
-    return tieBreaker();
-  };
+      return tieBreaker();
+    },
+    [sortKey],
+  );
 
   const filteredAndSorted = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -261,18 +252,16 @@ const MyRecipe = () => {
     });
 
     return [...filtered].sort(compareBySortKey);
-  }, [savedList, keyword, sortKey]);
+  }, [savedList, keyword, compareBySortKey]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredAndSorted.length / pageSize),
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
 
   const pagedItems = useMemo(() => {
     const start = (page - 1) * pageSize;
     return filteredAndSorted.slice(start, start + pageSize);
   }, [filteredAndSorted, page, pageSize]);
 
+  // 페이지 범위 보정
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
@@ -282,21 +271,41 @@ const MyRecipe = () => {
     setPage(1);
   }, [keyword, sortKey]);
 
-  // 페이지 바뀔 때 그리드 상단으로 자동 스크롤
+  // 페이지 바뀔 때 그리드 상단으로 스크롤
   useEffect(() => {
     if (!gridTopRef.current) return;
     gridTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [page]);
 
-  const handleToggleBookmark = (recipeId) => {
-    requireLogin(() => {
-      setSavedList((prev) => prev.filter((r) => r.id !== recipeId));
-    });
-  };
+  const handleCardClick = useCallback(
+    (recipeId) => {
+      const recipe = pagedItems.find((r) => r.id === recipeId);
+      if (!recipe) return;
+
+      navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
+        state: { recipe },
+      });
+    },
+    [navigate, pagedItems],
+  );
+
+  const handleToggleBookmark = useCallback(
+    (recipeId) => {
+      requireLogin(() => {
+        setSavedList((prev) => prev.filter((r) => r.id !== recipeId));
+      });
+    },
+    [requireLogin],
+  );
+
+  const isSearching = keyword.trim().length > 0;
 
   return (
-    <Page>
-      <Container>
+    <S.Page>
+      {/* FloatingActions 스크롤 타겟 */}
+      <div id="community-top" />
+
+      <S.Container>
         <CommunityHeader
           title="저장한 레시피"
           placeholder="요리명, 코멘트, 재료로 검색..."
@@ -306,11 +315,11 @@ const MyRecipe = () => {
           onSortChange={(opt) => setSortKey(opt.key)}
           onSearch={({ keyword: k }) => setKeyword(k)}
         />
-      </Container>
+      </S.Container>
 
-      <FullDivider />
+      <S.FullDivider />
 
-      <Container>
+      <S.Container>
         <SortTab
           options={MYRECIPE_SORT_OPTIONS}
           value={sortKey}
@@ -328,7 +337,14 @@ const MyRecipe = () => {
             showCta={true}
           />
         ) : filteredAndSorted.length === 0 ? (
-          <MyRecipeEmpty isLoggedIn={isLoggedIn} />
+          isSearching ? (
+            <S.EmptyState>
+              <S.EmptyTitle>“{keyword}” 검색 결과가 없습니다</S.EmptyTitle>
+              <S.EmptyDesc>다른 키워드로 다시 검색해보세요.</S.EmptyDesc>
+            </S.EmptyState>
+          ) : (
+            <MyRecipeEmpty isLoggedIn={isLoggedIn} />
+          )
         ) : (
           <>
             <MyRecipeGrid
@@ -348,8 +364,9 @@ const MyRecipe = () => {
             )}
           </>
         )}
-      </Container>
+      </S.Container>
 
+      {/* 로그인 요구 모달 */}
       <LoginRequireModal
         open={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
@@ -360,7 +377,7 @@ const MyRecipe = () => {
       />
 
       <FloatingActions targetId="community-top" />
-    </Page>
+    </S.Page>
   );
 };
 

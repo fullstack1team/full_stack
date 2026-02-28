@@ -41,10 +41,12 @@ const CommunityMain = () => {
   );
 
   const normalizeFromStore = useCallback((raw) => {
-    const nickname =
-      raw?.author?.nickname ?? raw?.nickname ?? raw?.authorNickname ?? "익명";
+    const nicknameRaw =
+      raw?.author?.nickname ?? raw?.nickname ?? raw?.authorNickname ?? "";
+    const nickname = String(nicknameRaw).trim() || "익명";
     const level = raw?.author?.level ?? raw?.level ?? raw?.authorLevel ?? 1;
     const images = raw?.images ?? (raw?.imageUrl ? [raw.imageUrl] : []);
+
     return {
       id: raw?.id,
       recipeName: raw?.recipeTitle ?? raw?.recipeName ?? raw?.title ?? "",
@@ -56,12 +58,14 @@ const CommunityMain = () => {
       ingredients: raw?.ingredients ?? [],
       createdAt: raw?.createdAt ?? "방금 전",
       comments: raw?.comments ?? [],
+      xp: raw?.xp ?? 0,
     };
   }, []);
 
-  const allItems = useMemo(() => {
-    return (posts ?? []).map(normalizeFromStore);
-  }, [posts, normalizeFromStore]);
+  const allItems = useMemo(
+    () => (posts ?? []).map(normalizeFromStore),
+    [posts, normalizeFromStore],
+  ); // postStore에 어떤 형태로 저장해도 CommunityMain이 “흡수/정규화”해서 FeedGrid/PostCard에는 항상 item.nickname이 정상으로 들어감
 
   const buildMockPost = useCallback((item) => {
     return {
@@ -348,6 +352,7 @@ const CommunityMain = () => {
         <CommunityHeader
           onSearch={({ keyword, sort }) => {
             setSearchState({ keyword, sort });
+            window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />
       </S.Container>
@@ -365,6 +370,8 @@ const CommunityMain = () => {
 
         <FeedGrid
           items={displayItems}
+          isSearching={searchState.keyword.trim().length > 0}
+          searchKeyword={searchState.keyword}
           onCardClick={handleOpenAnyPostModal}
           meNickname={meNickname}
           onLikeToggle={handleLikeToggle}

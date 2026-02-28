@@ -23,7 +23,6 @@ export const CommunityHeader = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [sort, setSort] = useState(initialSort);
-  const [keyword, setKeyword] = useState("");
 
   // 바깥 클릭하면 닫기
   useEffect(() => {
@@ -41,32 +40,47 @@ export const CommunityHeader = ({
     onSortChange?.(option);
   };
 
+  const [keyword, setKeyword] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [triedSubmit, setTriedSubmit] = useState(false); // 검색 시도 여부
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    setTriedSubmit(true); // “검색 시도했다” 기록
+
     const searchKeyword = keyword.trim();
 
-    // onSearch 없으면 기존처럼 임시 동작(디버그용)
-    if (!onSearch) {
-      alert("검색 실행됨!");
-      console.log("검색!", { keyword: searchKeyword, sort: sort.key });
+    // ❌ 빈 검색어
+    if (!searchKeyword) {
+      setIsError(true);
+      // 흔들림 다시 트리거용 (같은 에러 연속 입력 대응)
+      setTimeout(() => setIsError(false), 400);
       return;
     }
 
-    onSearch({ keyword: searchKeyword, sort: sort.key });
+    setIsError(false);
+    onSearch?.({ keyword: searchKeyword, sort: sort.key });
   };
+
+  const showError = triedSubmit && isError;
 
   return (
     <S.HeaderSection>
       <S.Title>{title}</S.Title>
 
       <S.SearchRow>
-        <S.SearchWrap as="form" onSubmit={handleSubmit}>
+        <S.SearchWrap as="form" onSubmit={handleSubmit} $error={showError}>
           <S.SearchInput
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={(e) => {
+              setKeyword(e.target.value);
+              if (triedSubmit) setIsError(false);
+            }}
             placeholder={placeholder}
           />
-          <S.SearchButton type="submit" aria-label="검색">
+          <S.SearchButton as="button" type="submit" aria-label="검색">
             <S.SearchIcon src="/assets/icons/search.svg" alt="검색 아이콘" />
           </S.SearchButton>
         </S.SearchWrap>

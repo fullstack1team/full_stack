@@ -11,7 +11,8 @@ import PostCard from "./PostCard";
 
 const PAGE_SIZE = 12;
 
-const FeedGrid = ({ items = [], onCardClick, meNickname, onLikeToggle  }) => {
+const FeedGrid = ({ items = [], isSearching=false, searchKeyword="", onCardClick, meNickname, onLikeToggle }) => {
+  const showEmpty = isSearching && items.length === 0;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [isLoading, setIsLoading] = useState(false);
   const sentinelRef = useRef(null);
@@ -22,6 +23,11 @@ const FeedGrid = ({ items = [], onCardClick, meNickname, onLikeToggle  }) => {
     () => items.slice(0, visibleCount),
     [items, visibleCount],
   );
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+    setIsLoading(false);
+  }, [items]);
 
   const loadMore = useCallback(() => {
     if (isLoading) return;
@@ -82,8 +88,6 @@ const FeedGrid = ({ items = [], onCardClick, meNickname, onLikeToggle  }) => {
   //   [meNickname],
   // );
 
-
-
   // const handleCardClick = useCallback(
   //   (item) => {
   //     const post = buildMockPost(item);
@@ -94,31 +98,43 @@ const FeedGrid = ({ items = [], onCardClick, meNickname, onLikeToggle  }) => {
 
   // 전체 items를 그대로 상위로 전달
   const handleCardClick = useCallback(
-  (item) => {
-    onCardClick?.(item);   // 그대로 전달
-  },
-  [onCardClick],
-);
+    (item) => {
+      onCardClick?.(item); // 그대로 전달
+    },
+    [onCardClick],
+  );
 
   return (
     <S.FeedGridSection>
       <S.FeedGridWrap>
-        {visibleItems.map((item) => (
-          <PostCard
-            key={item.id}
-            item={item}
-            allItems={items} // 인기 배지 계산용 (피드 전체 기준)
-            w="100%"
-            meNickname={meNickname}
-            onClick={() => handleCardClick(item)}
-            onLikeToggle={onLikeToggle}
-          />
-        ))}
+        {showEmpty ? (
+          <S.EmptyState>
+            <S.EmptyTitle>“{searchKeyword}” 검색 결과가 없습니다.</S.EmptyTitle>
+            <S.EmptyDesc>다른 키워드로 다시 검색해보세요.</S.EmptyDesc>
+          </S.EmptyState>
+        ) : (
+          visibleItems.map((item) => (
+            <PostCard
+              key={item.id}
+              item={item}
+              allItems={items}
+              w="100%"
+              meNickname={meNickname}
+              onClick={() => handleCardClick(item)}
+              onLikeToggle={onLikeToggle}
+            />
+          ))
+        )}
       </S.FeedGridWrap>
 
-      <S.FeedGridSentinel ref={sentinelRef} />
-      {isLoading && <S.FeedGridLoading>불러오는 중…</S.FeedGridLoading>}
-      {!hasMore && <S.FeedGridEnd>마지막 게시물입니다.</S.FeedGridEnd>}
+      {/* 아래는 items가 있을 때만 보여주기 */}
+      {items.length > 0 && (
+        <>
+          <S.FeedGridSentinel ref={sentinelRef} />
+          {isLoading && <S.FeedGridLoading>불러오는 중…</S.FeedGridLoading>}
+          {!hasMore && <S.FeedGridEnd>마지막 게시물입니다.</S.FeedGridEnd>}
+        </>
+      )}
     </S.FeedGridSection>
   );
 };
