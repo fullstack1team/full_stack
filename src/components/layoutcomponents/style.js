@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { flexCenter, FONT_STYLE } from "../../styles/common";
+import { flexBetweenRow, flexCenter, FONT_STYLE } from "../../styles/common";
 
 // 플로팅 액션 섹션
 export const FloatingWrapper = styled.div`
@@ -33,38 +33,26 @@ export const ScrollButton = styled.button`
 
 /* ================= Header styles ================= */
 
+
 export const HeaderOuter = styled.header`
   width: 100%;
   background: #fff;
+  border-bottom: 1px solid #e5e5e5;
 `;
 
 export const HeaderInner = styled.div`
-  height: 160px;
-  max-width: 1920px;
+  max-width: 1420px;
   margin: 0 auto;
-
-  padding: 0 240px;
+  padding: 24px 20px 16px;
 
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 18px;
-
-  @media (max-width: 1400px) {
-    padding: 0 80px;
-  }
-
-  @media (max-width: 768px) {
-    height: auto;
-    padding: 18px 16px;
-    gap: 14px;
-  }
 `;
 
 export const TopRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 18px;
 `;
 
@@ -83,7 +71,8 @@ export const LogoWrap = styled.div`
 `;
 
 export const LogoIcon = styled.img`
-  height: 33px;
+  height: 30px;
+  margin-right: 10px;
 `;
 
 export const LogoText = styled.span`
@@ -94,12 +83,10 @@ export const LogoText = styled.span`
 
 export const SearchArea = styled.div`
   flex: 1;
-  max-width: 760px;
+  max-width: 720px;
   height: 44px;
-
   border: 2px solid #ff3b30;
   border-radius: 10px;
-
   display: flex;
   align-items: center;
   padding: 0 10px 0 14px;
@@ -129,10 +116,16 @@ export const SearchBtn = styled.button`
   place-items: center;
 `;
 
+export const SearchIcon = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
 export const RightArea = styled.div`
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
+  white-space: nowrap;
 `;
 
 export const RightLink = styled(Link)`
@@ -148,24 +141,45 @@ export const RightLink = styled(Link)`
   }
 `;
 
-export const RightIcon = styled.span`
+export const ProfileButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+export const RightIcon = styled.img`
   font-size: 14px;
+  height: 14px;
+  object-fit: contain;
+`;
+
+export const ProfileTextIcon = styled.span`
+  font-size: 14px;
+  line-height: 1;
 `;
 
 export const RightText = styled.span`
-  font-size: 12px;
-  font-weight: 600;
+  ${FONT_STYLE.PRETENDARD.H8_REGULAR};
+  font-weight: 600; 
 `;
 
 export const BottomRow = styled.div`
-  display: flex;
-  align-items: center;
+  ${flexBetweenRow}
 `;
 
 export const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 56px;
+  gap: 70px;
 
   @media (max-width: 900px) {
     gap: 22px;
@@ -174,14 +188,31 @@ export const Nav = styled.nav`
 `;
 
 export const NavItem = styled(Link)`
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  position: relative;
   text-decoration: none;
   color: #111;
 
-  font-size: 14px;
-  font-weight: 700;
+  /* font-size: 14px; */
+  font-weight: 600;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;   /* underline margin */
+    width: 100%;
+    height: 1px;
+    background: transparent;
+    transition: 0.2s;
+  }
 
   &:hover {
-    text-decoration: underline;
+    color: ${({ theme }) => theme.PALLETE.primary.main};
+  }
+
+  &:hover::after {
+    background: ${({ theme }) => theme.PALLETE.primary.main};
   }
 `;
 
