@@ -1,69 +1,55 @@
 import React from "react";
-import {
-  FooterOuter,
-  FooterInner,
-  Left,
-  TopLinks,
-  Dot,
-  CompanyRow,
-  CompanyName,
-  Divider,
-  CompanyDropdown,
-  Chevron,
-  Copyright,
-  Right,
-  IconGroup,
-  IconBtn,
-  SiteGroup,
-  SiteBtn,
-  PlusBtn,
-} from "./style";
+import * as S from "./style";
 
 const Footer = () => {
   return (
-    <FooterOuter>
-      <FooterInner>
+    <S.FooterOuter>
+      <S.FooterInner>
         {/* LEFT */}
-        <Left>
-          <TopLinks>
+        <S.Left>
+          <S.TopLinks>
             <a href="/terms">이용약관</a>
-            <Dot>•</Dot>
+            <S.Dot>•</S.Dot>
             <a href="/privacy">개인정보처리방침</a>
-            <Dot>•</Dot>
+            <S.Dot>•</S.Dot>
             <a href="/about">ABOUT US</a>
-            <Dot>•</Dot>
+            <S.Dot>•</S.Dot>
             <a href="/notice">공지사항</a>
-          </TopLinks>
+          </S.TopLinks>
 
-          <CompanyRow>
-            <CompanyName>프리고고(주)</CompanyName>
-            <Divider />
-            <CompanyDropdown type="button">
-              사업자 정보 <Chevron aria-hidden>▾</Chevron>
-            </CompanyDropdown>
-          </CompanyRow>
+          <S.CompanyRow>
+            <S.CompanyName>프리고고(주)</S.CompanyName>
+            <S.Divider />
+            <S.CompanyDropdown type="button">
+              사업자 정보 <S.Chevron aria-hidden>▾</S.Chevron>
+            </S.CompanyDropdown>
+          </S.CompanyRow>
 
-          <Copyright>Copyright © 프리고고, All Rights Reserved.</Copyright>
-        </Left>
+          <S.Copyright>Copyright © 프리고고, All Rights Reserved.</S.Copyright>
+        </S.Left>
 
         {/* RIGHT */}
-        <Right>
-          <IconGroup>
-            <IconBtn aria-label="Instagram">📷</IconBtn>
-            <IconBtn aria-label="KakaoTalk">💬</IconBtn>
-          </IconGroup>
+        <S.Right>
+          <S.IconGroup>
+            <S.IconBtn as="a" href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <S.IconImg src="/assets/icons/ic_insta.svg" alt="인스타 아이콘" />
+            </S.IconBtn>
 
-          <SiteGroup>
-            <SiteBtn type="button">관련사이트</SiteBtn>
-            <PlusBtn type="button" aria-label="더보기">
+            <S.IconBtn as="a" href="https://kakaotalk.com" target="_blank" rel="noopener noreferrer">
+              <S.IconImg src="/assets/icons/ic_kakao.svg" alt="카카오 아이콘" />
+            </S.IconBtn>
+          </S.IconGroup>
+
+          <S.SiteGroup>
+            <S.SiteBtn type="button">관련사이트</S.SiteBtn>
+            <S.PlusBtn type="button" aria-label="더보기">
               +
-            </PlusBtn>
-          </SiteGroup>
-        </Right>
-      </FooterInner>
-    </FooterOuter>
+            </S.PlusBtn>
+          </S.SiteGroup>
+        </S.Right>
+      </S.FooterInner>
+    </S.FooterOuter>
   );
 };
 
 export default Footer;
-

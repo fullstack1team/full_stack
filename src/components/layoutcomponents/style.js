@@ -101,7 +101,7 @@ export const SearchArea = styled.div`
 `;
 
 export const MainSearchWrap = styled.form`
-width: 100%;
+  width: 100%;
   height: 44px;
   display: flex;
   align-items: center;
@@ -109,8 +109,7 @@ width: 100%;
   box-sizing: border-box;
 
   border: 2px solid
-    ${({ theme, $error }) =>
-      $error ? theme.PALLETE.error : "#ff3b30"};
+    ${({ theme, $error }) => ($error ? theme.PALLETE.error : "#ff3b30")};
   border-radius: 5px;
   background: #fff;
 
@@ -118,8 +117,7 @@ width: 100%;
     $error &&
     css`
       animation: ${shake} 0.35s ease;
-    `}
-  /* position: relative;
+    `}/* position: relative;
   width: 1028px;
   height: 40px;
 
@@ -262,11 +260,20 @@ export const NavItem = styled(Link)`
 
 export const FooterOuter = styled.footer`
   width: 100%;
-  background: #f5f5f5;
+  background: ${({ theme }) => theme.PALLETE.background.gray};
 `;
 
 export const FooterInner = styled.div`
-  height: 216px;
+  max-width: 1420px;
+  margin: 0 auto;
+  padding: 24px 20px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  /* height: 216px;
   max-width: 1920px;
   margin: 0 auto;
 
@@ -286,10 +293,11 @@ export const FooterInner = styled.div`
     flex-direction: column;
     gap: 18px;
     align-items: flex-start;
-  }
+  } */
 `;
 
 export const Left = styled.div`
+  margin: 30px 0 30px 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -390,8 +398,9 @@ export const IconBtn = styled.button`
   background: #e9e9e9;
   cursor: pointer;
 
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   font-size: 16px;
   color: #666;
@@ -399,6 +408,12 @@ export const IconBtn = styled.button`
   &:hover {
     background: #e2e2e2;
   }
+`;
+
+export const IconImg = styled.img`
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 `;
 
 export const SiteGroup = styled.div`
@@ -456,7 +471,8 @@ export const SidebarContainer = styled.div`
   padding: 35px;
 
   /* [핵심] isOpen 상태에 따라 위치를 이동시킴 */
-  transform: ${({ $isOpen }) => ($isOpen ? "translateX(0)" : "translateX(100%)")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateX(0)" : "translateX(100%)"};
   visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
   transition:
     transform 0.3s ease-in-out,
