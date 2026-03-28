@@ -17,8 +17,14 @@ import useAuthStore from "../../store/authStore";
 const CommunityMain = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  
+  const { posts, fetchPosts } = usePostStore();
+  useEffect(() => {
+    fetchPosts();
+    console.log("posts 원본:", posts);
+  console.log("displayItems:", displayItems);
+  }, [fetchPosts])
 
-  const { posts } = usePostStore();
   const { user, isAuthenticated } = useAuthStore();
 
   // ✅ 로그인 유저 닉네임(없으면 게스트)
@@ -42,23 +48,36 @@ const CommunityMain = () => {
 
   const normalizeFromStore = useCallback((raw) => {
     const nicknameRaw =
-      raw?.author?.nickname ?? raw?.nickname ?? raw?.authorNickname ?? "";
+      raw?.member?.memberName ?? raw?.author?.nickName ?? raw?.nickName ?? raw?.authorNickName ?? "";
+
     const nickname = String(nicknameRaw).trim() || "익명";
+
     const level = raw?.author?.level ?? raw?.level ?? raw?.authorLevel ?? 1;
+
     const images = raw?.images ?? (raw?.imageUrl ? [raw.imageUrl] : []);
 
     return {
       id: raw?.id,
-      recipeName: raw?.recipeTitle ?? raw?.recipeName ?? raw?.title ?? "",
+      recipeName: 
+        raw?.recipe?.recipeTitle ?? 
+        raw?.recipeTitle ??
+        raw?.recipeName ?? 
+        raw?.postTitle ?? 
+        raw?.title ??
+        "",
       nickname,
       level,
-      images,
+      images: raw?.images?.length > 0
+        ? raw.images
+        : raw?.imageUrl
+        ? [raw.imageUrl]
+        : ["/assets/images/pancake.svg"] ,
       likes: raw?.likes ?? 0,
-      content: raw?.content ?? raw?.desc ?? "",
+      content: raw?.postContent ?? raw?.content ?? raw?.desc ?? "",
       ingredients: raw?.ingredients ?? [],
       createdAt: raw?.createdAt ?? "방금 전",
       comments: raw?.comments ?? [],
-      xp: raw?.xp ?? 0,
+      xp: raw?.postXp ?? raw?.xp ?? 0,
     };
   }, []);
 
