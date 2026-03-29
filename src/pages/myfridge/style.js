@@ -377,4 +377,65 @@ S.ModalFooter = styled.div`
   margin-top: 16px;
 `;
 
+// 입력 그룹
+S.FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+`;
+
+// label
+S.FormLabel = styled.label`
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+`;
+
+// input
+S.FormInput = styled.input`
+  height: 44px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+
+  &:focus {
+    border-color: #FF4E37;
+    outline: none;
+  }
+`;
+
+// select
+S.FormSelect = styled.select`
+  height: 44px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 12px;
+`;
+
+// 모달 폭 줄이기
+S.ModalContent = styled.div`
+  width: 420px;
+  padding: 32px;
+  border-radius: 16px;
+  background: white;
+`;
+
+// 버튼 업그레이드
+S.AddButton = styled.button`
+  width: 100%;
+  height: 50px;
+  background: #FF4E37;
+  color: white;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: #e8432e;
+  }
+`;
+
 export default S;

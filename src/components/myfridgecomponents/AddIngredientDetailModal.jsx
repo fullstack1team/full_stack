@@ -1,119 +1,85 @@
 import React, { useState } from "react";
 import S from "../../pages/myfridge/style";
-import IngredientCard from "./IngredientCard";
 
-const MODAL_CATEGORIES = ["채소", "육류", "해산물", "유제품", "가공품", "기타"];
+const CATEGORY_ICONS = {
+  채소: "🥕",
+  육류: "🥩",
+  해산물: "🐟",
+  유제품: "🥛",
+  가공품: "🥓",
+  기타: "🥚",
+};
 
-const AddIngredientDetailModal = ({ onClose, onSubmit, baseIngredients }) => {
-  const [activeCategory, setActiveCategory] = useState("육류");
-  const [selectedItems, setSelectedItems] = useState({});
-
-  const handleQuantityChange = (baseId, value) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [baseId]: { ...prev[baseId], quantity: value },
-    }));
-  };
-
-  const handleDateChange = (baseId, value) => {
-    setSelectedItems((prev) => ({
-      ...prev,
-      [baseId]: { ...prev[baseId], expiredAt: value },
-    }));
-  };
-
-  const handleToggle = (baseId) => {
-    setSelectedItems((prev) => {
-      if (prev[baseId]) {
-        const copied = { ...prev };
-        delete copied[baseId];
-        return copied;
-      }
-      return { ...prev, [baseId]: { quantity: "", expiredAt: "" } };
-    });
-  };
-
-  const visibleBase = baseIngredients.filter(
-    (x) => x.category === activeCategory,
-  );
+const AddIngredientDetailModal = ({ onClose, onSubmit }) => {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("채소");
+  const [quantity, setQuantity] = useState("");
+  const [expiredAt, setExpiredAt] = useState("");
 
   const handleSubmit = () => {
-    const result = Object.entries(selectedItems).map(([baseId, data]) => ({
-      baseId: Number(baseId),
-      quantity: data.quantity,
-      expiredAt: data.expiredAt,
-    }));
+    if (!name) return alert("재료명을 입력해주세요");
 
-    onSubmit(result);
+    onSubmit([
+      { name, category, quantity, expiredAt }
+    ]);
+
     onClose();
   };
 
   return (
     <S.ModalOverlay>
       <S.ModalContent>
-        <S.ModalHeader>
-          {MODAL_CATEGORIES.map((cat) => (
-            <S.CategoryTab
-              key={cat}
-              active={activeCategory === cat}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </S.CategoryTab>
-          ))}
-        </S.ModalHeader>
-
         <S.ModalBody>
-          <S.ModalGrid>
-            {visibleBase.map((item) => (
-              <IngredientCard
-                key={item.id}
-                name={item.name}
-                icon={item.icon}
-                active={!!selectedItems[item.id]}
-                onClick={() => handleToggle(item.id)}
-              />
-            ))}
-          </S.ModalGrid>
+          <h3>재료 추가</h3>
 
-          <S.SelectedSection>
-            <S.SelectedHeader>
-              <div>재료명</div>
-              <div>수량</div>
-              <div>유통기한</div>
-            </S.SelectedHeader>
+          <S.SelectedRow>
+            <div>재료명</div>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </S.SelectedRow>
 
-            {Object.entries(selectedItems).map(([baseId, data]) => {
-              const item = baseIngredients.find((v) => v.id === Number(baseId));
-              if (!item) return null;
+          <S.SelectedRow>
+            <div>카테고리</div>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {Object.keys(CATEGORY_ICONS.map ? {} : CATEGORY_ICONS).map((cat) => (
+                <option key={cat}>{cat}</option>
+              ))}
+            </select>
+            <span style={{ fontSize: "20px" }}>
+              {CATEGORY_ICONS[category]}
+            </span>
+          </S.SelectedRow>
 
-              return (
-                <S.SelectedRow key={baseId}>
-                  <div>{item.name}</div>
-                  <input
-                    type="number"
-                    min="0"
-                    value={data.quantity}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-                      handleQuantityChange(baseId, value < 0 ? 0 : value);
-                    }}
-                  />
-                  <input
-                    type="date"
-                    value={data.expiredAt}
-                    onChange={(e) => handleDateChange(baseId, e.target.value)}
-                  />
-                </S.SelectedRow>
-              );
-            })}
+          <S.SelectedRow>
+            <div>수량</div>
+            <input
+              type="number"
+              min="0"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+          </S.SelectedRow>
 
-            <S.ModalFooter>
-              <S.AddButton onClick={handleSubmit}>
-                선택한 재료 추가하기
-              </S.AddButton>
-            </S.ModalFooter>
-          </S.SelectedSection>
+          <S.SelectedRow>
+            <div>유통기한</div>
+            <input
+              type="date"
+              value={expiredAt}
+              onChange={(e) => setExpiredAt(e.target.value)}
+            />
+          </S.SelectedRow>
+
+          <S.ModalFooter>
+            <S.AddButton onClick={handleSubmit}>
+              재료 추가
+            </S.AddButton>
+          </S.ModalFooter>
         </S.ModalBody>
       </S.ModalContent>
     </S.ModalOverlay>
