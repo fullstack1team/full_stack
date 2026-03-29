@@ -46,15 +46,15 @@ const PostCard = ({
   const recipeImage =
     item?.images?.[0] ?? item?.recipeImage ?? "/assets/images/oatmeal.svg";
   const profileImage = item?.profileImage ?? "/assets/images/pinggu.svg";
-  const recipeName = item?.recipeName ?? item?.recipeTitle ?? "김치찌개";
+  const recipeName = item?.recipeName ?? item?.recipeTitle ?? "요리명 없음";
 
-  // ✅ 닉네임 방어 (빈값 / 공백 방지)
+  //  닉네임 방어 (빈값 / 공백 방지)
   const nickname = (item?.nickname || "").trim() || "닉네임 없음";
 
   const level = item?.level ?? 1;
   const xp = item?.xp ?? 0;
 
-  // ✅ 날짜 짧게 가공 (닉네임 안 보이던 문제 해결 핵심)
+  //  날짜 짧게 가공 (닉네임 안 보이던 문제 해결 핵심)
   const createdAtText = useMemo(() => {
     const v = item?.createdAt;
     if (!v) return "방금 전";
@@ -71,7 +71,14 @@ const PostCard = ({
   const desc =
     item?.desc ??
     item?.content ??
-    "매생이 향이 진해서 국을 뜨자마자 바다 향이 확 올라와요.";
+    "내용이 없습니다.";
+
+   const ingredientsText = useMemo(() => {
+    if (!Array.isArray(item?.ingredients) || item.ingredients.length === 0) {
+      return "";
+    }
+    return item.ingredients.join(", ");
+  }, [item?.ingredients]);
 
   // ===== 내 글 판별 =====
   const isMine = useMemo(() => {
@@ -178,6 +185,7 @@ const PostCard = ({
           </S.MetaRight>
         </S.CardMetaRow>
 
+        {ingredientsText && <S.CardDesc>{ingredientsText}</S.CardDesc>}
         <S.CardDesc>{desc}</S.CardDesc>
       </S.CardContentArea>
     </S.CarouselCard>

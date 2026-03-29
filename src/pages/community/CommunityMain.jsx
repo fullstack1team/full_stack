@@ -19,21 +19,21 @@ const CommunityMain = () => {
   const [searchParams] = useSearchParams();
   
   const { posts, fetchPosts } = usePostStore();
-  useEffect(() => {
-    fetchPosts();
-    console.log("posts 원본:", posts);
-  console.log("displayItems:", displayItems);
-  }, [fetchPosts])
+  // useEffect(() => {
+  //   fetchPosts();
+  //   console.log("posts 원본:", posts);
+  // console.log("displayItems:", displayItems);
+  // }, [fetchPosts])
 
   const { user, isAuthenticated } = useAuthStore();
 
-  // ✅ 로그인 유저 닉네임(없으면 게스트)
+  //  로그인 유저 닉네임(없으면 게스트)
   const meNickname = user?.nickname || "";
 
-  // ✅ 로그인 요구 모달
+  //  로그인 요구 모달
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
-  // ✅ "로그인 필요 행동" 공통 래퍼
+  //  "로그인 필요 행동" 공통 래퍼
   const requireLogin = useCallback(
     (action) => {
       if (!isAuthenticated || !user) {
@@ -46,37 +46,41 @@ const CommunityMain = () => {
     [isAuthenticated, user],
   );
 
+  // 게시글 fetch
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts])
+
   const normalizeFromStore = useCallback((raw) => {
     const nicknameRaw =
-      raw?.member?.memberName ?? raw?.author?.nickName ?? raw?.nickName ?? raw?.authorNickName ?? "";
-
-    const nickname = String(nicknameRaw).trim() || "익명";
-
-    const level = raw?.author?.level ?? raw?.level ?? raw?.authorLevel ?? 1;
-
-    const images = raw?.images ?? (raw?.imageUrl ? [raw.imageUrl] : []);
-
+      raw?.member?.memberName ?? 
+      raw?.author?.nickName ?? 
+      raw?.nickName ?? 
+      raw?.authorNickName ?? 
+      "";
+    
     return {
-      id: raw?.id,
+      id: raw?.id ?? 0,
+
+      // 카드 상단 제목 = 요리명
       recipeName: 
         raw?.recipe?.recipeTitle ?? 
-        raw?.recipeTitle ??
-        raw?.recipeName ?? 
+        raw?.recipeTitle ??        raw?.recipeName ?? 
         raw?.postTitle ?? 
         raw?.title ??
         "",
-      nickname,
-      level,
+      nickname: String(nicknameRaw).trim() || "익명",
+      level: raw?.author?.level ?? raw?.level ?? raw?.authorLevel ?? 1,
       images: raw?.images?.length > 0
         ? raw.images
         : raw?.imageUrl
         ? [raw.imageUrl]
-        : ["/assets/images/pancake.svg"] ,
-      likes: raw?.likes ?? 0,
+        : [] ,
+      likes: raw?.likes ?? raw?.likeCount ?? 0,
       content: raw?.postContent ?? raw?.content ?? raw?.desc ?? "",
-      ingredients: raw?.ingredients ?? [],
-      createdAt: raw?.createdAt ?? "방금 전",
-      comments: raw?.comments ?? [],
+      ingredients: Array.isArray(raw?.ingredients) ? raw.ingredients : [],
+      createdAt: raw?.createdAt ?? "",
+      comments: Array.isArray(raw?.comments) ? raw.comments : [],
       xp: raw?.postXp ?? raw?.xp ?? 0,
     };
   }, []);
@@ -86,7 +90,15 @@ const CommunityMain = () => {
     [posts, normalizeFromStore],
   ); // postStore에 어떤 형태로 저장해도 CommunityMain이 “흡수/정규화”해서 FeedGrid/PostCard에는 항상 item.nickname이 정상으로 들어감
 
-  const buildMockPost = useCallback((item) => {
+  useEffect(() => {
+    console.log("posts 원본:", posts)
+  }, [posts])
+
+  useEffect(() => {
+    console.log("allItems:", allItems)
+  }, [allItems])
+
+  const buildPostForModal = useCallback((item) => {
     return {
       id: item.id,
       images: item.images ?? [],
@@ -95,11 +107,11 @@ const CommunityMain = () => {
         level: item.level ?? 1,
       },
       likes: item.likes ?? 0,
-      createdAt: item.createdAt ?? "방금 전",
-      recipeTitle: item.recipeName,
-      content: item.content,
+      createdAt: item.createdAt ?? "",
+      recipeTitle: item.recipeName ?? "",
+      content: item.content ?? "",
       ingredients: item.ingredients ?? [],
-      xp: 0,
+      xp: item.xp ?? 0,
       comments: item.comments ?? [],
     };
   }, []);
@@ -150,13 +162,13 @@ const CommunityMain = () => {
     return sorted;
   }, [allItems, matchesKeyword, searchState]);
 
-  // ✅ 카드 클릭: 내 글이면 MyPostModal / 아니면 CommunityPostModal
+  //  카드 클릭: 내 글이면 MyPostModal / 아니면 CommunityPostModal
   const handleOpenAnyPostModal = useCallback(
     (item) => {
-      const post = buildMockPost(item);
+      const post = buildPostForModal(item);
       const isMine = !!meNickname && post.author?.nickname === meNickname;
 
-      // ✅ "내 글" 모달은 편집 기능이 있으니 로그인 필요로 묶는게 안전
+      //  "내 글" 모달은 편집 기능이 있으니 로그인 필요로 묶는게 안전
       if (isMine) {
         requireLogin(() => {
           setSelectedPost(post);
@@ -166,12 +178,12 @@ const CommunityMain = () => {
         return;
       }
 
-      // ✅ 다른 사람 글 모달은 누구나 열람 가능
+      // 다른 사람 글 모달은 누구나 열람 가능
       setSelectedPost(post);
       setIsOtherPostModalOpen(true);
       setIsMyPostModalOpen(false);
     },
-    [buildMockPost, meNickname, requireLogin],
+    [buildPostForModal, meNickname, requireLogin],
   );
 
   const handleCloseModals = useCallback(() => {
@@ -180,7 +192,7 @@ const CommunityMain = () => {
     setSelectedPost(null);
   }, []);
 
-  // ✅ 쿼리스트링으로 모달 열기(postId) - 테스트용
+  //  쿼리스트링으로 모달 열기(postId) - 테스트용
   useEffect(() => {
     const postId = searchParams.get("postId");
     if (!postId) return;
@@ -201,7 +213,7 @@ const CommunityMain = () => {
       comments: [],
     };
 
-    handleOpenAnyPostModal(item); // ✅ post 말고 item을 넣어야 함
+    handleOpenAnyPostModal(item); //  post 말고 item을 넣어야 함
   }, [searchParams, meNickname, handleOpenAnyPostModal]);
 
   // ===== 댓글 등록 (로그인 필요) =====
@@ -347,7 +359,7 @@ const CommunityMain = () => {
   // ===== 트렌딩 카드 클릭 =====
   const handleTrendingCardClick = useCallback(
     (item) => {
-      handleOpenAnyPostModal(item); // ✅ 이미 item 기반으로 열도록 통일해둠
+      handleOpenAnyPostModal(item); //  이미 item 기반으로 열도록 통일해둠
     },
     [handleOpenAnyPostModal],
   );
@@ -406,7 +418,7 @@ const CommunityMain = () => {
 
       <S.Container>
         <TrendingCarousel
-          posts={posts}
+          posts={displayItems}
           onCardClick={handleTrendingCardClick}
           meNickname={meNickname}
           onLikeToggle={handleLikeToggle}
@@ -432,7 +444,7 @@ const CommunityMain = () => {
         onSubmitComment={handleSubmitComment}
         onEditComment={handleEditComment}
         onDeleteComment={handleDeleteComment}
-        // ✅ 모달 안에서 "로그인 필요한 버튼"에 쓰라고 넘겨둠 (2번에서 씀)
+        //  모달 안에서 "로그인 필요한 버튼"에 쓰라고 넘겨둠 (2번에서 씀)
         requireLogin={requireLogin}
         isAuthenticated={isAuthenticated}
       />
@@ -454,7 +466,7 @@ const CommunityMain = () => {
 
       <FloatingActions targetId="community-top" />
 
-      {/* ✅ 로그인 요구 모달 */}
+      {/*  로그인 요구 모달 */}
       <LoginRequireModal
         open={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
