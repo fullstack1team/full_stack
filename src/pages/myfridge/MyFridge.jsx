@@ -5,29 +5,15 @@ import IngredientList from "../../components/myfridgecomponents/IngredientList";
 import AddIngredientDetailModal from "../../components/myfridgecomponents/AddIngredientDetailModal";
 import S from "./style";
 
-/**
- * 재료 원본 데이터(단일 소스)
- */
-const BASE_INGREDIENTS = [
-  { id: 1, name: "돼지고기", category: "육류", icon: "🥩" },
-  { id: 2, name: "소고기", category: "육류", icon: "🥩" },
-  { id: 3, name: "항정살", category: "육류", icon: "🥩" },
-
-  { id: 11, name: "당근", category: "채소", icon: "🥕" },
-  { id: 12, name: "양파", category: "채소", icon: "🧅" },
-  { id: 13, name: "상추", category: "채소", icon: "🥬" },
-
-  { id: 21, name: "연어", category: "해산물", icon: "🐟" },
-  { id: 22, name: "새우", category: "해산물", icon: "🦐" },
-
-  { id: 31, name: "우유", category: "유제품", icon: "🥛" },
-  { id: 32, name: "치즈", category: "유제품", icon: "🧀" },
-
-  { id: 41, name: "햄", category: "가공품", icon: "🥓" },
-  { id: 42, name: "참치캔", category: "가공품", icon: "🥫" },
-
-  { id: 51, name: "계란", category: "기타", icon: "🥚" },
-];
+/* ✅ 카테고리 → 아이콘 매핑 */
+const CATEGORY_ICONS = {
+  채소: "🥕",
+  육류: "🥩",
+  해산물: "🐟",
+  유제품: "🥛",
+  가공품: "🥓",
+  기타: "🥚",
+};
 
 const CATEGORIES = [
   "전체",
@@ -51,6 +37,7 @@ const MyFridge = () => {
 
   const [editItem, setEditItem] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+
   const toggleSelected = (fridgeId) => {
     setSelectedIds((prev) =>
       prev.includes(fridgeId)
@@ -59,26 +46,19 @@ const MyFridge = () => {
     );
   };
 
+  /* ✅ 재료 추가 (아이콘 자동 포함) */
   const handleAddIngredients = (newItems) => {
     const now = new Date();
 
-    const completed = newItems
-      .map((x) => {
-        const base = BASE_INGREDIENTS.find((b) => b.id === x.baseId);
-        if (!base) return null;
-
-        return {
-          fridgeId: Date.now() + Math.random(),
-          baseId: base.id,
-          name: base.name,
-          category: base.category,
-          icon: base.icon,
-          quantity: x.quantity === "" ? 0 : Number(x.quantity),
-          expiredAt: x.expiredAt || "",
-          createdAt: now.toISOString(),
-        };
-      })
-      .filter(Boolean);
+    const completed = newItems.map((x) => ({
+      fridgeId: Date.now() + Math.random(),
+      name: x.name,
+      category: x.category,
+      icon: CATEGORY_ICONS[x.category] || "📦",
+      quantity: x.quantity === "" ? 0 : Number(x.quantity),
+      expiredAt: x.expiredAt || "",
+      createdAt: now.toISOString(),
+    }));
 
     setIngredients((prev) => [...prev, ...completed]);
   };
@@ -160,7 +140,6 @@ const MyFridge = () => {
       </S.FridgeHeaderSection>
 
       <S.MyFridgeContainer>
-        {/* ✅ 재료가 있을 때 배너 표시 */}
         {ingredients.length > 0 && (
           <S.RecommendBanner>
             <S.BannerBackground>
@@ -192,7 +171,6 @@ const MyFridge = () => {
 
         {isAddOpen && (
           <AddIngredientDetailModal
-            baseIngredients={BASE_INGREDIENTS}
             onClose={() => setIsAddOpen(false)}
             onSubmit={handleAddIngredients}
           />
