@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams, Link } from "react-router-dom";
 import S from "./recommendrecipe.style";
 
@@ -6,145 +6,187 @@ const RecommendRecipe = () => {
   const { foodId } = useParams();
   const location = useLocation();
 
-  const recipe = location.state?.recipe || {
-    id: Number(foodId),
-    title: "얼큰한 김치찌개",
-    desc: "몸을 따뜻하게 해주는 영양만점 계란참치죽\n간단한 재료로 빠르게 만들 수 있어요.",
-    rating: 4.8,
-    xp: 350,
-    cookTimeMin: 10,
-    level: "쉬움",
-    category: "국",
-    imageUrl: "/assets/images/kimchi_soup.png",
+  const [recipe, setRecipe] = useState(null);
+
+  // =========================
+  // 데이터 로딩 (핵심 수정)
+  // =========================
+  useEffect(() => {
+    if (location.state?.recipe) {
+      setRecipe(location.state.recipe);
+    } else {
+      fetch(`http://localhost:10000/fridge/recommend/1`)
+        .then((res) => res.json())
+        .then((data) => {
+          setRecipe(data);
+        })
+        .catch(() => {
+          setRecipe(null);
+        });
+    }
+  }, [location.state]);
+
+  // =========================
+  // 로딩 처리
+  // =========================
+  if (!recipe) return <div style={{ padding: 40 }}>로딩중...</div>;
+
+  const {
+    title,
+    desc,
+    ingredients = [],
+    image,
+    rating = 4.5,
+    xp = 300,
+    cookTimeMin = 10,
+    level = "쉬움",
+    category = "한식",
+  } = recipe;
+
+  // =========================
+  // Step 분리
+  // =========================
+  const steps =
+    recipe.steps && recipe.steps.length > 0
+      ? recipe.steps
+      : desc?.split(/\d+\.\s/).filter((s) => s.trim() !== "") || [];
+
+  // =========================
+  // 재료 분류
+  // =========================
+  const classifyIngredients = (ingredients) => {
+    const result = {
+      main: [],
+      sub: [],
+      sauce: [],
+    };
+
+    ingredients.forEach((item) => {
+      let name, category;
+
+      // 문자열 fallback 대응
+      if (typeof item === "string") {
+        name = item;
+
+        if (item.includes("고기") || item.includes("삼겹살")) {
+          category = "육류";
+        } else if (item.includes("오징어") || item.includes("새우")) {
+          category = "해산물";
+        } else if (
+          item.includes("양파") ||
+          item.includes("마늘") ||
+          item.includes("김치") ||
+          item.includes("버섯")
+        ) {
+          category = "채소";
+        } else {
+          category = "가공품";
+        }
+      } else {
+        name = item.name;
+        category = item.category;
+      }
+
+      if (category === "육류" || category === "해산물") {
+        result.main.push(name);
+      } else if (category === "채소" || category === "유제품") {
+        result.sub.push(name);
+      } else {
+        result.sauce.push(name);
+      }
+    });
+
+    return result;
   };
 
-  /* =========================
-     재료 데이터 (조건부 렌더링용)
-  ========================== */
+  const classified = classifyIngredients(ingredients);
 
-  const ingredients = {
-    main: [
-      { name: "밥 1공기", hasIngredient: true },
-      { name: "참치 1캔", hasIngredient: true },
-      { name: "계란 2개", hasIngredient: true },
-    ],
-    sub: [
-      { name: "대파 1개", hasIngredient: false },
-      { name: "양파 1개", hasIngredient: false },
-    ],
-    sauce: [
-      { name: "참기름 1/2큰술", hasIngredient: true },
-      { name: "소금 약간", hasIngredient: false },
-    ],
-  };
+  console.log("recipe:", recipe);
+console.log("ingredients:", ingredients);
 
   return (
     <S.Page>
-      {/* ================= Hero ================= */}
+      {/* Hero */}
       <S.Hero>
-        <S.HeroImage src={recipe.imageUrl} />
-        <S.HeroOverlay>
-          <S.HeroInner>
-            <S.Title>{recipe.title}</S.Title>
-
-            <S.Description>
-              {recipe.desc.split("\n").map((line, i) => (
-                <span key={i}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </S.Description>
-
-            <S.MetaRow>
-              <S.RatingBadge>⭐ {recipe.rating}</S.RatingBadge>
-
-              <S.XpBadge>XP {recipe.xp}</S.XpBadge>
-            </S.MetaRow>
-          </S.HeroInner>
-        </S.HeroOverlay>
+        <S.HeroImage src={image} />
       </S.Hero>
 
-      {/* ================= Content ================= */}
       <S.Container>
+        <S.Title style={{ marginTop: "20px" }}>{title}</S.Title>
+
+        <S.MetaRow style={{ marginBottom: "20px" }}>
+          <S.RatingBadge>⭐ {rating}</S.RatingBadge>
+          <S.XpBadge>XP {xp}</S.XpBadge>
+        </S.MetaRow>
+
         <S.TagRow>
-          <S.Tag>{recipe.cookTimeMin}분</S.Tag>
-          <S.Tag>{recipe.level}</S.Tag>
-          <S.Tag>{recipe.category}</S.Tag>
+          <S.Tag>{cookTimeMin}분</S.Tag>
+          <S.Tag>{level}</S.Tag>
+          <S.Tag>{category}</S.Tag>
         </S.TagRow>
 
+        {/* =========================
+            재료
+        ========================= */}
         <S.SectionTitle>재료</S.SectionTitle>
 
         <S.IngredientGrid>
           {/* 주재료 */}
           <S.IngredientCard>
             <S.CardTitle>주재료</S.CardTitle>
-            {ingredients.main.map((item) => (
-              <S.IngredientItem key={item.name}>
-                <S.IngredientIcon
-                  src={
-                    item.hasIngredient
-                      ? "/assets/icons/thick_check.png"
-                      : "/assets/icons/thick_check_orange.png"
-                  }
-                />
-                <S.IngredientText>{item.name}</S.IngredientText>
-              </S.IngredientItem>
-            ))}
+            {classified.main.length > 0 ? (
+              classified.main.map((item, i) => (
+                <S.IngredientItem key={i}>• {item}</S.IngredientItem>
+              ))
+            ) : (
+              <S.EmptyText>재료 없음</S.EmptyText>
+            )}
           </S.IngredientCard>
 
           {/* 부재료 */}
           <S.IngredientCard>
             <S.CardTitle>부재료</S.CardTitle>
-            {ingredients.sub.map((item) => (
-              <S.IngredientItem key={item.name}>
-                <S.IngredientIcon
-                  src={
-                    item.hasIngredient
-                      ? "/assets/icons/thick_check.png"
-                      : "/assets/icons/thick_check_orange.png"
-                  }
-                />
-                <S.IngredientText>{item.name}</S.IngredientText>
-              </S.IngredientItem>
-            ))}
+            {classified.sub.length > 0 ? (
+              classified.sub.map((item, i) => (
+                <S.IngredientItem key={i}>• {item}</S.IngredientItem>
+              ))
+            ) : (
+              <S.EmptyText>재료 없음</S.EmptyText>
+            )}
           </S.IngredientCard>
 
-          {/* 양념 */}
+          {/* 조미료 */}
           <S.IngredientCard>
-            <S.CardTitle>양념</S.CardTitle>
-            {ingredients.sauce.map((item) => (
-              <S.IngredientItem key={item.name}>
-                <S.IngredientIcon
-                  src={
-                    item.hasIngredient
-                      ? "/assets/icons/thick_check.png"
-                      : "/assets/icons/thick_check_orange.png"
-                  }
-                />
-                <S.IngredientText>{item.name}</S.IngredientText>
-              </S.IngredientItem>
-            ))}
+            <S.CardTitle>조미료</S.CardTitle>
+            {classified.sauce.length > 0 ? (
+              classified.sauce.map((item, i) => (
+                <S.IngredientItem key={i}>• {item}</S.IngredientItem>
+              ))
+            ) : (
+              <S.EmptyText>재료 없음</S.EmptyText>
+            )}
           </S.IngredientCard>
         </S.IngredientGrid>
 
-        {/* ================= Steps ================= */}
+        {/* =========================
+            Steps
+        ========================= */}
         <S.StepTitle>만드는 방법</S.StepTitle>
 
         <S.StepGrid>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-            <S.StepCard key={num}>
-              <S.StepNumber>{num}</S.StepNumber>
-              <S.StepImage src="/assets/images/kimchi_soup.png" />
+          {steps.map((step, index) => (
+            <S.StepCard key={index}>
+              <S.StepNumber>{index + 1}</S.StepNumber>
+
               <S.StepContent>
-                <b>Step {num}. 재료 손질하기</b>
-                <p>이제 재료를 꺼내서 요리할 준비를 해주세요.</p>
+                <b>Step {index + 1}</b>
+                <p>{step}</p>
               </S.StepContent>
             </S.StepCard>
           ))}
         </S.StepGrid>
 
-        {/* ================= Button ================= */}
+        {/* 버튼 */}
         <S.ButtonRow>
           <Link to="../foodcomplete">
             <S.PrimaryButton>

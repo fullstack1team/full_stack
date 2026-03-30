@@ -237,4 +237,154 @@ S.PrimaryButton = styled.button`
   }
 `;
 
+/* ===================================================
+   RecommendRecipe 전용
+=================================================== */
+
+/* Hero 이미지 */
+S.Hero = styled.section`
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+`;
+
+S.HeroImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+/* 제목 + 메타 */
+S.MetaRow = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+S.RatingBadge = styled.div`
+  padding: 6px 10px;
+  background: #fff3e0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+`;
+
+S.XpBadge = styled.div`
+  padding: 6px 10px;
+  background: #e0f2f1;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+`;
+
+/* 태그 */
+S.TagRow = styled.div`
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 30px;
+`;
+
+S.Tag = styled.div`
+  padding: 6px 12px;
+  background: ${({ theme }) => theme.PALLETE.gray[100]};
+  border-radius: 8px;
+  font-size: 13px;
+`;
+
+/* ================= 재료 ================= */
+
+S.IngredientGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+`;
+
+S.IngredientCard = styled.div`
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 140px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+`;
+
+S.CardTitle = styled.h4`
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+`;
+
+S.IngredientItem = styled.div`
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #333;
+`;
+
+S.EmptyText = styled.p`
+  color: #aaa;
+  font-size: 13px;
+  margin-top: 10px;
+`;
+
+/* ================= Step ================= */
+
+S.StepTitle = styled.h3`
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+`;
+
+S.StepGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+`;
+
+S.StepCard = styled.div`
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+`;
+
+S.StepNumber = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #ff4d37;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+`;
+
+S.StepContent = styled.div`
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+`;
+
+/* ================= 버튼 ================= */
+
+S.ButtonRow = styled.div`
+  text-align: center;
+  margin-top: 40px;
+`;
+
+S.PrimaryButton = styled.button`
+  padding: 14px 40px;
+  border-radius: 8px;
+  background: #ff4d37;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: #e63e2e;
+  }
+`;
+
 export default S;
