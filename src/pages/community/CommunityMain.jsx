@@ -25,10 +25,10 @@ const CommunityMain = () => {
   // console.log("displayItems:", displayItems);
   // }, [fetchPosts])
 
-  const { user, isAuthenticated } = useAuthStore();
+  const { member, isAuthenticated } = useAuthStore();
 
   //  로그인 유저 닉네임(없으면 게스트)
-  const meNickname = user?.nickname || "";
+  const meNickname = member?.memberName  || "";
 
   //  로그인 요구 모달
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -36,15 +36,16 @@ const CommunityMain = () => {
   //  "로그인 필요 행동" 공통 래퍼
   const requireLogin = useCallback(
     (action) => {
-      if (!isAuthenticated || !user) {
+      if (!isAuthenticated || !member) {
         setLoginModalOpen(true);
         return false;
       }
       action?.();
       return true;
     },
-    [isAuthenticated, user],
+    [isAuthenticated, member],
   );
+
 
   // 게시글 fetch
   useEffect(() => {
@@ -142,9 +143,23 @@ const CommunityMain = () => {
     return hay.includes(q);
   }, []);
 
+  const [likedMap, setLikedMap] = useState({});
+
   // 정렬 + 필터된 결과
   const displayItems = useMemo(() => {
-    const filtered = allItems.filter((it) =>
+    const merged = allItems.map((item) => {
+      const likedState = likedMap[item.id]
+
+      if(!likedState) return item
+
+      return {
+        ...item,
+        likes: likedState.likeCount,
+        isLiked: likedState.liked,
+      }
+    })
+
+    const filtered = merged.filter((it) =>
       matchesKeyword(it, searchState.keyword),
     );
 
@@ -160,7 +175,7 @@ const CommunityMain = () => {
     }
 
     return sorted;
-  }, [allItems, matchesKeyword, searchState]);
+  }, [allItems, likedMap, matchesKeyword, searchState]);
 
   //  카드 클릭: 내 글이면 MyPostModal / 아니면 CommunityPostModal
   const handleOpenAnyPostModal = useCallback(
@@ -366,10 +381,25 @@ const CommunityMain = () => {
 
   // 좋아요 클릭시, 로그인 가드 걸기
   const handleLikeToggle = useCallback(
-    (item, doToggle) => {
+    (item) => {
       requireLogin(() => {
-        // 여기서 실제 서버 호출 자리(나중에) 가능
-        doToggle?.();
+        setLikedMap((prev) => {
+          const current = prev[item.id] ?? {
+            liked: item.isLiked ?? false,
+            likeCount: item.likes ?? 0,
+          }
+
+          const nextLiked = !current.liked
+          const nextLikeCount = current.likeCount + (nextLiked ? 1 : -1)
+
+          return {
+            ...prev,
+            [item.id]: {
+              liked: nextLiked,
+              likeCount: nextLikeCount,
+            }
+          }
+        })
       });
     },
     [requireLogin],

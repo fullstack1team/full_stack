@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import * as S from "../../pages/community/style";
 
 /**
@@ -20,26 +20,12 @@ const PostCard = ({
   allItems = [],
   onLikeToggle,
 }) => {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(item?.likes ?? 0);
+  const liked = item?.isLiked ?? false
+  const likeCount = item?.likes ?? 0
 
   const handleLikeToggle = (e) => {
     e.stopPropagation();
-
-    if (onLikeToggle) {
-      onLikeToggle(item, () => {
-        setLiked((prev) => {
-          setLikeCount((c) => (prev ? c - 1 : c + 1));
-          return !prev;
-        });
-      });
-      return;
-    }
-
-    setLiked((prev) => {
-      setLikeCount((c) => (prev ? c - 1 : c + 1));
-      return !prev;
-    });
+    onLikeToggle?.(item);
   };
 
   // ===== 기본 데이터 =====
