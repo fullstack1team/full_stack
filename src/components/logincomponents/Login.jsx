@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import S from "./style";
 
 const Login = () => {
-  const { setIsAuthenticated } = useAuthStore();
+  const { setIsAuthenticated, setMember } = useAuthStore();
   const navigate = useNavigate();
 
   const {
@@ -37,9 +37,10 @@ const Login = () => {
     mutationFn: login,
     onSuccess: (res) => {
       // 로그인 성공
+      setMember(res.data);
       setIsAuthenticated(true);
       navigate("/", { replace: true });
-      console.log(res);
+      console.log(res.data);
     },
     onError: (error) => {
       console.log(error);
@@ -68,10 +69,10 @@ const Login = () => {
             })}
           />
           {errors?.memberEmail?.type === "required" && (
-            <S.ConfrimMessage>이메일을 입력해주세요</S.ConfrimMessage>
+            <S.ConfirmMessage>이메일을 입력해주세요.</S.ConfirmMessage>
           )}
           {errors?.memberEmail?.type === "pattern" && (
-            <S.ConfrimMessage>이메일 양식에 맞게 입력해주세요</S.ConfrimMessage>
+            <S.ConfirmMessage>이메일 양식에 맞게 입력해주세요.</S.ConfirmMessage>
           )}
         </S.Label>
 
@@ -88,12 +89,12 @@ const Login = () => {
             })}
           />
           {errors?.memberPassword?.type === "required" && (
-            <S.ConfrimMessage>비밀번호를 입력해주세요</S.ConfrimMessage>
+            <S.ConfirmMessage>비밀번호를 입력해주세요.</S.ConfirmMessage>
               )}
           {errors?.memberPassword?.type === "pattern" && (
-            <S.ConfrimMessage>
+            <S.ConfirmMessage>
               소문자, 숫자, 특수문자를 각 하나 포함한 8자리 이상이여야 합니다.
-            </S.ConfrimMessage>
+            </S.ConfirmMessage>
           )}
         </S.Label>
 

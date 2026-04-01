@@ -8,10 +8,11 @@ const S = {};
 S.Form = styled.form`
   /* border:solid 1px; */
   width: 90%;
+  max-width: 450px;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin: 15px;
+  margin: 0 auto;
   ${FONT_STYLE.PRETENDARD.H7_MEDIUM};
 `;
 
@@ -38,8 +39,9 @@ S.Button = styled.button`
   margin: 10px 0 5px 0;
 `;
 
-S.ConfrimMessage = styled.p`
+S.ConfirmMessage = styled.p`
   color: ${theme.PALLETE.primary.main};
+  min-height: 20px;
 `;
 
 S.Fieldset = styled.fieldset`

@@ -183,10 +183,10 @@ S.LayoutCategoryTab = styled.button`
   font-size: 15.8px;
   font-weight: 500;
   cursor: pointer;
-  background-color: ${({ active }) =>
-    active ? "#FF6B4A" : "#E0E0E0"};
-  color: ${({ active }) =>
-    active ? "#FFFFFF" : "#777777"};
+  background-color: ${({ $active }) =>
+    $active ? "#FF6B4A" : "#E0E0E0"};
+  color: ${({ $active }) =>
+    $active ? "#FFFFFF" : "#777777"};
 `;
 
 S.TopInfoRow = styled.div`
@@ -235,7 +235,7 @@ S.CardStyle = styled.div`
   background-color: #fff;
   box-sizing: border-box;
   border: 2px solid
-    ${({ active }) => (active ? "#FF4E37" : "#E9E9EC")};
+    ${({ $active }) => ($active ? "#FF4E37" : "#E9E9EC")};
 
   cursor: ${({ deleteMode }) => deleteMode ? "pointer" : "default"};
 
@@ -262,7 +262,7 @@ S.DeleteBadge = styled.div`
   height: 20px;
   border-radius: 50%;
   border: 2px solid #FF4E37;
-  background-color: ${({ active }) => active ? "#FF4E37" : "#fff"};
+  background-color: ${({ $active }) => $active ? "#FF4E37" : "#fff"};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -323,10 +323,10 @@ S.CategoryTab = styled.button`
   height: 64px;
   border: none;
   ${flexCenter}
-  background-color: ${({ active }) =>
-    active ? "#FFFFFF" : "#DDDDDD"};
-  color: ${({ active }) =>
-    active ? "#FF4E37" : "#898989"};
+  background-color: ${({ $active }) =>
+    $active ? "#FFFFFF" : "#DDDDDD"};
+  color: ${({ $active }) =>
+    $active ? "#FF4E37" : "#898989"};
   font-size: ${({ theme }) => theme.FONT_SIZE.h6};
   font-weight: ${({ theme }) =>
     theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
