@@ -161,7 +161,7 @@ const updateItem = async (item) => {
               {CATEGORIES.map((cat) => (
                 <S.LayoutCategoryTab
                   key={cat}
-                  active={activeCategory === cat}
+                  $active={activeCategory === cat}
                   onClick={() => setActiveCategory(cat)}
                 >
                   {cat}
