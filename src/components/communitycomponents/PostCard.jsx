@@ -12,6 +12,49 @@ const NEW_DAYS = 3;
 const POPULAR_DAYS = 30;
 const POPULAR_TOP_N = 8;
 
+ // ===== 날짜 파싱 헬퍼 =====
+  const parseDate = (v) => {
+    if (!v) return null;
+
+    if (typeof v === "string") {
+      const normalized = v.replace(/\./g, "-").replace(/\s+/g, "").slice(0, 10);
+      const d1 = new Date(v);
+      if (!Number.isNaN(d1.getTime())) return d1;
+
+      const d2 = new Date(normalized);
+      if (!Number.isNaN(d2.getTime())) return d2;
+    }
+
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  };
+
+  //  날짜 짧게 가공 (닉네임 안 보이던 문제 해결 핵심)
+  const getRelativeTime = (date) => {
+  const now = new Date();
+  const target = new Date(date);
+
+  const diff = (now - target) / 1000;
+
+  if (diff < 60) return "방금 전";
+
+  const minutes = Math.floor(diff / 60);
+  if (minutes < 60) return `${minutes}분 전`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}일 전`;
+
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}달 전`;
+
+  const years = Math.floor(months / 12);
+  return `${years}년 전`;
+};
+
 const PostCard = ({
   item,
   w,
@@ -40,18 +83,12 @@ const PostCard = ({
   const level = item?.level ?? 1;
   const xp = item?.xp ?? 0;
 
-  //  날짜 짧게 가공 (닉네임 안 보이던 문제 해결 핵심)
+  
+
   const createdAtText = useMemo(() => {
-    const v = item?.createdAt;
-    if (!v) return "방금 전";
-
-    const s = String(v);
-
-    // ISO 포맷: 2026-02-28T13:21:08.367Z → 2026-02-28
-    if (s.includes("T")) return s.slice(0, 10);
-
-    // 기타 문자열도 너무 길면 앞 10자만
-    return s.length > 10 ? s.slice(0, 10) : s;
+    const d = parseDate(item?.createdAt)
+    if(!d) return "방금 전"
+    return getRelativeTime(d)
   }, [item?.createdAt]);
 
   const desc =
@@ -72,24 +109,6 @@ const PostCard = ({
     const author = String(nickname ?? "").trim();
     return !!me && !!author && me === author;
   }, [meNickname, nickname]);
-
-  // ===== 날짜 파싱 헬퍼 =====
-  const parseDate = (v) => {
-    if (!v) return null;
-
-    if (typeof v === "string") {
-      const normalized = v.replace(/\./g, "-").replace(/\s+/g, "").slice(0, 10);
-      const d1 = new Date(v);
-      if (!Number.isNaN(d1.getTime())) return d1;
-
-      const d2 = new Date(normalized);
-      if (!Number.isNaN(d2.getTime())) return d2;
-    }
-
-    const d = new Date(v);
-    if (Number.isNaN(d.getTime())) return null;
-    return d;
-  };
 
   // 🔥 NEW 배지
   const isNew = useMemo(() => {
@@ -141,8 +160,8 @@ const PostCard = ({
       <S.CardContentArea>
         <S.CardTitleRow>
           <S.CardTitleLeft>
-            <S.ProfileImg src={profileImage} alt="유저 프로필" />
             <S.CardTitle>{recipeName}</S.CardTitle>
+            <S.CardDateText>{createdAtText}</S.CardDateText>
           </S.CardTitleLeft>
 
           <S.CardLikeArea onClick={handleLikeToggle}>
@@ -155,6 +174,7 @@ const PostCard = ({
 
         <S.CardMetaRow>
           <S.MetaLeft>
+            <S.ProfileImg src={profileImage} alt="유저 프로필" />
             <S.UserNickName $mine={isMine}>{nickname}</S.UserNickName>
           </S.MetaLeft>
 
@@ -166,12 +186,10 @@ const PostCard = ({
             <S.BadgeChip2>XP {xp}</S.BadgeChip2>
           </S.MetaCenter>
 
-          <S.MetaRight>
-            <S.CardDateText>{createdAtText}</S.CardDateText>
-          </S.MetaRight>
+          
         </S.CardMetaRow>
 
-        {ingredientsText && <S.CardDesc>{ingredientsText}</S.CardDesc>}
+        {ingredientsText && (<S.CardDesc>{ingredientsText}</S.CardDesc>)}
         <S.CardDesc>{desc}</S.CardDesc>
       </S.CardContentArea>
     </S.CarouselCard>
