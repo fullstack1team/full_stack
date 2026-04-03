@@ -80,7 +80,7 @@ const MyFridge = () => {
     );
   };
 
-  /* ------------------ 🔥 추가 ------------------ */
+  /* ------------------ 추가 ------------------ */
   const addIngredient = async (items) => {
     const item = items[0];
 
