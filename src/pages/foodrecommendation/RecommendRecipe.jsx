@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, Link } from "react-router-dom";
 import S from "./recommendrecipe.style";
+import { useNavigate } from "react-router-dom";
 
 const RecommendRecipe = () => {
   const { foodId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [recipe, setRecipe] = useState(null);
 
@@ -31,62 +33,63 @@ const RecommendRecipe = () => {
   // =========================
   if (!recipe) return <div style={{ padding: 40 }}>로딩중...</div>;
 
-const {
-  title,
-  recipe: desc,
-  ingredients = [],
-  image,
-  rating = 4.5,
-  xp = 300,
-  cookTimeMin = 10,
-  level = "쉬움",
-  category = "한식",
-} = recipe;
+  const {
+    title,
+    recipe: desc,
+    ingredients = [],
+    rating = 4.5,
+    xp = 300,
+    cookTimeMin = 10,
+    level = "쉬움",
+    category = "한식",
+  } = recipe;
 
-console.log("recipe 전체:", recipe);
-console.log("ingredients:", ingredients);
+  const imageUrl = recipe.image || recipe.imageUrl;
+
+  console.log("recipe 전체:", recipe);
+  console.log("ingredients:", ingredients);
 
   // =========================
   // Step 분리
   // =========================
-const steps =
-  recipe.steps?.length > 0
-    ? recipe.steps
-    : recipe.recipe?.split(/\d+\.\s/).filter((s) => s.trim() !== "");
+  const steps =
+    recipe.steps?.length > 0
+      ? recipe.steps
+      : recipe.recipe?.split(/\d+\.\s/).filter((s) => s.trim() !== "");
 
   // =========================
   // 재료 분류
   // =========================
-const classifyIngredients = (ingredients) => {
-  const result = {
-    main: [],
-    sub: [],
+  const classifyIngredients = (ingredients) => {
+    const result = {
+      main: [],
+      sub: [],
+    };
+
+    ingredients.forEach((item) => {
+      const name = item.name || item;
+      const category = item.category;
+
+      if (["육류", "해산물", "채소"].includes(category)) {
+        result.main.push(name);
+      } else {
+        result.sub.push(name);
+      }
+    });
+
+    return result;
   };
-
-  ingredients.forEach((item) => {
-    const name = item.name || item;
-    const category = item.category;
-
-    if (["육류", "해산물", "채소"].includes(category)) {
-      result.main.push(name);
-    } else {
-      result.sub.push(name);
-    }
-  });
-
-  return result;
-};
 
   const classified = classifyIngredients(ingredients);
 
-console.log("recipe:", recipe);
-console.log("ingredients:", ingredients);
+  console.log("recipe:", recipe);
+  console.log("ingredients:", ingredients);
 
   return (
     <S.Page>
       {/* Hero */}
       <S.Hero>
-        <S.HeroImage src={image} />
+        <S.HeroImage src={imageUrl} />
       </S.Hero>
 
       <S.Container>
@@ -132,7 +135,6 @@ console.log("ingredients:", ingredients);
               <S.EmptyText>재료 없음</S.EmptyText>
             )}
           </S.IngredientCard>
-
         </S.IngredientGrid>
 
         {/* =========================
@@ -146,7 +148,6 @@ console.log("ingredients:", ingredients);
               <S.StepNumber>{index + 1}</S.StepNumber>
 
               <S.StepContent>
-                <b>Step {index + 1}</b>
                 <p>{step}</p>
               </S.StepContent>
             </S.StepCard>
@@ -155,11 +156,15 @@ console.log("ingredients:", ingredients);
 
         {/* 버튼 */}
         <S.ButtonRow>
-          <Link to="../foodcomplete">
-            <S.PrimaryButton>
-              요리 완성 <span>›</span>
-            </S.PrimaryButton>
-          </Link>
+          <S.PrimaryButton
+            onClick={() =>
+              navigate("../foodcomplete", {
+                state: { recipe },
+              })
+            }
+          >
+            요리 완성 <span>›</span>
+          </S.PrimaryButton>
         </S.ButtonRow>
       </S.Container>
     </S.Page>

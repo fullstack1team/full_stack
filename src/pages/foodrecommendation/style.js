@@ -372,34 +372,40 @@ S.FCIngredientSectionWrap = styled.div`
 
 S.FCIngredientBox = styled.div`
   width: 1420px;
-  height: 427px;
   border: 1px solid #d9d9d9;
-  /* border-radius: 10px; */
   background: #fff;
-  padding: 32px 40px;
-  position: relative;
+  padding: 24px 32px;
 
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: 60px;
-  row-gap: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 `;
 
 S.FCIngredientItem = styled.div`
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+
+  padding: 8px 14px;
+  border-radius: 20px;
   font-size: 14px;
-  padding: 6px 8px;
-  border-radius: 4px;
   cursor: pointer;
+
   transition: all 0.2s ease;
 
   background-color: ${(props) =>
-    props.$active ? "#ff4d37" : "#ffffff"};
+    props.$active ? "#ff4d37" : "#f5f5f5"};
 
   color: ${(props) =>
-    props.$active ? "#ffffff" : "#333333"};
+    props.$active ? "#ffffff" : "#333"};
+
+  border: ${(props) =>
+    props.$active ? "none" : "1px solid #ddd"};
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
 `;
 
 S.FCCheckIcon = styled.img`
@@ -409,7 +415,6 @@ S.FCCheckIcon = styled.img`
 `;
 
 S.FCSelectedCount = styled.div`
-  position: absolute;
   bottom: 16px;
   right: 24px;
   font-size: 12px;

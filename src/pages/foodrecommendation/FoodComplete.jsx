@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import S from "./style";
 import usePostStore from "../../store/postStore";
 import useAuthStore from "../../store/authStore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const FoodComplete = () => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -15,15 +15,14 @@ const FoodComplete = () => {
   const { addPost } = usePostStore();
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef(null);
-
   const toggleItem = (index) => {
     setSelectedItems((prev) =>
       prev.includes(index) ? prev.filter((v) => v !== index) : [...prev, index],
     );
   };
 
-  // 파일 선택 핸들러
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -41,25 +40,7 @@ const FoodComplete = () => {
     };
     reader.readAsDataURL(file);
   };
-
-  const ingredientList = [
-    "밥 1공기",
-    "김치",
-    "고춧가루",
-    "대파",
-    "마늘",
-    "돼지고기",
-    "참치",
-    "두부",
-    "양파",
-    "고추장",
-    "간장",
-    "소금",
-    "후추",
-    "물",
-    "멸치육수",
-    "파슬리",
-  ];
+  const recipe = location.state?.recipe;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -67,20 +48,35 @@ const FoodComplete = () => {
         if (entry.isIntersecting) {
           setAnimatedOrange(20);
           setAnimatedBlue(90);
-          observer.disconnect(); // 한 번만 실행
+          observer.disconnect();
         }
       },
-      {
-        threshold: 0.4, // 40% 보이면 실행
-      },
+      { threshold: 0.4 },
     );
 
-    if (xpRef.current) {
-      observer.observe(xpRef.current);
-    }
-
+    if (xpRef.current) observer.observe(xpRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const ingredientList = (recipe?.ingredients || []).map((item) =>
+    typeof item === "string" ? item : item.name,
+  );
+
+  useEffect(() => {
+    if (!recipe) return; // 여기서 방어
+
+    setSelectedItems((prev) =>
+      prev.length === 0 ? ingredientList.map((_, i) => i) : prev,
+    );
+  }, [ingredientList, recipe]);
+
+  if (!recipe) {
+    return <div style={{ padding: 40 }}>레시피 데이터 없음</div>;
+  }
+
+  // 이미지
+  const imageUrl =
+    recipe.image || recipe.imageUrl || "/assets/images/default.png";
 
   // 완료 버튼 클릭
   const handleSubmit = () => {
@@ -101,7 +97,7 @@ const FoodComplete = () => {
     const newPost = {
       id: Date.now(),
 
-      recipeTitle: "얼큰한 김치찌개", // 변경
+      recipeTitle: recipe.title,
       content: review,
 
       images: [previewImage], // 배열로 변경
@@ -122,26 +118,26 @@ const FoodComplete = () => {
       comments: [],
     };
 
- addPost(newPost);
+    addPost(newPost);
 
-alert("커뮤니티에 업로드되었습니다!");
+    alert("커뮤니티에 업로드되었습니다!");
 
-// 초기화
-setReview("");
-setPreviewImage(null);
-setSelectedItems([]);
+    // 초기화
+    setReview("");
+    setPreviewImage(null);
+    setSelectedItems([]);
 
-// 내 게시글 페이지로 이동
-navigate("/myposts"); // ← 경로는 당신 프로젝트에 맞게 수정
+    // 내 게시글 페이지로 이동
+    navigate("/myposts"); // ← 경로는 당신 프로젝트에 맞게 수정
   };
 
   return (
     <S.FCPage>
       <S.FCHero>
-        <S.FCHeroImage src="/assets/images/kimchi_soup.png" alt="요리 이미지" />
+        <S.FCHeroImage src={imageUrl} />
         <S.FCHeroOverlay>
           <S.FCHeroInner>
-            <S.FCTitle>얼큰한 김치찌개</S.FCTitle>
+            <S.FCTitle>{recipe?.title}</S.FCTitle>
             <S.FCSubText>축하합니다! 요리를 완성하셨네요~!</S.FCSubText>
           </S.FCHeroInner>
         </S.FCHeroOverlay>
@@ -201,18 +197,20 @@ navigate("/myposts"); // ← 경로는 당신 프로젝트에 맞게 수정
 
           {/* 재료 체크 */}
           <S.FCSection>
+            
             <S.FCSectionTitleRow>
               <S.FCSectionIcon src="/assets/icons/product.png" />
               <S.FCSectionHeading>사용한 재료 체크</S.FCSectionHeading>
             </S.FCSectionTitleRow>
 
             <S.FCIngredientBox>
-              {Array.from({ length: 16 }).map((_, index) => {
+              {ingredientList.map((item, index) => {
                 const isActive = selectedItems.includes(index);
 
                 return (
                   <S.FCIngredientItem
                     key={index}
+                    $active={isActive}
                     onClick={() => toggleItem(index)}
                   >
                     <S.FCCheckIcon
@@ -223,15 +221,15 @@ navigate("/myposts"); // ← 경로는 당신 프로젝트에 맞게 수정
                       }
                       alt="check"
                     />
-                    밥 1공기
+                    {item}
                   </S.FCIngredientItem>
                 );
               })}
 
+            </S.FCIngredientBox>
               <S.FCSelectedCount>
                 {selectedItems.length}개 재료 선택됨
               </S.FCSelectedCount>
-            </S.FCIngredientBox>
           </S.FCSection>
 
           {/* ================= 획득한 XP ================= */}
