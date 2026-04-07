@@ -52,9 +52,9 @@ const FoodRecommendation = () => {
             {loading ? (
               <div>🍳 레시피 생성 중...</div>
             ) : (
-              recipes.map((item) => (
+              recipes.map((item, index) => (
                 <MyRecipeCard
-                  key={item.id}
+                  key={index}
                   item={item}
                   onClick={() => handleClickCard(item)}
                 />
