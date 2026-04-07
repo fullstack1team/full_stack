@@ -13,7 +13,7 @@ const FoodRecommendation = () => {
       try {
         setLoading(true);
 
-        const res = await fetch("http://localhost:10000/fridge/recommend", {
+        const res = await fetch("http://localhost:10000/fridge/recommend/", {
           credentials: "include",
         });
         const data = await res.json();
@@ -55,11 +55,7 @@ const FoodRecommendation = () => {
               recipes.map((item) => (
                 <MyRecipeCard
                   key={item.id}
-                  item={{
-                    ...item,
-                    desc: item.recipe, // 카드용
-                    imageUrl: item.image, // 카드용
-                  }}
+                  item={item}
                   onClick={() => handleClickCard(item)}
                 />
               ))
