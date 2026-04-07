@@ -47,7 +47,7 @@ const AddIngredientDetailModal = ({ onClose, onSubmit }) => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              {Object.keys(CATEGORY_ICONS.map ? {} : CATEGORY_ICONS).map((cat) => (
+              {Object.keys(CATEGORY_ICONS).map((cat) => (
                 <option key={cat}>{cat}</option>
               ))}
             </select>

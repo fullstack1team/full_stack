@@ -5,12 +5,12 @@ import * as S from "./style";
 const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
   const {
     title,
-    desc,
+    recipe,
     rating,
     xp,
     cookTimeMin,
     missingIngredients,
-    imageUrl,
+    image,
     saved,
   } = item;
 
@@ -68,7 +68,7 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
       aria-label={`${title} 상세 보기`}
     >
       <S.ThumbArea>
-        <S.ThumbImg src={imageUrl} alt={title} loading="lazy" />
+        <S.ThumbImg src={image} alt={title} loading="lazy" />
 
         {/* 아이콘 자체가 버튼 + key로 애니메이션 리셋 */}
         <S.BookmarkIcon
@@ -87,7 +87,7 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
       <S.Body>
         <S.Title title={title}>{title}</S.Title>
 
-        {desc && <S.Desc title={desc}>{desc}</S.Desc>}
+        {recipe && <S.Desc title={recipe}>{recipe}</S.Desc>}
 
         <S.BadgeRow>
           <S.Badge className="star">
@@ -98,15 +98,15 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
               width="16"
               height="16"
             />
-            {Number(rating).toFixed(1)}
+            {rating ? Number(rating).toFixed(1) : "4.5"}
 
           </S.Badge>
 
-          <S.Badge className="xp">XP {xp}</S.Badge>
+          <S.Badge className="xp">XP {xp || 300}</S.Badge>
         </S.BadgeRow>
 
         <S.MetaRow>
-          <S.MetaChip>{`조리시간 | ${cookTimeMin}분`}</S.MetaChip>
+          <S.MetaChip>{`조리시간 | ${cookTimeMin || 10}분`}</S.MetaChip>
           <S.MetaChip>{`부족한 재료 | ${missingText}`}</S.MetaChip>
         </S.MetaRow>
       </S.Body>

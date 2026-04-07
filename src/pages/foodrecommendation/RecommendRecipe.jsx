@@ -31,77 +31,55 @@ const RecommendRecipe = () => {
   // =========================
   if (!recipe) return <div style={{ padding: 40 }}>로딩중...</div>;
 
-  const {
-    title,
-    desc,
-    ingredients = [],
-    image,
-    rating = 4.5,
-    xp = 300,
-    cookTimeMin = 10,
-    level = "쉬움",
-    category = "한식",
-  } = recipe;
+const {
+  title,
+  recipe: desc,
+  ingredients = [],
+  image,
+  rating = 4.5,
+  xp = 300,
+  cookTimeMin = 10,
+  level = "쉬움",
+  category = "한식",
+} = recipe;
+
+console.log("recipe 전체:", recipe);
+console.log("ingredients:", ingredients);
 
   // =========================
   // Step 분리
   // =========================
-  const steps =
-    recipe.steps && recipe.steps.length > 0
-      ? recipe.steps
-      : desc?.split(/\d+\.\s/).filter((s) => s.trim() !== "") || [];
+const steps =
+  recipe.steps?.length > 0
+    ? recipe.steps
+    : recipe.recipe?.split(/\d+\.\s/).filter((s) => s.trim() !== "");
 
   // =========================
   // 재료 분류
   // =========================
-  const classifyIngredients = (ingredients) => {
-    const result = {
-      main: [],
-      sub: [],
-      sauce: [],
-    };
-
-    ingredients.forEach((item) => {
-      let name, category;
-
-      // 문자열 fallback 대응
-      if (typeof item === "string") {
-        name = item;
-
-        if (item.includes("고기") || item.includes("삼겹살")) {
-          category = "육류";
-        } else if (item.includes("오징어") || item.includes("새우")) {
-          category = "해산물";
-        } else if (
-          item.includes("양파") ||
-          item.includes("마늘") ||
-          item.includes("김치") ||
-          item.includes("버섯")
-        ) {
-          category = "채소";
-        } else {
-          category = "가공품";
-        }
-      } else {
-        name = item.name;
-        category = item.category;
-      }
-
-      if (category === "육류" || category === "해산물") {
-        result.main.push(name);
-      } else if (category === "채소" || category === "유제품") {
-        result.sub.push(name);
-      } else {
-        result.sauce.push(name);
-      }
-    });
-
-    return result;
+const classifyIngredients = (ingredients) => {
+  const result = {
+    main: [],
+    sub: [],
   };
+
+  ingredients.forEach((item) => {
+    const name = item.name || item;
+    const category = item.category;
+
+    if (["육류", "해산물", "채소"].includes(category)) {
+      result.main.push(name);
+    } else {
+      result.sub.push(name);
+    }
+  });
+
+  return result;
+};
 
   const classified = classifyIngredients(ingredients);
 
-  console.log("recipe:", recipe);
+console.log("recipe:", recipe);
 console.log("ingredients:", ingredients);
 
   return (
@@ -155,17 +133,6 @@ console.log("ingredients:", ingredients);
             )}
           </S.IngredientCard>
 
-          {/* 조미료 */}
-          <S.IngredientCard>
-            <S.CardTitle>조미료</S.CardTitle>
-            {classified.sauce.length > 0 ? (
-              classified.sauce.map((item, i) => (
-                <S.IngredientItem key={i}>• {item}</S.IngredientItem>
-              ))
-            ) : (
-              <S.EmptyText>재료 없음</S.EmptyText>
-            )}
-          </S.IngredientCard>
         </S.IngredientGrid>
 
         {/* =========================
