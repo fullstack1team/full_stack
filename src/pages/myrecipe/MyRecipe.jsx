@@ -188,23 +188,25 @@ const MOCK_SAVED_RECIPES = [
   },
 ];
 
+
+
 const MyRecipe = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { member, isAuthenticated } = useAuthStore();
 
-  const isLoggedIn = !!isAuthenticated && !!user;
+  const isLoggedIn = Boolean(isAuthenticated && member?.id)
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const requireLogin = useCallback(
     (action) => {
-      if (!isAuthenticated || !user) {
+      if (!isAuthenticated || !member) {
         setLoginModalOpen(true);
         return false;
       }
       action?.();
       return true;
     },
-    [isAuthenticated, user],
+    [isAuthenticated, member],
   );
 
   const [keyword, setKeyword] = useState("");
@@ -299,6 +301,11 @@ const MyRecipe = () => {
   );
 
   const isSearching = keyword.trim().length > 0;
+
+  const auth = useAuthStore();
+console.log("auth store 전체:", auth);
+console.log("member:", auth.member);
+console.log("isAuthenticated:", auth.isAuthenticated);
 
   return (
     <S.Page>
