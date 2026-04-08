@@ -6,11 +6,13 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
   const {
     title,
     recipe,
+    desc,
     rating,
     xp,
     cookTimeMin,
     missingIngredients,
     image,
+    imageUrl,
     saved,
   } = item;
 
@@ -68,7 +70,7 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
       aria-label={`${title} 상세 보기`}
     >
       <S.ThumbArea>
-        <S.ThumbImg src={image} alt={title} loading="lazy" />
+        <S.ThumbImg src={image || imageUrl} alt={title} loading="lazy" />
 
         {/* 아이콘 자체가 버튼 + key로 애니메이션 리셋 */}
         <S.BookmarkIcon
@@ -87,7 +89,7 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
       <S.Body>
         <S.Title title={title}>{title}</S.Title>
 
-        {recipe && <S.Desc title={recipe}>{recipe}</S.Desc>}
+        {recipe && <S.Desc title={recipe || desc}>{recipe || desc}</S.Desc>}
 
         <S.BadgeRow>
           <S.Badge className="star">

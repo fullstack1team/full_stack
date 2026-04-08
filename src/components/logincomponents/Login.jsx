@@ -1,9 +1,10 @@
 import React from "react";
-import useAuthStore from "../../store/useAuthStore";
+// import useAuthStore from "../../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import S from "./style";
+import useAuthStore from "../../store/authStore";
 
 const Login = () => {
   const { setIsAuthenticated, setMember } = useAuthStore();
