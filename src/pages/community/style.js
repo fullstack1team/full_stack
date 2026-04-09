@@ -350,13 +350,13 @@ export const CarouselCard = styled.button`
   } */
 `;
 
-// ✅ 카드 이미지 + 배지 오버레이용 래퍼
+//  카드 이미지 + 배지 오버레이용 래퍼
 export const CardImageWrap = styled.div`
   position: relative;
   width: 100%;
 `;
 
-// ✅ 배지 컨테이너 (좌상단)
+//  배지 컨테이너 (좌상단)
 export const BadgeWrap = styled.div`
   position: absolute;
   top: 10px;
@@ -366,7 +366,7 @@ export const BadgeWrap = styled.div`
   z-index: 2;
 `;
 
-// ✅ NEW 배지
+//  NEW 배지
 export const BadgeNew = styled.span`
   ${FONT_STYLE.PRETENDARD.H8_REGULAR};
   padding: 4px 8px;
@@ -377,7 +377,7 @@ export const BadgeNew = styled.span`
   white-space: nowrap;
 `;
 
-// ✅ 인기 배지
+//  인기 배지
 export const BadgePopular = styled.span`
   ${FONT_STYLE.PRETENDARD.H8_REGULAR};
   padding: 4px 8px;
