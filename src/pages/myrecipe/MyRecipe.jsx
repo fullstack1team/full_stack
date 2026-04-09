@@ -10,6 +10,7 @@ import FloatingActions from "../../components/layoutcomponents/FloatingActions";
 import MyRecipeEmpty from "../../components/myrecipecomponents/MyRecipeEmpty";
 import useAuthStore from "../../store/authStore";
 import LoginRequireModal from "../../components/layoutcomponents/loginrequiremodal/LoginRequireModal";
+import { deleteSavedRecipe, getSavedRecipes } from "../../api/aiSavedRecipe";
 
 export const MYRECIPE_SORT_OPTIONS = [
   { key: "saved_latest", label: "최신순" },
@@ -17,186 +18,23 @@ export const MYRECIPE_SORT_OPTIONS = [
   { key: "difficulty_low", label: "난이도 낮은순" },
 ];
 
-const MOCK_SAVED_RECIPES = [
-  {
-    id: 1,
-    title: "김치찌개",
-    desc: "목요일엔 만드는 김치찌개",
-    rating: 4.8,
-    xp: 350,
-    cookTimeMin: 50,
-    difficulty: "중",
-    missingIngredients: "부족한 재료 5개",
-    imageUrl: "/assets/images/kimchi_soup.png",
-    saved: true,
-  },
-  {
-    id: 2,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.3,
-    xp: 350,
-    cookTimeMin: 30,
-    difficulty: "하",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/kimchi_soup.png",
-    saved: true,
-  },
-  {
-    id: 3,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.5,
-    xp: 350,
-    cookTimeMin: 45,
-    difficulty: "상",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 4,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.6,
-    xp: 350,
-    cookTimeMin: 25,
-    difficulty: "하",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 5,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.2,
-    xp: 350,
-    cookTimeMin: 60,
-    difficulty: "중",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 6,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.7,
-    xp: 350,
-    cookTimeMin: 15,
-    difficulty: "상",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 7,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.0,
-    xp: 350,
-    cookTimeMin: 35,
-    difficulty: "하",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 8,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 3.8,
-    xp: 350,
-    cookTimeMin: 40,
-    difficulty: "중",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 9,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 2.5,
-    xp: 350,
-    cookTimeMin: 20,
-    difficulty: "상",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 10,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.2,
-    xp: 350,
-    cookTimeMin: 55,
-    difficulty: "하",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 11,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 3.5,
-    xp: 350,
-    cookTimeMin: 10,
-    difficulty: "중",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 12,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 3.0,
-    xp: 350,
-    cookTimeMin: 33,
-    difficulty: "상",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 13,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 4.5,
-    xp: 350,
-    cookTimeMin: 28,
-    difficulty: "하",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-  {
-    id: 14,
-    title: "계란찜죽",
-    desc: "초간단 든든 레시피",
-    rating: 5.0,
-    xp: 350,
-    cookTimeMin: 48,
-    difficulty: "중",
-    missingIngredients: "부족한 재료 2개",
-    imageUrl: "/assets/images/egg_tuna_soup.png",
-    saved: true,
-  },
-];
-
-
-
 const MyRecipe = () => {
   const navigate = useNavigate();
   const { member, isAuthenticated } = useAuthStore();
 
   const isLoggedIn = Boolean(isAuthenticated && member?.id)
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  console.log("로그인 상태", isAuthenticated, member)
 
+  const [keyword, setKeyword] = useState("");
+  const [sortKey, setSortKey] = useState("saved_latest");
+  const [savedList, setSavedList] = useState([]);
+  const [page, setPage] = useState(1);
+
+  const pageSize = 12;
+  // 그리드 상단 스크롤 타겟
+  const gridTopRef = useRef(null);
+  
   const requireLogin = useCallback(
     (action) => {
       if (!isAuthenticated || !member) {
@@ -207,18 +45,71 @@ const MyRecipe = () => {
       return true;
     },
     [isAuthenticated, member],
+  ); 
+
+  const fetchSavedList = useCallback(async () => {
+    try {
+      if (!member?.id) return
+
+      const res = await getSavedRecipes(member.id)
+      console.log("저장 레시피 조회 결과", res)
+
+      // 백엔드 구조에 맞게 바꿔야함
+      const list = Array.isArray(res) ? res : []
+
+      const mapped = list.map((item) => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        imageUrl: item.imageUrl,
+        cookTime: item.cookTime,
+        difficulty: item.difficulty,
+        category: item.category,
+        xp: item.xp,
+        createdAt: item.createAt,
+        // missingIngredients: item.missingIngredients,
+        saved: true
+
+      }))
+
+      setSavedList(mapped)
+    } catch (error) {
+      console.log(error)
+      setSavedList([])
+    }
+  }, [member])
+
+  useEffect(() => {
+    if (!isLoggedIn) return
+    fetchSavedList()
+  }, [isLoggedIn, fetchSavedList])
+
+  const handleToggleBookmark = useCallback(
+    async (savedRecipeId) => {
+      requireLogin(async () => {
+        try{
+          await deleteSavedRecipe(savedRecipeId)
+          setSavedList((prev) => prev.filter((r) => r.id !== savedRecipeId));
+        } catch (error) {
+          console.log(error)
+        }
+      });
+    },
+    [requireLogin],
   );
 
-  const [keyword, setKeyword] = useState("");
-  const [sortKey, setSortKey] = useState("saved_latest");
-  const [savedList, setSavedList] = useState(MOCK_SAVED_RECIPES);
+  const handleCardClick = useCallback(
+    (recipeId) => {
+      const recipe = savedList.find((r) => r.id === recipeId);
+      if (!recipe) return;
 
-  const [page, setPage] = useState(1);
-  const pageSize = 12;
-
-  // 그리드 상단 스크롤 타겟
-  const gridTopRef = useRef(null);
-
+      navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
+        state: { recipe },
+      });
+    },
+    [navigate, savedList],
+  );
+  
   const compareBySortKey = useCallback(
     (a, b) => {
       const tieBreaker = () => b.id - a.id;
@@ -226,7 +117,7 @@ const MyRecipe = () => {
       if (sortKey === "saved_latest") return b.id - a.id;
 
       if (sortKey === "cook_fast") {
-        const diff = (a.cookTimeMin ?? 9999) - (b.cookTimeMin ?? 9999);
+        const diff = (a.cookTime ?? 9999) - (b.cookTime ?? 9999);
         return diff !== 0 ? diff : tieBreaker();
       }
 
@@ -248,7 +139,7 @@ const MyRecipe = () => {
       if (!q) return true;
       return (
         r.title.toLowerCase().includes(q) ||
-        (r.desc ?? "").toLowerCase().includes(q) ||
+        (r.description ?? "").toLowerCase().includes(q) ||
         (r.missingIngredients ?? "").toLowerCase().includes(q)
       );
     });
@@ -279,33 +170,7 @@ const MyRecipe = () => {
     gridTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [page]);
 
-  const handleCardClick = useCallback(
-    (recipeId) => {
-      const recipe = pagedItems.find((r) => r.id === recipeId);
-      if (!recipe) return;
-
-      navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
-        state: { recipe },
-      });
-    },
-    [navigate, pagedItems],
-  );
-
-  const handleToggleBookmark = useCallback(
-    (recipeId) => {
-      requireLogin(() => {
-        setSavedList((prev) => prev.filter((r) => r.id !== recipeId));
-      });
-    },
-    [requireLogin],
-  );
-
   const isSearching = keyword.trim().length > 0;
-
-  const auth = useAuthStore();
-console.log("auth store 전체:", auth);
-console.log("member:", auth.member);
-console.log("isAuthenticated:", auth.isAuthenticated);
 
   return (
     <S.Page>
@@ -338,7 +203,7 @@ console.log("isAuthenticated:", auth.isAuthenticated);
 
         {!isLoggedIn ? (
           <MyRecipeEmpty
-            isLoggedIn={isLoggedIn}
+            isLoggedIn={false}
             title="저장한 레시피는 로그인 후 확인할 수 있습니다."
             desc="로그인하고 나만의 레시피를 저장해보세요!"
             showCta={true}
@@ -350,7 +215,7 @@ console.log("isAuthenticated:", auth.isAuthenticated);
               <S.EmptyDesc>다른 키워드로 다시 검색해보세요.</S.EmptyDesc>
             </S.EmptyState>
           ) : (
-            <MyRecipeEmpty isLoggedIn={isLoggedIn} />
+            <MyRecipeEmpty isLoggedIn={true} />
           )
         ) : (
           <>
