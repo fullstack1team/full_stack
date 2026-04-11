@@ -1,13 +1,34 @@
 import React, { useState } from "react";
 import * as S from "./style";
 import ProfilePopUp from "./ProfilePopUp";
+import useAuthStore from "../../store/useAuthStore"; 
+import { useNavigate } from "react-router-dom";
 
 const Header = ({onSearch}) => {
-  
+
+  const { isAuthenticated, setIsAuthenticated, setMember } = useAuthStore();
+  const navigate = useNavigate();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [keyword, setKeyword] = useState("")
   const [isError, setIsError] = useState(false)
   const [triedSubmit, setTriedSubmit]= useState(false) // 검색 시도여부
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:10000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      // 상태 초기화
+      setIsAuthenticated(false);
+      setMember(null);
+      alert("로그아웃 되었습니다.");
+      navigate("/");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -80,29 +101,42 @@ const Header = ({onSearch}) => {
               <S.NavItem to="/reportandchallenge">리포트&챌린지</S.NavItem>
             </S.Nav>
 
-            <S.RightArea>
-              <S.RightLink to="/login">
+          <S.RightArea>
+            {isAuthenticated ? (
+              // 로그인 상태일 때 -> 로그아웃 버튼
+              <S.ProfileButton type="button" onClick={handleLogout}>
+                <S.RightIcon
+                  src="/assets/icons/login.svg" 
+                  alt="로그아웃 아이콘"
+                  aria-hidden
+                />
+                <S.RightText>로그아웃</S.RightText>
+              </S.ProfileButton>
+            ) : (
+              // 비로그인 상태일 때 -> 로그인 버튼 
+              <S.ProfileButton type="button" onClick={() => navigate("/login")}>
                 <S.RightIcon
                   src="/assets/icons/login.svg"
                   alt="로그인 아이콘"
                   aria-hidden
                 />
                 <S.RightText>로그인</S.RightText>
-              </S.RightLink>
-
-              <S.ProfileButton
-                type="button"
-                onClick={() => setIsSidebarOpen(true)}
-              >
-                <S.RightIcon src="/assets/icons/profile.svg" aria-hidden />
-                <S.RightText>프로필</S.RightText>
               </S.ProfileButton>
-              
-              <ProfilePopUp
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-              />
-            </S.RightArea>
+            )}
+
+            <S.ProfileButton
+              type="button"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <S.RightIcon src="/assets/icons/profile.svg" alt="프로필 아이콘" aria-hidden />
+              <S.RightText>프로필</S.RightText>
+            </S.ProfileButton>
+            
+            <ProfilePopUp
+              isOpen={isSidebarOpen}
+              onClose={() => setIsSidebarOpen(false)}
+            />
+          </S.RightArea>
           </S.BottomRow>
         </S.HeaderInner>
       </S.HeaderOuter>

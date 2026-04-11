@@ -191,9 +191,6 @@ export const ProfileButton = styled.button`
   cursor: pointer;
   padding: 0;
 
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 export const RightIcon = styled.img`

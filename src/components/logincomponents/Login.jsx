@@ -37,10 +37,12 @@ const Login = () => {
     mutationFn: login,
     onSuccess: (res) => {
       // 로그인 성공
-      setMember(res.data);
-      setIsAuthenticated(true);
-      navigate("/", { replace: true });
-      console.log(res.data);
+      if (res.data) {
+        setMember(res.data); // 전체 정보를 스토어에 저장
+        setIsAuthenticated(true);
+        navigate("/", { replace: true });
+        // console.log("로그인 데이터:", res.data);
+      }
     },
     onError: (error) => {
       console.log(error);
