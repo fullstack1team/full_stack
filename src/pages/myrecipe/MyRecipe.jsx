@@ -57,7 +57,7 @@ const MyRecipe = () => {
     try {
       if (!member?.id) return;
 
-      const res = await getSavedRecipes(member.id);
+      const res = await getSavedRecipes();
       console.log("저장 레시피 조회 결과", res);
 
       // 백엔드 구조에 맞게 바꿔야함
@@ -106,16 +106,42 @@ const MyRecipe = () => {
   );
 
   const handleCardClick = useCallback(
-    (recipeId) => {
-      const recipe = savedList.find((r) => r.id === recipeId);
-      if (!recipe) return;
+  (recipeId) => {
+    const recipe = savedList.find((r) => r.id === recipeId);
+    if (!recipe) return;
 
-      navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
-        state: { recipe },
-      });
-    },
-    [navigate, savedList],
-  );
+    const ingredientArray = Array.isArray(recipe.ingredients)
+      ? recipe.ingredients
+      : [
+          ...(recipe.ingredients?.main ?? []),
+          ...(recipe.ingredients?.sub ?? []),
+        ];
+
+    const normalizedRecipe = {
+      ...recipe,
+      image: recipe.imageUrl || recipe.image || "/assets/images/default_recipe.png",
+      imageUrl: recipe.imageUrl || recipe.image || "/assets/images/default_recipe.png",
+
+      // 상세페이지가 배열 기대할 가능성 높은 애들
+      ingredients: ingredientArray,
+      steps: Array.isArray(recipe.steps) ? recipe.steps : [],
+      missingIngredients: Array.isArray(recipe.missingIngredients)
+        ? recipe.missingIngredients
+        : [],
+
+      // 혹시 상세페이지에서 recipe 필드명 기대할 수도 있어서 같이 맞춰주기
+      recipe: Array.isArray(recipe.steps) ? recipe.steps.join("\n") : "",
+
+      // 혹시 rating 없는데 map/렌더에 쓰면 기본값
+      rating: recipe.rating ?? 0,
+    };
+
+    navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
+      state: { recipe: normalizedRecipe },
+    });
+  },
+  [navigate, savedList],
+);
 
   const compareBySortKey = useCallback(
     (a, b) => {

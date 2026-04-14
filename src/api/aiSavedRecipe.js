@@ -4,9 +4,10 @@ const BASE_URL = "http://localhost:10000"
 
 // 저장 레시피 전체 목록 조회
 export const getSavedRecipes = async (memberId) => {
-  const response = await fetch(`${BASE_URL}/aisavedrecipe/member/${memberId}`, {
+  const response = await fetch(`${BASE_URL}/aisavedrecipe/my`, {
     method: "GET",
     credentials: "include"
+    // 백엔드는 쿠키 로그인 기준으로 req.user.id 를 직접 읽음. 그래서 프론트가 memberId를 넘길 필요가 없음.
   })
   
   if (!response.ok){
