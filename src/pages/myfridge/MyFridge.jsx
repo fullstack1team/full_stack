@@ -25,9 +25,6 @@ const CATEGORIES = [
   "기타",
 ];
 
-// 🔴 임시로 고정ID 사용 --> JWT 사용시 삭제
-const MEMBER_ID = 2;
-
 const MyFridge = () => {
   const [ingredients, setIngredients] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -43,43 +40,37 @@ const MyFridge = () => {
 
   /* ------------------ 서버에서 데이터 가져오기 ------------------ */
   const fetchFridge = async () => {
-  try {
-    console.log("현재 페이지 origin:", window.location.origin);
+    try {
+      console.log("현재 페이지 origin:", window.location.origin);
 
-    const res = await fetch("http://localhost:10000/fridge");
-    console.log("응답 상태:", res.status, res.ok);
+      const res = await fetch("http://localhost:10000/fridge", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      console.log("응답 데이터:", data);
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.log("에러 응답 본문:", text);
-      throw new Error(`HTTP ${res.status}`);
+      if (!Array.isArray(data)) {
+        console.error("서버 에러:", data);
+        return;
+      }
+
+      const mapped = data.flatMap((item) =>
+        item.items.map((sub) => ({
+          fridgeId: sub.id,
+          name: item.ingredientName,
+          category: item.category,
+          icon: CATEGORY_ICONS[item.category] || "📦",
+          quantity: sub.quantity,
+          expiredAt: sub.expireDate ? sub.expireDate.split("T")[0] : "",
+          createdAt: sub.expireDate,
+        })),
+      );
+
+      setIngredients(mapped);
+    } catch (e) {
+      console.error("🔥 fetchFridge 실패:", e);
     }
-
-    const data = await res.json();
-    console.log("응답 데이터:", data);
-
-    if (!Array.isArray(data)) {
-      console.error("서버 에러:", data);
-      return;
-    }
-
-    const mapped = data.flatMap((item) =>
-      item.items.map((sub) => ({
-        fridgeId: sub.id,
-        name: item.ingredientName,
-        category: item.category,
-        icon: CATEGORY_ICONS[item.category] || "📦",
-        quantity: sub.quantity,
-        expiredAt: sub.expireDate ? sub.expireDate.split("T")[0] : "",
-        createdAt: sub.expireDate,
-      })),
-    );
-
-    setIngredients(mapped);
-  } catch (e) {
-    console.error("🔥 fetchFridge 실패:", e);
-  }
-};
+  };
   // const fetchFridge = async () => {
 
   //   const res = await fetch("http://localhost:10000/fridge");
@@ -112,9 +103,9 @@ const MyFridge = () => {
   //   setIngredients(mapped);
   // };
 
-  // useEffect(() => {
-  //   fetchFridge();
-  // }, []);
+  useEffect(() => {
+    fetchFridge();
+  }, []);
 
   /* ------------------ 선택 토글 ------------------ */
   const toggleSelected = (fridgeId) => {
@@ -134,9 +125,8 @@ const MyFridge = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      // credentials: "include", // 🔴 JWT 구현시 주석 해제
+      credentials: "include",
       body: JSON.stringify({
-        memberId: MEMBER_ID, // 🔴 JWT 구현시 삭제
         ingredientName: item.name,
         category: item.category,
         quantity: Number(item.quantity),
@@ -152,7 +142,7 @@ const MyFridge = () => {
   const deleteItem = async (id) => {
     await fetch(`http://localhost:10000/fridge/${id}`, {
       method: "DELETE",
-      // credentials: "include", // 🔴 JWT 구현시 주석 해제
+      credentials: "include",
     });
   };
 
@@ -174,7 +164,6 @@ const MyFridge = () => {
         unit: "ea",
       };
 
-      // 🔥 날짜 있을 때만 넣기
       if (item.expiredAt) {
         body.expireDate = item.expiredAt;
       }
@@ -184,7 +173,7 @@ const MyFridge = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        // credentials: "include", // 🔴 JWT 구현시 주석 해제
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
