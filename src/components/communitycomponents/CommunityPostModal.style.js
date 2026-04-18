@@ -19,17 +19,22 @@ export const Backdrop = styled.div`
 export const Modal = styled.div`
   width: 100%;
   max-width: 920px;
+  max-height: calc(100vh - 56px);
 
   background: ${({ theme }) => theme.PALLETE.white};
   border-radius: 20px;
   overflow: hidden;
 
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Hero = styled.div`
   position: relative;
   height: 330px;
+  flex-shrink: 0;
   overflow: hidden;
   background: #000;
 `;
@@ -199,17 +204,24 @@ export const Body = styled.div`
   gap: 22px;
   padding: 22px 24px 24px;
 
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
+    overflow-y: auto;
   }
 `;
 
 export const Left = styled.div`
   min-width: 0;
+  min-height: 0;
 `;
 
 export const Right = styled.div`
   min-width: 0;
+  min-height: 0;
 `;
 
 export const TopRow = styled.div`
@@ -362,6 +374,8 @@ export const CommentCard = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
 `;
 
 export const CommentHeader = styled.div`
@@ -371,14 +385,21 @@ export const CommentHeader = styled.div`
   /* ${flexBetweenRow} */
   display: flex;
   align-items: center;
+  /* align-items: flex-end; */
   gap: 10px;
-  padding: 6px 0;
+  /* padding: 6px 0; */
+  padding: 2px 0;
 `;
 
 export const CommentHeaderTop = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+`;
+
+export const SectionDivider = styled.div`
+  border-top: 1px solid ${({ theme }) => theme.PALLETE.gray[200]};
+  margin: 6px -12px 10px;
 `;
 
 export const CommentHeaderMenu = styled.div`
@@ -410,15 +431,13 @@ export const CommentHeaderMenuItem = styled.button`
   }
 `;
 
-export const SectionDivider = styled.div`
-  border-top: 1px solid ${({ theme }) => theme.PALLETE.gray[200]};
-  margin: 6px -12px 10px
-`;
+
 
 export const CommentScrollArea = styled.div`
   flex: 1;
-  min-height: 188px;
-  overflow: auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   display: flex;
   flex-direction: column;
@@ -435,7 +454,7 @@ export const EmptyComment = styled.div`
 export const CommentItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 `;
 
 export const CommentTop = styled.div`
@@ -446,7 +465,8 @@ export const CommentTop = styled.div`
 `;
 
 export const CommentTextWrap = styled.div`
-  padding: 6px 0 2px;
+  /* padding: 6px 0 2px; */
+  padding: 6px 0 0px;
 
   border-bottom: ${({ theme, $editing }) =>
     $editing
@@ -464,6 +484,7 @@ export const EditTextarea = styled.textarea`
   ${FONT_STYLE.PRETENDARD.H8_REGULAR};
   color: ${({ theme }) => theme.PALLETE.mainblack};
   line-height: 1.5;
+  word-break: break-word;
 
   padding: 0;
   margin: 0;
@@ -497,6 +518,7 @@ export const CommentLeft = styled.div`
   align-items: center;
   gap: 10px;
   min-width: 0;
+  margin-bottom: -20px;
 `;
 
 export const CommentNickname = styled.div`
@@ -535,6 +557,7 @@ export const CommentText = styled.div`
   ${FONT_STYLE.PRETENDARD.H8_REGULAR};
   color: ${({ theme }) => theme.PALLETE.gray[900]};
   line-height: 1.5;
+  word-break: break-word;
 `;
 
 export const CommentMenuWrap = styled.div`
