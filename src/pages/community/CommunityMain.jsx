@@ -14,7 +14,7 @@ import LoginRequireModal from "../../components/layoutcomponents/loginrequiremod
 import usePostStore from "../../store/postStore";
 import useAuthStore from "../../store/authStore";
 import { createPostLike, deletePostLike } from "../../api/postLike";
-import { createPost, updatePost, deletePost } from "../../api/post";
+import { updatePost, deletePost } from "../../api/post";
 
 const CommunityMain = () => {
   const navigate = useNavigate();
@@ -101,7 +101,15 @@ const CommunityMain = () => {
       content: raw?.postContent ?? raw?.content ?? raw?.desc ?? "",
       ingredients: Array.isArray(raw?.ingredients) ? raw.ingredients : [],
       createdAt: raw?.createdAt ?? "",
-      comments: Array.isArray(raw?.comments) ? raw.comments : [],
+      comments: Array.isArray(raw?.comment)
+      ? raw.comment.map((c) => ({
+          id: c.id,
+          nickname: c.member?.memberName ?? "익명",
+          time: c.createdAt ?? "",
+          text: c.content ?? "",
+          memberId: c.memberId,
+        }))
+      : [],
       xp: raw?.postXp ?? raw?.xp ?? 0,
     };
   }, []);
