@@ -15,6 +15,13 @@ import usePostStore from "../../store/postStore";
 import useAuthStore from "../../store/authStore";
 import { createPostLike, deletePostLike } from "../../api/postLike";
 import { updatePost, deletePost } from "../../api/post";
+import {
+  createComment,
+  updateComment as updateCommentApi,
+  deleteComment as deleteCommentApi,
+  deleteAllCommentsByPostId as deleteAllCommentsByPostIdApi,
+  deleteSelectedComments as deleteSelectedCommentsApi,
+} from "../../api/comment";
 
 const CommunityMain = () => {
   const navigate = useNavigate();
@@ -65,7 +72,7 @@ const CommunityMain = () => {
 
   // 게시글 fetch
   useEffect(() => {
-    if(!isLoggedIn) return
+    if (!isLoggedIn) return;
     fetchPosts();
   }, [fetchPosts, isLoggedIn]);
 
@@ -102,14 +109,14 @@ const CommunityMain = () => {
       ingredients: Array.isArray(raw?.ingredients) ? raw.ingredients : [],
       createdAt: raw?.createdAt ?? "",
       comments: Array.isArray(raw?.comment)
-      ? raw.comment.map((c) => ({
-          id: c.id,
-          nickname: c.member?.memberName ?? "익명",
-          time: c.createdAt ?? "",
-          text: c.content ?? "",
-          memberId: c.memberId,
-        }))
-      : [],
+        ? raw.comment.map((c) => ({
+            id: c.id,
+            nickname: c.member?.memberName ?? "익명",
+            time: c.createdAt ?? "",
+            text: c.content ?? "",
+            memberId: c.memberId,
+          }))
+        : [],
       xp: raw?.postXp ?? raw?.xp ?? 0,
     };
   }, []);
@@ -250,66 +257,75 @@ const CommunityMain = () => {
 
   // ===== 댓글 등록 (로그인 필요) =====
   const handleSubmitComment = useCallback(
-    (text) => {
-      requireLogin(() => {
-        const trimmed = String(text ?? "").trim();
-        if (!trimmed) return;
+  async (text) => {
+    const trimmed = String(text ?? "").trim();
+    if (!trimmed || !selectedPost?.id) return;
 
-        setSelectedPost((prev) => {
-          if (!prev) return prev;
-          const newComment = {
-            nickname: meNickname,
-            time: "방금 전",
-            text: trimmed,
-          };
-          return { ...prev, comments: [newComment, ...(prev.comments ?? [])] };
-        });
+    if (!currentUser) {
+      setLoginModalOpen(true);
+      return;
+    }
+
+    try {
+      await createComment({
+        postId: selectedPost.id,
+        content: trimmed,
       });
-    },
-    [requireLogin, meNickname],
-  );
 
-  // ===== 댓글 수정/삭제 =====
+      await fetchPosts();
+      return true;
+    } catch (error) {
+      console.error("댓글 등록 실패:", error);
+      alert(error.message);
+      throw error;
+    }
+  },
+  [selectedPost, currentUser, fetchPosts],
+);
+
+  // ===== 댓글 수정  =====
   const handleEditComment = useCallback(
     (comment, nextTextFromModal) => {
-      requireLogin(() => {
+      requireLogin(async () => {
         const nextText =
           typeof nextTextFromModal === "string"
             ? nextTextFromModal
             : window.prompt("댓글을 수정하세요", comment?.text ?? "");
 
         if (nextText === null) return;
-        const trimmed = String(nextText).trim();
-        if (!trimmed) return;
 
-        setSelectedPost((prev) => {
-          if (!prev) return prev;
-          const nextComments = (prev.comments ?? []).map((c) =>
-            c === comment ? { ...c, text: trimmed, time: "방금 전" } : c,
-          );
-          return { ...prev, comments: nextComments };
-        });
+        const trimmed = String(nextText).trim();
+        if (!trimmed || !comment?.id) return;
+
+        try {
+          await updateCommentApi(comment.id, trimmed);
+          await fetchPosts();
+        } catch (error) {
+          console.error("댓글 수정 실패:", error);
+          alert(error.message);
+        }
       });
     },
-    [requireLogin],
+    [requireLogin, fetchPosts],
   );
 
+  // 댓글 단일 삭제
   const handleDeleteComment = useCallback(
     (comment) => {
-      requireLogin(() => {
+      requireLogin(async () => {
         const ok = window.confirm("댓글을 삭제할까요?");
-        if (!ok) return;
+        if (!ok || !comment?.id) return;
 
-        setSelectedPost((prev) => {
-          if (!prev) return prev;
-          const nextComments = (prev.comments ?? []).filter(
-            (c) => c !== comment,
-          );
-          return { ...prev, comments: nextComments };
-        });
+        try {
+          await deleteCommentApi(comment.id);
+          await fetchPosts();
+        } catch (error) {
+          console.error("댓글 삭제 실패:", error);
+          alert(error.message);
+        }
       });
     },
-    [requireLogin],
+    [requireLogin, fetchPosts],
   );
 
   // ===== 내 글 전용 액션들 =====
@@ -400,33 +416,48 @@ const CommunityMain = () => {
     [requireLogin],
   );
 
+  // 게시글 댓글 전체 삭제
   const handleDeleteAllComments = useCallback(
     (postId) => {
-      requireLogin(() => {
-        setSelectedPost((prev) => {
-          if (!prev || prev.id !== postId) return prev;
-          return { ...prev, comments: [] };
-        });
+      requireLogin(async () => {
+        try {
+          await deleteAllCommentsByPostIdApi(postId);
+          await fetchPosts();
+        } catch (error) {
+          console.error("전체 댓글 삭제 실패:", error);
+          alert(error.message);
+        }
       });
     },
-    [requireLogin],
+    [requireLogin, fetchPosts],
   );
 
+  // 선택 댓글 삭제
   const handleDeleteSelectedComments = useCallback(
     (postId, selectedKeys) => {
-      requireLogin(() => {
+      requireLogin(async () => {
         const selectedSet = new Set(selectedKeys ?? []);
-        setSelectedPost((prev) => {
-          if (!prev || prev.id !== postId) return prev;
-          const nextComments = (prev.comments ?? []).filter((c, idx) => {
+
+        const commentIds = (selectedPost?.comments ?? [])
+          .filter((c, idx) => {
             const key = `${c.nickname}-${idx}`;
-            return !selectedSet.has(key);
-          });
-          return { ...prev, comments: nextComments };
-        });
+            return selectedSet.has(key);
+          })
+          .map((c) => c.id)
+          .filter(Boolean);
+
+        if (!commentIds.length) return;
+
+        try {
+          await deleteSelectedCommentsApi(commentIds);
+          await fetchPosts();
+        } catch (error) {
+          console.error("선택 댓글 삭제 실패:", error);
+          alert(error.message);
+        }
       });
     },
-    [requireLogin],
+    [requireLogin, selectedPost, fetchPosts],
   );
 
   // ===== 트렌딩 카드 클릭 =====
@@ -439,55 +470,60 @@ const CommunityMain = () => {
 
   // ===== 좋아요 토글 =====
   const handleLikeToggle = useCallback(
-  (postId, liked) => {
-    console.log("handleToggleLike 진입", { postId, liked, likedMap, displayItems });
+    (postId, liked) => {
+      console.log("handleToggleLike 진입", {
+        postId,
+        liked,
+        likedMap,
+        displayItems,
+      });
 
-    requireLogin(async () => {
-      try {
-        const targetItem = displayItems.find((post) => post.id === postId);
+      requireLogin(async () => {
+        try {
+          const targetItem = displayItems.find((post) => post.id === postId);
 
-        const current = likedMap[postId] ?? {
-          liked: liked ?? false,
-          likeCount: targetItem?.likes ?? 0,
-        };
-
-        console.log("현재 좋아요 상태", current);
-
-        if (current.liked) {
-          console.log("DELETE 호출");
-          await deletePostLike({ postId });
-        } else {
-          console.log("POST 호출");
-          await createPostLike({ postId });
-        }
-
-        const nextLiked = !current.liked;
-        const nextLikeCount = current.likeCount + (nextLiked ? 1 : -1);
-
-        setLikedMap((prev) => ({
-          ...prev,
-          [postId]: {
-            liked: nextLiked,
-            likeCount: nextLikeCount,
-          },
-        }));
-
-        setSelectedPost((prev) => {
-          if (!prev || prev.id !== postId) return prev;
-          return {
-            ...prev,
-            liked: nextLiked,
-            likes: nextLikeCount,
+          const current = likedMap[postId] ?? {
+            liked: liked ?? false,
+            likeCount: targetItem?.likes ?? 0,
           };
-        });
-      } catch (error) {
-        console.error("좋아요 처리 실패:", error);
-        alert(error.message);
-      }
-    });
-  },
-  [requireLogin, likedMap, displayItems],
-);
+
+          console.log("현재 좋아요 상태", current);
+
+          if (current.liked) {
+            console.log("DELETE 호출");
+            await deletePostLike({ postId });
+          } else {
+            console.log("POST 호출");
+            await createPostLike({ postId });
+          }
+
+          const nextLiked = !current.liked;
+          const nextLikeCount = current.likeCount + (nextLiked ? 1 : -1);
+
+          setLikedMap((prev) => ({
+            ...prev,
+            [postId]: {
+              liked: nextLiked,
+              likeCount: nextLikeCount,
+            },
+          }));
+
+          setSelectedPost((prev) => {
+            if (!prev || prev.id !== postId) return prev;
+            return {
+              ...prev,
+              liked: nextLiked,
+              likes: nextLikeCount,
+            };
+          });
+        } catch (error) {
+          console.error("좋아요 처리 실패:", error);
+          alert(error.message);
+        }
+      });
+    },
+    [requireLogin, likedMap, displayItems],
+  );
 
   // keyword 를 URL에서 읽어서 searchState에 동기화
   useEffect(() => {

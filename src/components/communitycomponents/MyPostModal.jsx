@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import * as S from "./MyPostModal.style";
+import { getCommentsByPostId } from "../../api/comment";
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -36,7 +37,7 @@ const MyPostModal = ({
   // 이미지/댓글
   const [activeIndex, setActiveIndex] = useState(0);
   const images = useMemo(() => post?.images ?? [], [post]);
-  const comments = useMemo(() => post?.comments ?? [], [post]);
+  const [comments, setComments] = useState([]);
   const hasImages = images.length > 0;
   const safeIndex = clamp(activeIndex, 0, Math.max(0, images.length - 1));
   const currentImage = hasImages ? images[safeIndex] : "";
@@ -81,7 +82,9 @@ const MyPostModal = ({
   const isMine = useCallback(
     (c) => {
       if (!meNickname) return false;
-      return String(c?.nickname ?? "").trim() === String(meNickname).trim();
+      return (
+        String(c?.member?.memberName ?? "").trim() === String(meNickname).trim()
+      );
     },
     [meNickname],
   );
@@ -103,18 +106,42 @@ const MyPostModal = ({
     setIsCommentComposeOpen(false);
   }, []);
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     const text = commentText.trim();
-    if (!text) return;
-    onSubmitComment?.(text);
+    if (!text || !post?.id) return;
+
+    //  낙관적 UI
+    const optimistic = {
+      id: Date.now(),
+      content: text,
+      createdAt: new Date().toISOString(),
+      nickname: meNickname || "나",
+    };
+
+    setComments((prev) => [optimistic, ...prev]);
+
     setCommentText("");
     setIsCommentComposeOpen(false);
-  }, [commentText, onSubmitComment]);
+
+    try {
+      await onSubmitComment?.(text);
+
+      //  서버에서 최신 데이터 다시 가져오기
+      const data = await getCommentsByPostId(post.id);
+      setComments(data);
+    } catch (err) {
+      console.error(err);
+      alert("댓글 생성 실패");
+
+      // 롤백
+      setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
+    }
+  }, [commentText, post?.id, onSubmitComment, meNickname]);
 
   // ===== 댓글 편집 =====
   const startEdit = useCallback((key, c) => {
     setEditingKey(key);
-    setDraftText(c?.text ?? "");
+    setDraftText(c?.content ?? "");
     setOpenCommentMenu(null);
     setCommentMenuPos(null);
   }, []);
@@ -137,7 +164,7 @@ const MyPostModal = ({
 
   // ✅ 댓글 key 목록 (select all 계산용)
   const allCommentKeys = useMemo(() => {
-    return comments.map((c, idx) => `${c.nickname}-${idx}`);
+    return comments.map((c, idx) => `${c.id}-${idx}`);
   }, [comments]);
 
   const allSelected = useMemo(() => {
@@ -188,6 +215,7 @@ const MyPostModal = ({
   }, []);
 
   // ===== 게시글 편집 draft 초기화 =====
+  // 터미널 에러 (경고니까 그냥 무시) eslint-disable-next-line react-hooks/exhaustive-deps 
   useEffect(() => {
     if (!open) return;
 
@@ -261,6 +289,21 @@ const MyPostModal = ({
     postDraftIngredients,
     onEditPost,
   ]);
+
+  useEffect(() => {
+    if (!open || !post?.id) return;
+
+    const fetchComments = async () => {
+      try {
+        const data = await getCommentsByPostId(post.id);
+        setComments(data);
+      } catch (err) {
+        console.error("댓글 조회 실패", err);
+      }
+    };
+
+    fetchComments();
+  }, [open, post?.id]);
 
   // ===== 자세히 보기/간단히 토글 가능 여부 =====
   useEffect(() => {
@@ -752,7 +795,7 @@ const MyPostModal = ({
                 ) : (
                   comments.map((c, idx) => {
                     const mine = isMine(c);
-                    const key = `${c.nickname}-${idx}`;
+                    const key = `${c.id}-${idx}`;
                     const isEditing = editingKey === key;
 
                     // ✅ selectMode에서는 케밥 숨김(우측에 선택 아이콘이 있어야 하니까)
@@ -763,10 +806,10 @@ const MyPostModal = ({
                       <S.CommentItem key={key}>
                         <S.CommentTop>
                           <S.CommentLeft>
-                            <S.CommentNickname>{c.nickname}</S.CommentNickname>
+                            <S.CommentNickname>{c.member?.memberName ?? "익명"}</S.CommentNickname>
 
                             <S.CommentMeta>
-                              <S.CommentTime>{c.time}</S.CommentTime>
+                              <S.CommentTime>{c.createdAt}</S.CommentTime>
                               {mine && <S.MineTag>나</S.MineTag>}
                             </S.CommentMeta>
                           </S.CommentLeft>
@@ -856,7 +899,7 @@ const MyPostModal = ({
                               onClick={(e) => e.stopPropagation()}
                             />
                           ) : (
-                            <S.CommentText>{c.text}</S.CommentText>
+                            <S.CommentText>{c.content}</S.CommentText>
                           )}
                         </S.CommentTextWrap>
 

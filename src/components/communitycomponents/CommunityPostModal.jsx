@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import * as S from "./CommunityPostModal.style";
+import { getCommentsByPostId } from "../../api/comment";
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -34,11 +35,12 @@ const CommunityPostModal = ({
   const [draftText, setDraftText] = useState("");
 
   const images = useMemo(() => post?.images ?? [], [post]);
-  const comments = useMemo(() => post?.comments ?? [], [post]);
 
   const hasImages = images.length > 0;
   const safeIndex = clamp(activeIndex, 0, Math.max(0, images.length - 1));
   const currentImage = hasImages ? images[safeIndex] : "";
+
+  const [comments, setComments] = useState([]);
 
   const [isExpanded, setIsExpanded] = useState(false); // 게시글 문장 길이 자세히보기, 간단히
   const [canToggle, setCanToggle] = useState(false);
@@ -66,7 +68,9 @@ const CommunityPostModal = ({
   const isMine = useCallback(
     (c) => {
       if (!meNickname) return false;
-      return String(c?.nickname ?? "").trim() === String(meNickname).trim();
+      return (
+        String(c?.member?.memberName ?? "").trim() === String(meNickname).trim()
+      );
     },
     [meNickname],
   );
@@ -86,25 +90,58 @@ const CommunityPostModal = ({
     setIsCommentComposeOpen(false);
   }, []);
 
-  const handleSend = useCallback(() => {
-    // ✅ 로그인 필요
+  const handleSend = useCallback(async () => {
     if (!isAuthenticated) {
       requireLogin?.(() => {});
       return;
     }
 
     const text = commentText.trim();
-    if (!text) return;
+    if (!text || !post?.id) return;
 
-    onSubmitComment?.(text);
+    const optimisticComment = {
+      id: `temp-${Date.now()}`,
+      content: text,
+      createdAt: new Date().toISOString(),
+      member: {
+        memberName: meNickname || "나",
+      },
+    };
+
+    console.log("optimistic before", comments);
+
+    setComments((prev) => [optimisticComment, ...prev]);
+
+    console.log("sending text", text);
+
     setCommentText("");
     setIsCommentComposeOpen(false);
-  }, [commentText, onSubmitComment, isAuthenticated, requireLogin]);
 
-  // ✅ 수정 시작
-  const startEdit = useCallback((key, c) => {
+    try {
+      await onSubmitComment?.(text);
+
+      const data = await getCommentsByPostId(post.id);
+      console.log("fresh comments", data);
+      setComments(data);
+    } catch (err) {
+      console.error("댓글 생성 실패", err);
+
+      setComments((prev) => prev.filter((c) => c.id !== optimisticComment.id));
+      alert(err.message);
+    }
+  }, [
+    commentText,
+    onSubmitComment,
+    isAuthenticated,
+    requireLogin,
+    post?.id,
+    meNickname,
+    comments,
+  ]);
+
+  const startEdit = useCallback((key, comment) => {
     setEditingKey(key);
-    setDraftText(c?.text ?? ""); // ✅ 기존 텍스트로 채우는 게 자연스러움
+    setDraftText(comment.content);
     setOpenMenu(null);
     setMenuPos(null);
   }, []);
@@ -139,6 +176,21 @@ const CommunityPostModal = ({
     setEditingKey(null);
     setDraftText("");
     setIsExpanded(false);
+  }, [open, post?.id]);
+
+  useEffect(() => {
+    if (!open || !post?.id) return;
+
+    const fetchComments = async () => {
+      try {
+        const data = await getCommentsByPostId(post.id);
+        setComments(data);
+      } catch (err) {
+        console.error("댓글 조회 실패", err);
+      }
+    };
+
+    fetchComments();
   }, [open, post?.id]);
 
   // ✅ 2) 키보드 이벤트만 담당 (초기화 절대 금지)
@@ -357,7 +409,7 @@ const CommunityPostModal = ({
                 ) : (
                   comments.map((c, idx) => {
                     const mine = isMine(c);
-                    const key = `${c.nickname}-${idx}`;
+                    const key = `${c.id}-${idx}`;
                     const isEditing = editingKey === key;
 
                     return (
@@ -365,10 +417,12 @@ const CommunityPostModal = ({
                         {/* 닉네임 줄(오른쪽 끝에 메뉴) */}
                         <S.CommentTop>
                           <S.CommentLeft>
-                            <S.CommentNickname>{c.nickname}</S.CommentNickname>
+                            <S.CommentNickname>
+                              {c.member?.memberName ?? "익명"}
+                            </S.CommentNickname>
 
                             <S.CommentMeta>
-                              <S.CommentTime>{c.time}</S.CommentTime>
+                              <S.CommentTime>{c.createdAt}</S.CommentTime>
                               {mine && <S.MineTag>나</S.MineTag>}
                             </S.CommentMeta>
                           </S.CommentLeft>
@@ -441,7 +495,7 @@ const CommunityPostModal = ({
                               onClick={(e) => e.stopPropagation()}
                             />
                           ) : (
-                            <S.CommentText>{c.text}</S.CommentText>
+                            <S.CommentText>{c.content}</S.CommentText>
                           )}
                         </S.CommentTextWrap>
 
