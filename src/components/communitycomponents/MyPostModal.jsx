@@ -115,7 +115,9 @@ const MyPostModal = ({
       id: Date.now(),
       content: text,
       createdAt: new Date().toISOString(),
-      nickname: meNickname || "나",
+      member: {
+        memberName: meNickname || "나",
+      },
     };
 
     setComments((prev) => [optimistic, ...prev]);
@@ -138,7 +140,7 @@ const MyPostModal = ({
     }
   }, [commentText, post?.id, onSubmitComment, meNickname]);
 
-  // ===== 댓글 편집 =====
+  // ===== 댓글 수정 =====
   const startEdit = useCallback((key, c) => {
     setEditingKey(key);
     setDraftText(c?.content ?? "");
@@ -152,14 +154,35 @@ const MyPostModal = ({
   }, []);
 
   const saveEdit = useCallback(
-    (c) => {
+    async (c) => {
       const next = draftText.trim();
-      if (!next) return;
-      onEditComment?.(c, next);
+      if (!next || !post?.id) return;
+
+      const prevComments = comments;
+
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === c.id
+            ? { ...comment, content: next, updatedAt: new Date().toISOString() }
+            : comment,
+        ),
+      );
+
       setEditingKey(null);
       setDraftText("");
+
+      try {
+        await onEditComment?.(c, next);
+
+        const data = await getCommentsByPostId(post.id);
+        setComments(data);
+      } catch (err) {
+        console.error("댓글 수정 실패", err);
+        setComments(prevComments);
+        alert(err.message);
+      }
     },
-    [draftText, onEditComment],
+    [draftText, onEditComment, post?.id, comments],
   );
 
   // ✅ 댓글 key 목록 (select all 계산용)
@@ -196,17 +219,42 @@ const MyPostModal = ({
   }, [allCommentKeys]);
 
   // ===== 선택 삭제 실행 =====
-  const handleDeleteSelected = useCallback(() => {
+  const handleDeleteSelected = useCallback(async () => {
     if (!post?.id) return;
     if (selectedKeys.size === 0) return;
 
     const ok = window.confirm("선택한 댓글을 삭제할까요?");
     if (!ok) return;
 
-    onDeleteSelectedComments?.(post.id, Array.from(selectedKeys));
+    const selectedSet = new Set(selectedKeys);
+    const prevComments = comments;
+
+    const selectedCommentIds = comments
+      .filter((c, idx) => selectedSet.has(`${c.id}-${idx}`))
+      .map((c) => c.id)
+      .filter(Boolean);
+
+    if (selectedCommentIds.length === 0) return;
+
+    // 즉시 UI 반영
+    setComments((prev) =>
+      prev.filter((c, idx) => !selectedSet.has(`${c.id}-${idx}`)),
+    );
+
     setSelectedKeys(new Set());
     setSelectMode(false);
-  }, [post?.id, selectedKeys, onDeleteSelectedComments]);
+
+    try {
+      await onDeleteSelectedComments?.(post.id, selectedCommentIds);
+
+      const data = await getCommentsByPostId(post.id);
+      setComments(data);
+    } catch (error) {
+      console.error("선택 댓글 삭제 실패", error);
+      setComments(prevComments);
+      alert(error.message);
+    }
+  }, [post?.id, selectedKeys, comments, onDeleteSelectedComments]);
 
   // ===== selectMode 종료 =====
   const exitSelectMode = useCallback(() => {
@@ -215,7 +263,7 @@ const MyPostModal = ({
   }, []);
 
   // ===== 게시글 편집 draft 초기화 =====
-  // 터미널 에러 (경고니까 그냥 무시) eslint-disable-next-line react-hooks/exhaustive-deps 
+  // 터미널 에러 (경고니까 그냥 무시) eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!open) return;
 
@@ -806,7 +854,9 @@ const MyPostModal = ({
                       <S.CommentItem key={key}>
                         <S.CommentTop>
                           <S.CommentLeft>
-                            <S.CommentNickname>{c.member?.memberName ?? "익명"}</S.CommentNickname>
+                            <S.CommentNickname>
+                              {c.member?.memberName ?? "익명"}
+                            </S.CommentNickname>
 
                             <S.CommentMeta>
                               <S.CommentTime>{c.createdAt}</S.CommentTime>
@@ -1020,11 +1070,35 @@ const MyPostModal = ({
                   $danger
                   onMouseEnter={() => setHoverKey(openCommentMenu.key + "-del")}
                   onMouseLeave={() => setHoverKey(null)}
-                  onClick={() => {
+                  onClick={async () => {
                     const c = openCommentMenu.comment;
+
                     setOpenCommentMenu(null);
                     setCommentMenuPos(null);
-                    onDeleteComment?.(c);
+
+                    const ok = window.confirm("댓글을 삭제할까요?");
+                    if (!ok || !c?.id || !post?.id) return;
+
+                    const prevComments = comments;
+
+                    // 즉시 UI 반영
+                    setComments((prev) =>
+                      prev.filter((comment) => comment.id !== c.id),
+                    );
+
+                    try {
+                      await onDeleteComment?.(c);
+
+                      // 서버 최신화
+                      const data = await getCommentsByPostId(post.id);
+                      setComments(data);
+                    } catch (error) {
+                      console.error("댓글 삭제 실패", error);
+
+                      // 실패하면 롤백
+                      setComments(prevComments);
+                      alert(error.message);
+                    }
                   }}
                 >
                   <S.MenuIcon

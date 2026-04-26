@@ -257,75 +257,84 @@ const CommunityMain = () => {
 
   // ===== 댓글 등록 (로그인 필요) =====
   const handleSubmitComment = useCallback(
-  async (text) => {
-    const trimmed = String(text ?? "").trim();
-    if (!trimmed || !selectedPost?.id) return;
+    async (text) => {
+      const trimmed = String(text ?? "").trim();
+      if (!trimmed || !selectedPost?.id) return;
 
-    if (!currentUser) {
-      setLoginModalOpen(true);
-      return;
-    }
+      if (!currentUser) {
+        setLoginModalOpen(true);
+        return;
+      }
 
-    try {
-      await createComment({
-        postId: selectedPost.id,
-        content: trimmed,
-      });
+      try {
+        await createComment({
+          postId: selectedPost.id,
+          content: trimmed,
+        });
 
-      await fetchPosts();
-      return true;
-    } catch (error) {
-      console.error("댓글 등록 실패:", error);
-      alert(error.message);
-      throw error;
-    }
-  },
-  [selectedPost, currentUser, fetchPosts],
-);
+        await fetchPosts();
+        return true;
+      } catch (error) {
+        console.error("댓글 등록 실패:", error);
+        alert(error.message);
+        throw error;
+      }
+    },
+    [selectedPost, currentUser, fetchPosts],
+  );
 
   // ===== 댓글 수정  =====
   const handleEditComment = useCallback(
-    (comment, nextTextFromModal) => {
-      requireLogin(async () => {
-        const nextText =
-          typeof nextTextFromModal === "string"
-            ? nextTextFromModal
-            : window.prompt("댓글을 수정하세요", comment?.text ?? "");
+    async (comment, nextTextFromModal) => {
+      const nextText =
+        typeof nextTextFromModal === "string"
+          ? nextTextFromModal
+          : window.prompt("댓글을 수정하세요", comment?.content ?? "");
 
-        if (nextText === null) return;
+      if (nextText === null) return;
 
-        const trimmed = String(nextText).trim();
-        if (!trimmed || !comment?.id) return;
+      const trimmed = String(nextText).trim();
+      if (!trimmed || !comment?.id) return;
 
-        try {
-          await updateCommentApi(comment.id, trimmed);
-          await fetchPosts();
-        } catch (error) {
-          console.error("댓글 수정 실패:", error);
-          alert(error.message);
-        }
-      });
+      if (!currentUser) {
+        setLoginModalOpen(true);
+        return;
+      }
+
+      try {
+        await updateCommentApi(comment.id, trimmed);
+        await fetchPosts();
+        return true;
+      } catch (error) {
+        console.error("댓글 수정 실패:", error);
+        alert(error.message);
+        throw error;
+      }
     },
-    [requireLogin, fetchPosts],
+    [currentUser, fetchPosts],
   );
 
   // 댓글 단일 삭제
   const handleDeleteComment = useCallback(
-    (comment) => {
-      requireLogin(async () => {
-        const ok = window.confirm("댓글을 삭제할까요?");
-        if (!ok || !comment?.id) return;
+    async (comment) => {
+      if (!comment?.id) return;
 
-        try {
-          await deleteCommentApi(comment.id);
-          await fetchPosts();
-        } catch (error) {
-          console.error("댓글 삭제 실패:", error);
-          alert(error.message);
-        }
-      });
+      if (!currentUser) {
+        setLoginModalOpen(true);
+        return;
+      }
+
+      try {
+        await deleteCommentApi(comment.id);
+        await fetchPosts();
+        return true;
+      } catch (error) {
+        console.error("댓글 삭제 실패:", error);
+        alert(error.message);
+        throw error;
+      }
     },
-    [requireLogin, fetchPosts],
+    [currentUser, fetchPosts],
   );
 
   // ===== 내 글 전용 액션들 =====
@@ -434,30 +443,25 @@ const CommunityMain = () => {
 
   // 선택 댓글 삭제
   const handleDeleteSelectedComments = useCallback(
-    (postId, selectedKeys) => {
-      requireLogin(async () => {
-        const selectedSet = new Set(selectedKeys ?? []);
+    async (postId, commentIds) => {
+      if (!currentUser) {
+        setLoginModalOpen(true);
+        return;
+      }
 
-        const commentIds = (selectedPost?.comments ?? [])
-          .filter((c, idx) => {
-            const key = `${c.nickname}-${idx}`;
-            return selectedSet.has(key);
-          })
-          .map((c) => c.id)
-          .filter(Boolean);
+      if (!postId || !commentIds?.length) return;
 
-        if (!commentIds.length) return;
-
-        try {
-          await deleteSelectedCommentsApi(commentIds);
-          await fetchPosts();
-        } catch (error) {
-          console.error("선택 댓글 삭제 실패:", error);
-          alert(error.message);
-        }
-      });
+      try {
+        await deleteSelectedCommentsApi(commentIds);
+        await fetchPosts();
+        return true;
+      } catch (error) {
+        console.error("선택 댓글 삭제 실패:", error);
+        alert(error.message);
+        throw error;
+      }
     },
-    [requireLogin, selectedPost, fetchPosts],
+    [currentUser, fetchPosts],
   );
 
   // ===== 트렌딩 카드 클릭 =====
