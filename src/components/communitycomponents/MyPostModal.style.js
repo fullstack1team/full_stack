@@ -7,6 +7,7 @@ import { flexCenter, FONT_STYLE } from "../../styles/common";
 /* ---------- modal ---------- */
 
 export const Backdrop = styled.div`
+  width: 100%;
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -15,6 +16,7 @@ export const Backdrop = styled.div`
   ${flexCenter}
 
   padding: 28px;
+
 `;
 
 export const Modal = styled.div`
@@ -33,6 +35,7 @@ export const Hero = styled.div`
   height: 330px;
   overflow: hidden;
   background: #000;
+
 `;
 
 export const ImageWrapper = styled.div`
@@ -192,6 +195,7 @@ export const Body = styled.div`
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
+
 `;
 
 export const Left = styled.div`
@@ -429,13 +433,26 @@ export const SectionDivider = styled.div`
 
 export const CommentScrollArea = styled.div`
   flex: 1;
-  min-height: 188px;
+  /* min-height: 188px;
+  max-height: 300px; */
+  /* min-height: 0; */
+  max-height: 170px;
   overflow: auto;
 
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding-right: 6px;
+
+  /* 스크롤바 깔끔하게 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
+  }
 `;
 
 export const EmptyComment = styled.div`
@@ -690,7 +707,6 @@ export const SelectAllButton = styled.button`
 
   padding: 3px 6px;
   border-radius: 8px;
-
 `;
 
 export const SelectAllText = styled.span`

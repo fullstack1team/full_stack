@@ -90,6 +90,7 @@ const CommunityPostModal = ({
     setIsCommentComposeOpen(false);
   }, []);
 
+  // 댓글 생성
   const handleSend = useCallback(async () => {
     if (!isAuthenticated) {
       requireLogin?.(() => {});
@@ -123,11 +124,11 @@ const CommunityPostModal = ({
       const data = await getCommentsByPostId(post.id);
       console.log("fresh comments", data);
       setComments(data);
-    } catch (err) {
-      console.error("댓글 생성 실패", err);
+    } catch (error) {
+      console.error("댓글 생성 실패", error);
 
       setComments((prev) => prev.filter((c) => c.id !== optimisticComment.id));
-      alert(err.message);
+      alert(error.message);
     }
   }, [
     commentText,
@@ -154,14 +155,35 @@ const CommunityPostModal = ({
 
   // ✅ 수정 저장
   const saveEdit = useCallback(
-    (c) => {
+    async (c) => {
       const next = draftText.trim();
-      if (!next) return;
-      onEditComment?.(c, next);
+      if (!next || !post?.id) return;
+
+      const prevComments = comments;
+
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === c.id
+            ? { ...comment, content: next, updatedAt: new Date().toISOString() }
+            : comment,
+        ),
+      );
+
       setEditingKey(null);
       setDraftText("");
+
+      try {
+        await onEditComment?.(c, next);
+
+        const data = await getCommentsByPostId(post.id);
+        setComments(data);
+      } catch (err) {
+        console.error("댓글 수정 실패", err);
+        setComments(prevComments);
+        alert(err.message);
+      }
     },
-    [draftText, onEditComment],
+    [draftText, onEditComment, post?.id, comments],
   );
 
   // ✅ open/post 바뀔 때 초기화
@@ -621,11 +643,34 @@ const CommunityPostModal = ({
                 $danger
                 onMouseEnter={() => setHoverKey(openMenu.key + "-del")}
                 onMouseLeave={() => setHoverKey(null)}
-                onClick={() => {
+                onClick={async () => {
                   const c = openMenu.comment;
+
                   setOpenMenu(null);
                   setMenuPos(null);
-                  onDeleteComment?.(c);
+
+                  const ok = window.confirm("댓글을 삭제할까요?");
+                  if (!ok || !c?.id || !post?.id) return;
+
+                  const prevComments = comments;
+
+                  // 🔥 즉시 삭제
+                  setComments((prev) =>
+                    prev.filter((comment) => comment.id !== c.id),
+                  );
+
+                  try {
+                    await onDeleteComment?.(c);
+
+                    const data = await getCommentsByPostId(post.id);
+                    setComments(data);
+                  } catch (error) {
+                    console.error("댓글 삭제 실패", error);
+
+                    // 롤백
+                    setComments(prevComments);
+                    alert(error.message);
+                  }
                 }}
               >
                 <S.MenuIcon
