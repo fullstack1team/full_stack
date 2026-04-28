@@ -14,7 +14,7 @@ import LoginRequireModal from "../../components/layoutcomponents/loginrequiremod
 import usePostStore from "../../store/postStore";
 import useAuthStore from "../../store/authStore";
 import { createPostLike, deletePostLike } from "../../api/postLike";
-import { updatePost, deletePost } from "../../api/post";
+import { updatePost, deletePost, getPostDetail } from "../../api/post";
 import {
   createComment,
   updateComment as updateCommentApi,
@@ -107,6 +107,11 @@ const CommunityMain = () => {
       liked: raw?.liked ?? false,
       content: raw?.postContent ?? raw?.content ?? raw?.desc ?? "",
       ingredients: Array.isArray(raw?.ingredients) ? raw.ingredients : [],
+
+      postIngredientUsed: Array.isArray(raw?.postIngredientUsed)
+        ? raw.postIngredientUsed
+        : [],
+
       createdAt: raw?.createdAt ?? "",
       comments: Array.isArray(raw?.comment)
         ? raw.comment.map((c) => ({
@@ -140,6 +145,9 @@ const CommunityMain = () => {
       recipeTitle: item.recipeName ?? "",
       content: item.content ?? "",
       ingredients: item.ingredients ?? [],
+
+      postIngredientUsed: item.postIngredientUsed ?? [],
+
       xp: item.xp ?? 0,
       comments: item.comments ?? [],
     };
@@ -205,25 +213,69 @@ const CommunityMain = () => {
 
   // 카드 클릭: 내 글이면 MyPostModal / 아니면 CommunityPostModal
   const handleOpenAnyPostModal = useCallback(
-    (item) => {
-      const post = buildPostForModal(item);
-      const isMine = !!meNickname && post.author?.nickname === meNickname;
+    async (item) => {
+      try {
+        const detail = await getPostDetail(item.id);
 
-      if (isMine) {
-        requireLogin(() => {
-          setSelectedPost(post);
-          setIsMyPostModalOpen(true);
-          setIsOtherPostModalOpen(false);
-        });
-        return;
+        const post = {
+          id: detail.id,
+          images: detail.images ?? [],
+          author: {
+            nickname: detail.member?.memberName ?? "익명",
+            level: detail.member?.memberLevel ?? 1,
+          },
+          likes: detail.likes ?? 0,
+          liked: detail.liked ?? false,
+          createdAt: detail.createdAt ?? "",
+          recipeTitle: detail.recipe?.recipeTitle ?? detail.postTitle ?? "",
+          content: detail.postContent ?? "",
+          ingredients: detail.ingredients ?? [],
+          postIngredientUsed: detail.postIngredientUsed ?? [],
+          xp: detail.postXp ?? 0,
+          comments: detail.comment ?? [],
+        };
+
+        const isMine = !!meNickname && post.author?.nickname === meNickname;
+
+        setSelectedPost(post);
+
+        if (isMine) {
+          requireLogin(() => {
+            setIsMyPostModalOpen(true);
+            setIsOtherPostModalOpen(false);
+          });
+          return;
+        }
+
+        setIsOtherPostModalOpen(true);
+        setIsMyPostModalOpen(false);
+      } catch (error) {
+        console.error("게시글 상세 조회 실패:", error);
+        alert(error.message);
       }
-
-      setSelectedPost(post);
-      setIsOtherPostModalOpen(true);
-      setIsMyPostModalOpen(false);
     },
-    [buildPostForModal, meNickname, requireLogin],
+    [meNickname, requireLogin],
   );
+  // const handleOpenAnyPostModal = useCallback(
+  //   (item) => {
+  //     const post = buildPostForModal(item);
+  //     const isMine = !!meNickname && post.author?.nickname === meNickname;
+
+  //     if (isMine) {
+  //       requireLogin(() => {
+  //         setSelectedPost(post);
+  //         setIsMyPostModalOpen(true);
+  //         setIsOtherPostModalOpen(false);
+  //       });
+  //       return;
+  //     }
+
+  //     setSelectedPost(post);
+  //     setIsOtherPostModalOpen(true);
+  //     setIsMyPostModalOpen(false);
+  //   },
+  //   [buildPostForModal, meNickname, requireLogin],
+  // );
 
   const handleCloseModals = useCallback(() => {
     setIsOtherPostModalOpen(false);

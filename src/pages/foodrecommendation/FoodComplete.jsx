@@ -85,13 +85,13 @@ const FoodComplete = () => {
   }, []);
 
   const ingredientList = Array.isArray(recipe?.ingredients)
-  ? recipe.ingredients
-      .map((item) => {
-        if (typeof item === "string") return item;
-        return item?.name ?? item?.ingredientName ?? "";
-      })
-      .filter(Boolean)
-  : [];
+    ? recipe.ingredients
+        .map((item) => {
+          if (typeof item === "string") return item;
+          return item?.name ?? item?.ingredientName ?? "";
+        })
+        .filter(Boolean)
+    : [];
 
   useEffect(() => {
     if (!recipe) return; // 여기서 방어
@@ -122,13 +122,24 @@ const FoodComplete = () => {
       return;
     }
 
+    const selectedIngredientNames = selectedItems
+      .map((index) => {
+        const item = recipe.ingredients[index];
+
+        if (typeof item === "string") return item;
+        return item?.name ?? item?.ingredientName ?? "";
+      })
+      .filter(Boolean);
+
     const payload = {
       memberId: user?.id ?? user?.memberId,
       recipeId: recipe?.id,
       postTitle: recipe?.title.slice(0, 190),
       postContent: review.slice(0, 190),
+      ingredientNames: selectedIngredientNames,
     };
 
+    console.log(recipe.ingredients);
     console.log("authStore:", authStore);
     console.log("user:", user);
     console.log("recipe:", recipe);

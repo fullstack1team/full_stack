@@ -274,6 +274,10 @@ const CommunityPostModal = ({
 
   if (!open) return null;
 
+  console.log("🔥 모달 post 전체:", post);
+  console.log("🔥 모달 postIngredientUsed:", post?.postIngredientUsed);
+  console.log("🔥 모달 ingredients:", post?.ingredients);
+
   const count = commentText.length;
 
   const handleLikeClick = async () => {
@@ -286,6 +290,9 @@ const CommunityPostModal = ({
     } catch (err) {
       console.error("좋아요 실패", err);
     }
+
+    console.log("🔥 post 전체:", post);
+    console.log("🔥 재료:", post.postIngredientUsed);
   };
 
   return (
@@ -401,9 +408,15 @@ const CommunityPostModal = ({
             <S.SectionTitle>사용한 재료</S.SectionTitle>
 
             <S.ChipRow>
-              {(post?.ingredients ?? []).map((ing) => (
-                <S.Chip key={ing}>{ing}</S.Chip>
-              ))}
+              {(post?.postIngredientUsed ?? []).length > 0 ? (
+                post.postIngredientUsed.map((item) => (
+                  <S.Chip key={item.id}>
+                    {item.ingredient?.ingredientName}
+                  </S.Chip>
+                ))
+              ) : (
+                <span>사용한 재료를 불러오지 못했어요</span>
+              )}
             </S.ChipRow>
 
             <S.XpBox>

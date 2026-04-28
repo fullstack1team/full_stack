@@ -289,7 +289,11 @@ const MyPostModal = ({
 
     setPostDraftTitle(post?.recipeTitle ?? "");
     setPostDraftContent(post?.content ?? "");
-    setPostDraftIngredients((post?.ingredients ?? []).join(", "));
+    setPostDraftIngredients(
+      (post?.postIngredientUsed ?? [])
+        .map((item) => item.ingredient?.ingredientName)
+        .join(", "),
+    );
   }, [open, post?.id]);
 
   // ===== 게시글 이미지 수정(file input) =====
@@ -452,6 +456,10 @@ const MyPostModal = ({
   }, [open]);
 
   if (!open) return null;
+
+  console.log("🔥 modal post:", post);
+  console.log("🔥 postIngredientUsed:", post?.postIngredientUsed);
+  console.log("🔥 ingredient length:", post?.postIngredientUsed?.length);
 
   const count = commentText.length;
 
@@ -700,8 +708,10 @@ const MyPostModal = ({
 
                 <S.SectionTitle>사용한 재료</S.SectionTitle>
                 <S.ChipRow>
-                  {(post?.ingredients ?? []).map((ing) => (
-                    <S.Chip key={ing}>{ing}</S.Chip>
+                  {(post?.postIngredientUsed ?? []).map((item) => (
+                    <S.Chip key={item.id}>
+                      {item.ingredient?.ingredientName ?? "재료 없음"}
+                    </S.Chip>
                   ))}
                 </S.ChipRow>
 
