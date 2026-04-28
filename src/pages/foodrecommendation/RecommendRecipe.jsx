@@ -53,9 +53,11 @@ const RecommendRecipe = () => {
   // Step 분리
   // =========================
   const steps =
-    recipe.steps?.length > 0
+    Array.isArray(recipe.steps) && recipe.steps.length > 0
       ? recipe.steps
-      : recipe.recipe?.split(/\d+\.\s/).filter((s) => s.trim() !== "");
+      : typeof recipe.recipe === "string"
+        ? recipe.recipe.split(/\d+\.\s/).filter((s) => s.trim() !== "")
+        : [];
 
   // =========================
   // 재료 분류
@@ -143,15 +145,18 @@ const RecommendRecipe = () => {
         <S.StepTitle>만드는 방법</S.StepTitle>
 
         <S.StepGrid>
-          {steps.map((step, index) => (
-            <S.StepCard key={index}>
-              <S.StepNumber>{index + 1}</S.StepNumber>
-
-              <S.StepContent>
-                <p>{step}</p>
-              </S.StepContent>
-            </S.StepCard>
-          ))}
+          {steps.length > 0 ? (
+            steps.map((step, index) => (
+              <S.StepCard key={index}>
+                <S.StepNumber>{index + 1}</S.StepNumber>
+                <S.StepContent>
+                  <p>{step}</p>
+                </S.StepContent>
+              </S.StepCard>
+            ))
+          ) : (
+            <div>조리 과정 정보가 없습니다.</div>
+          )}
         </S.StepGrid>
 
         {/* 버튼 */}

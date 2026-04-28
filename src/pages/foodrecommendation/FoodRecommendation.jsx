@@ -18,6 +18,12 @@ const FoodRecommendation = () => {
         });
         const data = await res.json();
 
+        if (!res.ok || data?.statusCode >= 400) {
+      console.error("추천 API 실패:", data);
+      setRecipes([]);
+      return;
+    }
+
         // UI 유지하면서 데이터만 교체
         setRecipes([data]);
       } catch (e) {
@@ -32,7 +38,9 @@ const FoodRecommendation = () => {
 
   const handleClickCard = (item) => {
     navigate(`/foodrecommendation/recommendRecipe/${item.id}`, {
-      state: { recipe: item },
+      state: { 
+        recipe: item
+      },
     });
   };
 
@@ -54,7 +62,7 @@ const FoodRecommendation = () => {
             ) : (
               recipes.map((item, index) => (
                 <MyRecipeCard
-                  key={index}
+                  key={item.id ?? item.recipeId ?? index}
                   item={item}
                   onClick={() => handleClickCard(item)}
                 />

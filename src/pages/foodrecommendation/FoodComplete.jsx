@@ -84,9 +84,14 @@ const FoodComplete = () => {
     return () => observer.disconnect();
   }, []);
 
-  const ingredientList = (recipe?.ingredients || []).map((item) =>
-    typeof item === "string" ? item : item.name,
-  );
+  const ingredientList = Array.isArray(recipe?.ingredients)
+  ? recipe.ingredients
+      .map((item) => {
+        if (typeof item === "string") return item;
+        return item?.name ?? item?.ingredientName ?? "";
+      })
+      .filter(Boolean)
+  : [];
 
   useEffect(() => {
     if (!recipe) return; // 여기서 방어
@@ -119,9 +124,9 @@ const FoodComplete = () => {
 
     const payload = {
       memberId: user?.id ?? user?.memberId,
-      recipeId: recipe?.id ?? recipe?.recipeId,
-      postTitle: recipe?.title ?? recipe?.recipeTitle,
-      postContent: review,
+      recipeId: recipe?.id,
+      postTitle: recipe?.title.slice(0, 190),
+      postContent: review.slice(0, 190),
     };
 
     console.log("authStore:", authStore);
