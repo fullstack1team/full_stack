@@ -34,7 +34,12 @@ const CommunityPostModal = ({
   const [editingKey, setEditingKey] = useState(null);
   const [draftText, setDraftText] = useState("");
 
-  const images = useMemo(() => post?.images ?? [], [post]);
+  const images = useMemo(() => {
+    return (post?.postImage ?? [])
+      .slice()
+      .sort((a, b) => a.imageOrder - b.imageOrder)
+      .map((img) => img.imageUrl)
+  }, [post?.postImage]);
 
   const hasImages = images.length > 0;
   const safeIndex = clamp(activeIndex, 0, Math.max(0, images.length - 1));

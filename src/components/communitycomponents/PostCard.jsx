@@ -74,7 +74,10 @@ const PostCard = ({
 
   // ===== 기본 데이터 =====
   const recipeImage =
-    item?.images?.[0] ?? item?.recipeImage ?? "/assets/images/oatmeal.svg";
+    item?.postImage?.[0]?.imageUrl ??
+    item?.images?.[0] ??
+    item?.recipeImage ??
+    "/assets/images/oatmeal.svg";
   const profileImage = item?.profileImage ?? "/assets/images/pinggu.svg";
   const recipeName = item?.recipeName ?? item?.recipeTitle ?? "요리명 없음";
 

@@ -36,7 +36,12 @@ const MyPostModal = ({
 }) => {
   // 이미지/댓글
   const [activeIndex, setActiveIndex] = useState(0);
-  const images = useMemo(() => post?.images ?? [], [post]);
+  const images = useMemo(() => {
+  return (post?.postImage ?? [])
+    .slice()
+    .sort((a, b) => a.imageOrder - b.imageOrder)
+    .map((img) => img.imageUrl);
+}, [post?.postImage]);
   const [comments, setComments] = useState([]);
   const hasImages = images.length > 0;
   const safeIndex = clamp(activeIndex, 0, Math.max(0, images.length - 1));
