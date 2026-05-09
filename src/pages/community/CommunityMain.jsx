@@ -94,10 +94,10 @@ const CommunityMain = () => {
 
       // 카드 상단 제목 = 요리명
       recipeName:
-        raw?.recipe?.recipeTitle ??
+        raw?.postTitle ??
         raw?.recipeTitle ??
         raw?.recipeName ??
-        raw?.postTitle ??
+        raw?.recipe?.recipeTitle ??
         raw?.title ??
         "",
       nickname: String(nicknameRaw).trim() || "익명",
@@ -337,7 +337,7 @@ const CommunityMain = () => {
           likes: detail.likes ?? 0,
           liked: detail.liked ?? false,
           createdAt: detail.createdAt ?? "",
-          recipeTitle: detail.recipe?.recipeTitle ?? detail.postTitle ?? "",
+          recipeTitle: detail.postTitle ?? detail.recipe?.recipeTitle ?? "",
           content: detail.postContent ?? "",
           ingredients: detail.ingredients ?? [],
           postIngredientUsed: detail.postIngredientUsed ?? [],
@@ -391,6 +391,13 @@ const CommunityMain = () => {
     setIsOtherPostModalOpen(false);
     setIsMyPostModalOpen(false);
     setSelectedPost(null);
+
+    // esc로 모달 닫으면 생기는 검은 테두리 제거
+    requestAnimationFrame(() => {
+      if(document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
+    })
   }, []);
 
   // 쿼리스트링으로 모달 열기(postId) - 테스트용
@@ -522,20 +529,66 @@ const CommunityMain = () => {
     (postId, patch) => {
       requireLogin(async () => {
         try {
-          await updatePost(postId, {
-            postTitle: patch?.recipeTitle,
-            postContent: patch?.content,
-          });
+          console.log("부모 handleEditPost patch:", patch);
 
+          // MyPostModal에서 이미 postTitle, postContent, ingredientNames로 만들어서 넘기니까 그대로 보냄
+          await updatePost(postId, patch);
+
+          // 목록 최신화
           await fetchPosts();
 
+          // 수정된 상세 데이터 다시 조회
+          const detail = await getPostDetail(postId);
+
+          // 이미지도 기존처럼 다시 조회
+          let imageList = selectedPost?.images ?? [];
+
+          try {
+            const postImages = await getPostImages(postId);
+
+            imageList = Array.isArray(postImages)
+              ? postImages
+                  .slice()
+                  .sort((a, b) => (a.imageOrder ?? 0) - (b.imageOrder ?? 0))
+                  .map((img) =>
+                    typeof img === "string"
+                      ? img
+                      : (img.imageUrl ??
+                        img.postImageUrl ??
+                        img.url ??
+                        img.image ??
+                        img.imagePath ??
+                        img.postImagePath),
+                  )
+                  .filter(Boolean)
+              : imageList;
+          } catch (imageError) {
+            console.error("수정 후 이미지 재조회 실패:", imageError);
+          }
+
+          // 모달 즉시 최신 데이터로 갱신
           setSelectedPost((prev) => {
             if (!prev || prev.id !== postId) return prev;
+
             return {
               ...prev,
-              recipeTitle: patch?.recipeTitle ?? prev.recipeTitle,
-              content: patch?.content ?? prev.content,
-              ingredients: patch?.ingredients ?? prev.ingredients,
+              images: imageList,
+              recipeTitle:
+                detail.postTitle ??
+                detail.recipe?.recipeTitle ??
+                prev.recipeTitle,
+              content: detail.postContent ?? prev.content,
+              postIngredientUsed: detail.postIngredientUsed ?? [],
+              xp: detail.postXp ?? prev.xp,
+              createdAt: detail.createdAt ?? prev.createdAt,
+              likes: detail.likes ?? prev.likes,
+              liked: detail.liked ?? prev.liked,
+              comments: detail.comment ?? prev.comments,
+              author: {
+                nickname:
+                  detail.member?.memberName ?? prev.author?.nickname ?? "익명",
+                level: detail.member?.memberLevel ?? prev.author?.level ?? 1,
+              },
             };
           });
         } catch (error) {
@@ -544,7 +597,7 @@ const CommunityMain = () => {
         }
       });
     },
-    [requireLogin, fetchPosts],
+    [requireLogin, fetchPosts, selectedPost?.images],
   );
 
   // 게시글 삭제

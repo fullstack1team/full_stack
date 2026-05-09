@@ -377,17 +377,24 @@ const MyPostModal = ({
     setIsPostEditing(false);
     setPostDraftTitle(post?.recipeTitle ?? "");
     setPostDraftContent(post?.content ?? "");
-    setPostDraftIngredients((post?.ingredients ?? []).join(", "));
+    setPostDraftIngredients(
+      (post?.postIngredientUsed ?? [])
+        .map((item) => item.ingredient?.ingredientName)
+        .filter(Boolean)
+        .join(", "),
+    );
   }, [post?.recipeTitle, post?.content, post?.ingredients]);
 
   const savePostEdit = useCallback(() => {
+    const ingredientNames = postDraftIngredients
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
     const patch = {
-      recipeTitle: postDraftTitle.trim(),
-      content: postDraftContent.trim(),
-      ingredients: postDraftIngredients
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      postTitle: postDraftTitle.trim(),
+      postContent: postDraftContent.trim(),
+      ingredientNames,
     };
 
     onEditPost?.(post?.id, patch);
@@ -933,7 +940,9 @@ const MyPostModal = ({
                             </S.CommentNickname>
 
                             <S.CommentMeta>
-                              <S.CommentTime>{formatRelativeTime(c.createdAt)}</S.CommentTime>
+                              <S.CommentTime>
+                                {formatRelativeTime(c.createdAt)}
+                              </S.CommentTime>
                               {mine && <S.MineTag>나</S.MineTag>}
                             </S.CommentMeta>
                           </S.CommentLeft>
