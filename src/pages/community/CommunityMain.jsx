@@ -101,7 +101,13 @@ const CommunityMain = () => {
         raw?.title ??
         "",
       nickname: String(nicknameRaw).trim() || "익명",
-      level: raw?.author?.level ?? raw?.level ?? raw?.authorLevel ?? 1,
+      level:
+        raw?.member?.memberLevel ??
+        raw?.member?.level ??
+        raw?.author?.level ??
+        raw?.level ??
+        raw?.authorLevel ??
+        1,
       images:
         Array.isArray(raw?.postImage) && raw.postImage.length > 0
           ? raw.postImage.map((img) => img.imageUrl).filter(Boolean)
@@ -284,9 +290,10 @@ const CommunityMain = () => {
       try {
         const detail = await getPostDetail(item.id);
 
+        console.log("🔥 작성자 닉네임:", detail.member?.memberName);
+
         console.log("🔥 클릭한 카드 item:", item);
         console.log("🔥 상세 조회할 postId:", item.id);
-        console.log("🔥 게시글 상세 데이터:", detail);
 
         let imageList = [];
 
@@ -332,7 +339,12 @@ const CommunityMain = () => {
           images: imageList,
           author: {
             nickname: detail.member?.memberName ?? "익명",
-            level: detail.member?.memberLevel ?? 1,
+            level:
+              detail.member?.memberLevel ??
+              detail.member?.level ??
+              detail.memberLevel ??
+              detail.level ??
+              1,
           },
           likes: detail.likes ?? 0,
           liked: detail.liked ?? false,
@@ -394,10 +406,10 @@ const CommunityMain = () => {
 
     // esc로 모달 닫으면 생기는 검은 테두리 제거
     requestAnimationFrame(() => {
-      if(document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur()
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
       }
-    })
+    });
   }, []);
 
   // 쿼리스트링으로 모달 열기(postId) - 테스트용
@@ -529,8 +541,6 @@ const CommunityMain = () => {
     (postId, patch) => {
       requireLogin(async () => {
         try {
-          console.log("부모 handleEditPost patch:", patch);
-
           // MyPostModal에서 이미 postTitle, postContent, ingredientNames로 만들어서 넘기니까 그대로 보냄
           await updatePost(postId, patch);
 
@@ -587,7 +597,13 @@ const CommunityMain = () => {
               author: {
                 nickname:
                   detail.member?.memberName ?? prev.author?.nickname ?? "익명",
-                level: detail.member?.memberLevel ?? prev.author?.level ?? 1,
+                level:
+                  detail.member?.memberLevel ??
+                  detail.member?.level ??
+                  detail.memberLevel ??
+                  detail.level ??
+                  prev.author?.level ??
+                  1,
               },
             };
           });

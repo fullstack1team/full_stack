@@ -522,10 +522,6 @@ const MyPostModal = ({
 
   if (!open) return null;
 
-  console.log("🔥 modal post:", post);
-  console.log("🔥 postIngredientUsed:", post?.postIngredientUsed);
-  console.log("🔥 ingredient length:", post?.postIngredientUsed?.length);
-
   const count = commentText.length;
 
   return (
