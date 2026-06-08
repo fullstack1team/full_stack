@@ -38,7 +38,7 @@ const RecommendRecipe = () => {
     recipe: desc,
     ingredients = [],
     rating = 4.5,
-    xp = 300,
+    xp = 0,
     cookTimeMin = 10,
     level = "쉬움",
     category = "한식",

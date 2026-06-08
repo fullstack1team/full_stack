@@ -3,6 +3,43 @@ import S from "./style";
 import { useNavigate } from "react-router-dom";
 import MyRecipeCard from "../../components/myrecipecomponents/MyRecipeCard";
 
+const getRandomInt = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getXpByLevel = (level) => {
+  const normalizedLevel = String(level || "").replace(/\s/g, "");
+
+  if (normalizedLevel === "쉬움" || normalizedLevel.toLowerCase() === "easy") {
+    return getRandomInt(100, 200);
+  }
+
+  if (
+    normalizedLevel === "보통" ||
+    normalizedLevel === "중간" ||
+    normalizedLevel.toLowerCase() === "medium"
+  ) {
+    return getRandomInt(200, 300);
+  }
+
+  if (
+    normalizedLevel === "어려움" ||
+    normalizedLevel.toLowerCase() === "hard"
+  ) {
+    return getRandomInt(300, 500);
+  }
+
+  return getRandomInt(150, 300);
+};
+
+const addXpToRecipe = (recipe) => {
+  return {
+    ...recipe,
+    xp:
+      Number(recipe?.xp) > 0 ? Number(recipe.xp) : getXpByLevel(recipe?.level),
+  };
+};
+
 const FoodRecommendation = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,13 +56,16 @@ const FoodRecommendation = () => {
         const data = await res.json();
 
         if (!res.ok || data?.statusCode >= 400) {
-      console.error("추천 API 실패:", data);
-      setRecipes([]);
-      return;
-    }
+          console.error("추천 API 실패:", data);
+          const recipeWithXp = addXpToRecipe(data);
+          setRecipes([]);
+          return;
+        }
 
         // UI 유지하면서 데이터만 교체
-        setRecipes([data]);
+        const recipeWithXp = addXpToRecipe(data);
+        setRecipes([recipeWithXp]);
+        
       } catch (e) {
         console.error("추천 실패:", e);
       } finally {
@@ -37,11 +77,14 @@ const FoodRecommendation = () => {
   }, []);
 
   const handleClickCard = (item) => {
-    navigate(`/foodrecommendation/recommendRecipe/${item.id}`, {
-      state: { 
-        recipe: item
+    navigate(
+      `/foodrecommendation/recommendRecipe/${item.id ?? item.recipeId ?? "ai"}`,
+      {
+        state: {
+          recipe: item,
+        },
       },
-    });
+    );
   };
 
   return (
