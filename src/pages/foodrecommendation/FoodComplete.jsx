@@ -69,11 +69,15 @@ const FoodComplete = () => {
 
   const recipe = location.state?.recipe;
 
+  const earnedXp = Number(recipe?.xp ?? 0);
+  const earnedXpMax = 500;
+  const earnedXpPercent = Math.min((earnedXp / earnedXpMax) * 100, 100);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setAnimatedOrange(20);
+          setAnimatedOrange(earnedXpPercent);
           setAnimatedBlue(90);
           observer.disconnect();
         }
@@ -83,7 +87,7 @@ const FoodComplete = () => {
 
     if (xpRef.current) observer.observe(xpRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [earnedXpPercent]);
 
   const ingredientList = Array.isArray(recipe?.ingredients)
     ? recipe.ingredients
@@ -116,7 +120,7 @@ const FoodComplete = () => {
     if (!imageFile) {
       alert("사진을 업로드해주세요.");
       return;
-}
+    }
 
     if (!review.trim()) {
       alert("후기를 작성해주세요.");
@@ -349,7 +353,9 @@ const FoodComplete = () => {
               {/* 총 획득 XP */}
               <S.FCXPLabelRow>
                 <S.FCXPLabel>총 획득 XP</S.FCXPLabel>
-                <S.FCXPText>20 / 200XP</S.FCXPText>
+                <S.FCXPText>
+                  {earnedXp} / {earnedXpMax}XP
+                </S.FCXPText>
               </S.FCXPLabelRow>
 
               <S.FCProgressBar>
