@@ -16,7 +16,12 @@ const VISIBLE = 4;
 const TRENDING_DAYS = 30;
 const TRENDING_TOP_N = 8;
 
-const TrendingCarousel = ({ posts = [], onCardClick, meNickname, onLikeToggle  }) => {
+const TrendingCarousel = ({
+  posts = [],
+  onCardClick,
+  meNickname,
+  onLikeToggle,
+}) => {
   const parseDate = (v) => {
     if (!v) return null;
     if (typeof v === "string") {
@@ -50,7 +55,8 @@ const TrendingCarousel = ({ posts = [], onCardClick, meNickname, onLikeToggle  }
       return {
         id: p.id,
         recipeName: p.recipeTitle ?? p.recipeName ?? "",
-        nickname: String(p.author?.nickname ?? p.nickname ?? "").trim() || "익명",
+        nickname:
+          String(p.author?.nickname ?? p.nickname ?? "").trim() || "익명",
         level: p.author?.level ?? p.level ?? 1,
         likes: p.likes ?? 0,
         liked: p.liked ?? false,
@@ -71,9 +77,16 @@ const TrendingCarousel = ({ posts = [], onCardClick, meNickname, onLikeToggle  }
       return diffDays <= TRENDING_DAYS;
     });
 
-    const sorted = [...recent30].sort(
+    const trendingSource = recent30.length > 0 ? recent30 : list
+
+    const sorted = [...trendingSource].sort(
       (a, b) => (b.likes ?? 0) - (a.likes ?? 0),
     );
+
+    console.log("트렌딩 원본 posts:", posts);
+    console.log("트렌딩 list:", list);
+    console.log("최근 30일 recent30:", recent30);
+    console.log("트렌딩 sorted:", sorted);
 
     return sorted.slice(0, TRENDING_TOP_N);
   }, [posts]);
@@ -99,7 +112,7 @@ const TrendingCarousel = ({ posts = [], onCardClick, meNickname, onLikeToggle  }
     return () => resizeObserver.disconnect();
   }, []);
 
-   // items 길이가 줄면 currentIndex가 범위를 벗어날 수 있어서 보정
+  // items 길이가 줄면 currentIndex가 범위를 벗어날 수 있어서 보정
   useLayoutEffect(() => {
     const max = Math.max(items.length - VISIBLE, 0);
     setCurrentIndex((prev) => Math.min(prev, max));
@@ -127,7 +140,7 @@ const TrendingCarousel = ({ posts = [], onCardClick, meNickname, onLikeToggle  }
     <S.CarouselSection>
       <S.SectionHeader>
         <S.SectionTitle>🔥 인기 급상승 요리</S.SectionTitle>
-        <S.SectionDesc>최근 게시물 중 좋아요가 많은 TOP 8</S.SectionDesc>
+        <S.SectionDesc>좋아요가 많은 인기 게시물 TOP 8</S.SectionDesc>
       </S.SectionHeader>
 
       <S.CaroselBody>
