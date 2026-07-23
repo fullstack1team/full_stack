@@ -247,6 +247,78 @@ export const MetaChip = styled.span`
   white-space: nowrap;
 `;
 
+export const MissingTooltip = styled.div`
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translate(-50%, 5px);
+
+  width: max-content;
+  min-width: 150px;
+  max-width: 240px;
+  padding: 10px 12px;
+
+  border-radius: 10px;
+  background: rgba(32, 32, 32, 0.96);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+
+  color: #fff;
+  text-align: left;
+  white-space: normal;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+
+  z-index: 30;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(32, 32, 32, 0.96) transparent transparent transparent;
+  }
+`;
+
+export const MissingChipWrap = styled.div`
+  position: relative;
+  flex: 1;
+  min-width: 0;
+
+  & > ${MetaChip} {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  &:hover ${MissingTooltip},
+  &:focus-within ${MissingTooltip} {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
+`;
+
+export const TooltipTitle = styled.div`
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+`;
+
+export const TooltipText = styled.div`
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: keep-all;
+`;
+
 /** ---------------------------
  * MyRecipeEmpty (빈 화면)
  * --------------------------- */

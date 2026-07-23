@@ -1,6 +1,6 @@
-// MyRecipeCard.jsx (복붙용: 너 현재 코드 기준 + 토글할 때마다 애니메이션 재실행)
 import React, { useState } from "react";
 import * as S from "./style";
+import { getRecipeRating } from "../../utils/recipeRating";
 
 const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
   const {
@@ -8,14 +8,19 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
     title,
     recipe,
     description,
-    rating,
     xp,
     cookTime,
+    difficulty,
+    level,
     missingIngredients,
     image,
     imageUrl,
     saved,
   } = item;
+
+  const displayDifficulty = difficulty || level || "쉬움";
+
+  const displayRating = getRecipeRating(displayDifficulty, xp);
 
   const bookmarkIcon = saved
     ? "/assets/icons/bookmark_on.svg"
@@ -25,30 +30,50 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
   const [animKey, setAnimKey] = useState(0);
 
   /* ===============================
-     부족한 재료 텍스트 정규화
+     부족한 재료 표시 및 툴팁
      =============================== */
-  const missingText = (() => {
-    if (typeof missingIngredients === "number")
-      return `${missingIngredients}개`;
-    if (Array.isArray(missingIngredients)) {
-      return missingIngredients.length > 0
-        ? `${missingIngredients.length}개`
-        : "없음";
+  const missingIngredientList = Array.isArray(missingIngredients)
+    ? missingIngredients
+        .map((item) => {
+          if (typeof item === "string") return item.trim();
+          if (typeof item?.name === "string") return item.name.trim();
+          return "";
+        })
+        .filter(Boolean)
+    : [];
+
+  const missingCount = (() => {
+    if (missingIngredientList.length > 0) {
+      return missingIngredientList.length;
+    }
+
+    if (typeof missingIngredients === "number") {
+      return missingIngredients;
     }
 
     if (typeof missingIngredients === "string") {
       const cleaned = missingIngredients
-        .replace(/부족한\s*재료\s*\|?\s*/g, "")
+        .replace(/부족한?\s*재료\s*\|?\s*/g, "")
         .trim();
 
-      if (/^\d+$/.test(cleaned)) return `${cleaned}개`;
-      if (/^\d+\s*개$/.test(cleaned)) return cleaned.replace(/\s+/g, "");
+      const countMatch = cleaned.match(/\d+/);
 
-      return cleaned;
+      if (countMatch) {
+        return Number(countMatch[0]);
+      }
     }
-
-    return "없음";
+    return 0;
   })();
+
+  const missingSummary =
+    missingCount > 0 ? `부족한 재료 | ${missingCount}개` : "부족한 재료 | 없음";
+
+  const missingTooltip =
+    missingIngredientList.length > 0
+      ? missingIngredientList.join(" . ")
+      : missingCount > 0
+        ? "부족한 재료의 상세 정보가 없습니다."
+        : "부족한 재료가 없습니다.";
 
   /* ===============================
      북마크 핸들러
@@ -110,6 +135,7 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
         )}
 
         <S.BadgeRow>
+          {/* 왼쪽: 별점 */}
           <S.Badge className="star">
             <img
               src="/assets/icons/star.svg"
@@ -118,15 +144,23 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
               width="16"
               height="16"
             />
-            {rating ? Number(rating).toFixed(1) : "4.5"}
+            {displayRating}
           </S.Badge>
 
-          <S.Badge className="xp">XP {xp || 300}</S.Badge>
+          {/* 오른쪽: XP */}
+          <S.Badge className="xp">XP {xp ?? 0}</S.Badge>
         </S.BadgeRow>
 
         <S.MetaRow>
-          <S.MetaChip>{`조리시간 | ${cookTime || 10}분`}</S.MetaChip>
-          <S.MetaChip>{`부족한 재료 | ${missingText}`}</S.MetaChip>
+          <S.MetaChip>{`조리시간 | ${cookTime ?? 10}분`}</S.MetaChip>
+          {/* <S.MetaChip>{`부족한 재료 | ${missingText}`}</S.MetaChip> */}
+          <S.MissingChipWrap aria-label={`부족한 재료: ${missingTooltip}`}>
+            <S.MetaChip>{missingSummary}</S.MetaChip>
+
+            <S.MissingTooltip>
+              <S.TooltipText>{missingTooltip}</S.TooltipText>
+            </S.MissingTooltip>
+          </S.MissingChipWrap>
         </S.MetaRow>
       </S.Body>
     </S.Card>

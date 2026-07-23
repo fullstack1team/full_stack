@@ -147,8 +147,6 @@ const MyRecipe = () => {
         // 혹시 상세페이지에서 recipe 필드명 기대할 수도 있어서 같이 맞춰주기
         recipe: Array.isArray(recipe.steps) ? recipe.steps.join("\n") : "",
 
-        // 혹시 rating 없는데 map/렌더에 쓰면 기본값
-        rating: recipe.rating ?? 0,
       };
 
       navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
