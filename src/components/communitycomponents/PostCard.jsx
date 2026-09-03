@@ -143,8 +143,14 @@ const PostCard = ({
   const profileImage = getProfileImage(item);
   const recipeName = item?.recipeName ?? item?.recipeTitle ?? "요리명 없음";
 
-  //  닉네임 방어 (빈값 / 공백 방지)
-  const nickname = (item?.nickname || "").trim() || "닉네임 없음";
+  // 닉네임 방어 (memberName, member.memberName, nickname 등 백엔드 응답 필드 대응)
+  const nickname = (
+    item?.memberName ||
+    item?.member?.memberName ||
+    item?.member?.memberNickname ||
+    item?.nickname ||
+    ""
+  ).trim() || "닉네임 없음";
   const profileInitial = getProfileInitial(nickname);
 
   const avatarColor = useMemo(() => {

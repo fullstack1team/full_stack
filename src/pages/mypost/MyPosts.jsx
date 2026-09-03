@@ -7,31 +7,31 @@ import S from "./style";
 
 const MyPosts = () => {
   const { posts } = usePostStore();
-  const { user, isAuthenticated } = useAuthStore();
+  const { member, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
   // useMemo는 항상 먼저 실행
   const myItems = useMemo(() => {
-    if (!user) return [];
+    if (!member) return [];
 
     return posts
-      .filter((p) => p.author?.id === user.id)
-      .map((post) => ({
-        id: post.id,
-        recipeName: post.recipeTitle,
-        nickname: post.author?.nickname,
-        level: post.author?.level ?? 1,
-        likes: post.likes ?? 0,
-        images: post.images ?? [],
-        content: post.content,
-        ingredients: post.ingredients ?? [],
-        createdAt: post.createdAt,
-        comments: post.comments ?? [],
-      }));
-  }, [posts, user]);
+        .filter((p) => (p.memberId ?? p.member?.id) === member.id) // 백엔드 구조(member.id) 체크
+        .map((post) => ({
+          id: post.id,
+          recipeName: post.recipe?.recipeTitle ?? post.recipeTitle ?? "요리명 없음",
+          nickname: post.member?.memberName || member.memberName || post.nickname,
+          level: post.member?.level ?? post.author?.level ?? 1,
+          likes: post.likes ?? post._count?.postLike ?? 0,
+          images: post.postImage ?? post.images ?? [],
+          content: post.postContent ?? post.content,
+          ingredients: post.postIngredientUsed?.map((i) => i.ingredient?.ingredientName) ?? post.ingredients ?? [],
+          createdAt: post.createdAt,
+          comments: post.comment ?? [],
+        }));
+    }, [posts, member]);
 
   // Hook 아래에서 로그인 체크
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated || !member) {
     return <Navigate to="/login" replace />;
   }
 
@@ -59,7 +59,7 @@ return (
           ) : (
             <FeedGrid
               items={myItems}
-              meNickname={user.nickname}
+              meNickname={member?.nickname}
               onCardClick={handleCardClick}
             />
           )}
