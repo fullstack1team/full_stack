@@ -4,7 +4,7 @@ import * as S from "./style";
 import ChangeInfoFrame from "../joincomponents/ChangeInfoFrame";
 import NicknameChange from "../joincomponents/NicknameChange";
 import PasswordChange from "../joincomponents/PasswordChange";
-import useAuthStore from "../../store/useAuthStore"; // Zustand 스토어 임포트
+import useAuthStore from "../../store/authStore"; // Zustand 스토어 임포트
 
 const ProfilePopUp = ({ isOpen, onClose }) => {
   const [activeModal, setActiveModal] = useState(null);
@@ -24,7 +24,7 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
   };
 
   const getProfileInitial = () => {
-    const name = member?.memberNickname || member?.memberName || "사용자";
+    const name = member?.memberName || "사용자";
     return name.trim().charAt(0);
   };
 
@@ -71,7 +71,7 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
               <S.ProfileUserInfoContainer>
                 {/* 닉네임 연동 */}
                 <S.ProfileUserName>
-                  {member?.memberNickname || member?.memberName || "사용자"} 님
+                  {member?.memberName || "사용자"} 님
                 </S.ProfileUserName>
                 <S.ProfileUserLevel>
                   <img src="/assets/icons/star.svg" alt="별" />
@@ -101,7 +101,7 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
               <Link to={"/levelandbadge"} onClick={onClose}>
                 획득한 뱃지
               </Link>
-              <Link to={"/myposts"} onClick={onClose}>
+              <Link to={"/communitymain"} onClick={onClose}>
                 커뮤니티 게시물
               </Link>
             </S.ProfileContainer>
@@ -136,7 +136,11 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
         {activeModal && (
           <ChangeInfoFrame onClose={closeModal}>
             {activeModal === "nickname" && (
-              <NicknameChange onSuccess={closeModal} />
+              <NicknameChange
+                member={member}
+                setMember={setMember}
+                onSuccess={closeModal}
+              />
             )}
             {activeModal === "password" && (
               <PasswordChange onSuccess={closeModal} />

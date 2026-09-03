@@ -87,3 +87,12 @@ export const ModalForm = styled.form`
   flex-direction: column;
   width: 100%;
 `;
+
+// 에러 메세지 
+export const ErrorMessage = styled.p`
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 8px;
+  margin-bottom: 0;
+  text-align: center;
+`;

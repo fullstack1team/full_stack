@@ -111,8 +111,8 @@ const Header = ({ onSearch }) => {
                 type="button"
                 onClick={() => {
                   console.log("로그인 버튼 클릭");
-                  // navigate("/login");
-                  window.location.href = "/login";
+                  navigate("/login");
+                  // window.location.href = "/login";
                 }}
               >
                 <S.RightIcon
