@@ -974,6 +974,7 @@ const CommunityMain = () => {
         onEditPostImage={handleEditPostImage}
         onDeleteAllComments={handleDeleteAllComments}
         onDeleteSelectedComments={handleDeleteSelectedComments}
+        onImageUpdated={fetchPosts}
       />
 
       <FloatingActions targetId="community-top" />

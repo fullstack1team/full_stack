@@ -12,6 +12,12 @@ import React, {
 import { createPortal } from "react-dom";
 import * as S from "./MyPostModal.style";
 import { getCommentsByPostId } from "../../api/comment";
+import {
+  getPostImages,
+  createPostImageFiles,
+  deleteSelectedPostImages,
+  replacePostImages,
+} from "../../api/postimage";
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -62,24 +68,38 @@ const MyPostModal = ({
 
   onEditComment, // (comment, nextText) => {}
   onDeleteComment, // (comment) => {}
+  onImageUpdated,
 
   // 내 게시글/댓글 관리용 (부모에서 연결)
   onEditPost, // (postId, patch) => {}
   onDeletePost, // (postId) => {}
   onEditPostImage, // (postId, index, fileOrUrl) => {}
   onDeleteSelectedComments, // (postId, selectedKeysOrIndexes) => {}
+  
 }) => {
   // 이미지/댓글
   const [activeIndex, setActiveIndex] = useState(0);
-  const images = useMemo(() => {
-    const rawImages =
-      Array.isArray(post?.images) && post.images.length > 0
-        ? post.images
-        : Array.isArray(post?.postImage)
-          ? post.postImage
-          : [];
 
-    return rawImages
+  // 모달용 이미지
+  const [localPostImages, setLocalPostImages] = useState([]);
+
+  // 이미지 수정 UI
+  const [isImageEditing, setIsImageEditing] = useState(false);
+
+  // 서버에 이미 존재하는 이미지
+  const [editExistingImages, setEditExistingImages] = useState([]);
+
+  // 삭제 예정인 기존 이미지 id
+  const [deletedImageIds, setDeletedImagesIds] = useState([]);
+
+  // 새롭게 추가할 이미지
+  const [newImageItems, setNewImageItems] = useState([]);
+
+  // 저장 중
+  const [isImageSaving, setIsImageSaving] = useState(false);
+
+  const images = useMemo(() => {
+    return localPostImages
       .slice()
       .sort((a, b) => (a.imageOrder ?? 0) - (b.imageOrder ?? 0))
       .map((img) =>
@@ -93,7 +113,7 @@ const MyPostModal = ({
             img.postImagePath),
       )
       .filter(Boolean);
-  }, [post?.images, post?.postImage]);
+  }, [localPostImages]);
 
   const [comments, setComments] = useState([]);
   const hasImages = images.length > 0;
@@ -357,20 +377,185 @@ const MyPostModal = ({
   // ===== 게시글 이미지 수정(file input) =====
   const fileRef = useRef(null);
 
-  const handleClickImageEdit = useCallback(() => {
-    fileRef.current?.click();
-  }, []);
+  const handleClickImageEdit = useCallback(async () => {
+    if (!post?.id) return;
+
+    try {
+      const data = await getPostImages(post.id);
+
+      const sortedImages = [...data].sort(
+        (a, b) => (a.imageOrder ?? 0) - (b.imageOrder ?? 0),
+      );
+
+      setEditExistingImages(sortedImages);
+      setDeletedImagesIds([]);
+      setNewImageItems([]);
+      setIsImageEditing(true);
+    } catch (error) {
+      console.error("이미지 조회 실패", error);
+      alert("이미지를 불러오지 못했습니다.");
+    }
+  }, [post?.id]);
 
   const handlePickImage = useCallback(
     (e) => {
       const files = Array.from(e.target.files ?? []);
       if (files.length === 0) return;
 
-      onEditPostImage?.(post?.id, safeIndex, files);
+      const currentCount = editExistingImages.length + newImageItems.length;
+
+      const availableCount = 5 - currentCount;
+
+      if (availableCount <= 0) {
+        alert("이미지는 최대 5장까지 등록할 수 있습니다.");
+        e.target.value = "";
+        return;
+      }
+
+      const selectedFiles = files.slice(0, availableCount);
+
+      const items = selectedFiles.map((file) => ({
+        key: `${file.name}-${file.lastModified}-${Math.random()}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+
+      setNewImageItems((prev) => [...prev, ...items]);
+
+      if (files.length > availableCount) {
+        alert(`이미지는 최대 5장까지 등록할 수 있습니다.`);
+      }
+
       e.target.value = "";
     },
-    [onEditPostImage, post?.id, safeIndex],
+    [editExistingImages.length, newImageItems.length],
   );
+
+  // 기존 이미지 삭제 버튼
+  const handelRemoveExistingImage = useCallback((image) => {
+    setEditExistingImages((prev) =>
+      prev.filter((item) => item.id !== image.id),
+    );
+
+    setDeletedImagesIds((prev) =>
+      prev.includes(image.id) ? prev : [...prev, image.id],
+    );
+  }, []);
+
+  // 새로 선택한 이미지 취소
+  const handleRemoveNewImage = useCallback((key) => {
+    setNewImageItems((prev) => {
+      const target = prev.find((item) => item.key === key);
+
+      if (target?.previewUrl) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+
+      return prev.filter((item) => item.key !== key);
+    });
+  }, []);
+
+  // 취소 기능
+  const handelCancelImageEdit = useCallback(() => {
+    newImageItems.forEach((item) => {
+      URL.revokeObjectURL(item.previewUrl);
+    });
+
+    setIsImageEditing(false);
+    setEditExistingImages([]);
+    setDeletedImagesIds([]);
+    setNewImageItems([]);
+  }, [newImageItems]);
+
+  // 저장 버튼
+  const handleSaveImageEdit = useCallback(async () => {
+    if (!post?.id || isImageSaving) return;
+
+    const totalCount = editExistingImages.length + newImageItems.length;
+
+    if(totalCount === 0) {
+      alert("이미지를 최소 1장 등록해주세요.")
+      return
+    }
+
+    if (totalCount > 5) {
+      alert("이미지는 최대 5장까지 등록할 수 있습니다.");
+      return;
+    }
+
+    try {
+      setIsImageSaving(true);
+
+      let uploadedImages = [];
+
+      // 1. 새 이미지 S3 업로드
+      if (newImageItems.length > 0) {
+        const result = await createPostImageFiles(
+          post.id,
+          newImageItems.map((item) => item.file),
+        );
+
+        uploadedImages = result?.images ?? [];
+      }
+
+      // 2. 삭제하기로 한 기존 이미지 삭제
+      if (deletedImageIds.length > 0) {
+        await deleteSelectedPostImages(deletedImageIds);
+      }
+
+      // 3. 최종 이미지 순서를 0부터 다시 정리
+      const finalImages = [
+        ...editExistingImages.map((image) => ({
+          imageUrl: image.imageUrl,
+        })),
+        ...uploadedImages.map((image) => ({
+          imageUrl: image.imageUrl,
+        })),
+      ].map((image, index) => ({
+        imageUrl: image.imageUrl,
+        imageOrder: index,
+      }));
+
+      // 4. DB 이미지 목록 순서 정리
+      await replacePostImages(post.id, finalImages);
+
+      // 서버 최신 이미지 다시 조회
+      const refreshedImages = await getPostImages(post.id);
+
+      setLocalPostImages(
+        [...refreshedImages].sort(
+          (a, b) => (a.imageOrder ?? 0) - (b.imageOrder ?? 0),
+        ),
+      );
+
+      setActiveIndex(0);
+
+      // 커뮤니티 게시글 목록도 다시 불러오게 함
+      await onImageUpdated?.()
+
+      alert("이미지가 수정되었습니다.");
+
+      newImageItems.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+      });
+
+      setIsImageEditing(false);
+      setDeletedImagesIds([]);
+      setNewImageItems([]);
+    } catch (error) {
+      console.error("이미지 수정 실패", error);
+      alert("이미지 수정에 실패했습니다.");
+    } finally {
+      setIsImageSaving(false);
+    }
+  }, [
+    post?.id,
+    editExistingImages,
+    newImageItems,
+    deletedImageIds,
+    isImageSaving,
+    onImageUpdated
+  ]);
 
   // ===== 게시글 수정 저장/취소 =====
   const cancelPostEdit = useCallback(() => {
@@ -407,6 +592,7 @@ const MyPostModal = ({
     onEditPost,
   ]);
 
+  // 댓글 조회
   useEffect(() => {
     if (!open || !post?.id) return;
 
@@ -420,6 +606,25 @@ const MyPostModal = ({
     };
 
     fetchComments();
+  }, [open, post?.id]);
+
+  // 처음 모달 열 때도 서버 기준 이미지 들어오는 로직
+  useEffect(() => {
+    if (!open || !post?.id) return;
+
+    const fetchPostImages = async () => {
+      try {
+        const data = await getPostImages(post.id);
+
+        setLocalPostImages(
+          [...data].sort((a, b) => (a.imageOrder ?? 0) - (b.imageOrder ?? 0)),
+        );
+      } catch (error) {
+        console.error("게시글 이미지 조회 실패", error);
+      }
+    };
+
+    fetchPostImages();
   }, [open, post?.id]);
 
   // ===== 자세히 보기/간단히 토글 가능 여부 =====
@@ -540,22 +745,113 @@ const MyPostModal = ({
           ref={fileRef}
           type="file"
           multiple
-          accept="image/*"
-          multiple
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
           style={{ display: "none" }}
           onChange={handlePickImage}
         />
 
         {/* 상단 이미지 영역 */}
         <S.Hero>
-          <S.CloseButton type="button" onClick={onClose} aria-label="닫기">
+          <S.CloseButton
+            type="button"
+            onClick={() => {
+              if (isImageEditing) {
+                handelCancelImageEdit();
+              }
+              onClose?.();
+            }}
+            aria-label="닫기"
+          >
             <S.CloseIcon
               src={`${process.env.PUBLIC_URL}/assets/icons/close.svg`}
               alt="닫기"
             />
           </S.CloseButton>
 
-          {hasImages ? (
+          {isImageEditing ? (
+            <S.ImageEditPanel>
+              <S.ImageEditHeader>
+                <S.ImageEditTitle>이미지 수정</S.ImageEditTitle>
+
+                <S.ImageEditCount>
+                  현재 {editExistingImages.length + newImageItems.length} / 최대
+                  5장
+                </S.ImageEditCount>
+              </S.ImageEditHeader>
+
+              <S.ImageEditGrid>
+                {/* 기존 서버 이미지 */}
+                {editExistingImages.map((image) => (
+                  <S.ImageEditItem key={`existing-${image.id}`}>
+                    <S.ImageEditThumb
+                      src={image.imageUrl}
+                      alt="기존 게시글 이미지"
+                    />
+
+                    <S.ImageRemoveButton
+                      type="button"
+                      aria-label="이미지 삭제"
+                      onClick={() => handelRemoveExistingImage(image)}
+                    >
+                      ×
+                    </S.ImageRemoveButton>
+                  </S.ImageEditItem>
+                ))}
+
+                {/* 새로 선택한 이미지 */}
+                {newImageItems.map((item) => (
+                  <S.ImageEditItem key={item.key}>
+                    <S.ImageEditThumb
+                      src={item.previewUrl}
+                      alt="새 이미지 미리보기"
+                    />
+
+                    <S.ImageRemoveButton
+                      type="button"
+                      aria-label="선택 취소"
+                      onClick={() => handleRemoveNewImage(item.key)}
+                    >
+                      ×
+                    </S.ImageRemoveButton>
+                  </S.ImageEditItem>
+                ))}
+
+                {/* 이미지 추가 */}
+                {editExistingImages.length + newImageItems.length < 5 && (
+                  <S.ImageAddButton
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <S.ImageAddPlus>+</S.ImageAddPlus>
+                    <S.ImageAddText>이미지 추가</S.ImageAddText>
+                  </S.ImageAddButton>
+                )}
+              </S.ImageEditGrid>
+
+              <S.ImageEditFooter>
+                <S.ImageEditHint>JPG, PNG · 최대 5장</S.ImageEditHint>
+
+                <S.ImageEditActions>
+                  <S.PostEditButton
+                    type="button"
+                    onClick={handelCancelImageEdit}
+                    disabled={isImageSaving}
+                  >
+                    취소
+                  </S.PostEditButton>
+
+                  <S.PostEditButton
+                    type="button"
+                    $primary
+                    onClick={handleSaveImageEdit}
+                    disabled={isImageSaving}
+                  >
+                    {isImageSaving ? "저장 중..." : "저장"}
+                  </S.PostEditButton>
+                </S.ImageEditActions>
+              </S.ImageEditFooter>
+            </S.ImageEditPanel>
+          ) : hasImages ? (
             <S.ImageWrapper>
               <S.HeroBg src={currentImage} alt="" aria-hidden="true" />
               <S.HeroBgDim aria-hidden="true" />
