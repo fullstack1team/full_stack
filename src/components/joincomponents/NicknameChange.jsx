@@ -3,6 +3,7 @@ import axios from "axios";
 import * as S from "./style";
 import usePostStore from "../../store/postStore";
 
+
 const NicknameChange = ({ onSuccess, member, setMember }) => {
   const { fetchPosts } = usePostStore();
   const [newNickname, setNewNickname] = useState(
