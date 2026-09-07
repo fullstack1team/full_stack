@@ -87,3 +87,28 @@ export const replacePostImages = async (postId, images) => {
   const text = await response.text();
   return text ? JSON.parse(text) : null;
 };
+
+// 게시글 이미지 선택 삭제
+export const deleteSelectedPostImages = async (imageIds) => {
+  const response = await fetch(`${BASE_URL}/postimage`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      imageIds
+    })
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+    console.error("게시글 이미지 선택 삭제 에러:", errorData)
+
+    throw new Error("게시글 이미지 삭제 실패`")
+  }
+
+  const text = await response.text()
+
+  return text ? JSON.parse(text) : null
+}

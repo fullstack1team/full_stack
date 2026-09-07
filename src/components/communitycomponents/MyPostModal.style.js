@@ -16,7 +16,6 @@ export const Backdrop = styled.div`
   ${flexCenter}
 
   padding: 28px;
-
 `;
 
 export const Modal = styled.div`
@@ -35,7 +34,6 @@ export const Hero = styled.div`
   height: 330px;
   overflow: hidden;
   background: #000;
-
 `;
 
 export const ImageWrapper = styled.div`
@@ -184,6 +182,157 @@ export const ImageIndex = styled.div`
   color: #fff;
 `;
 
+/* ---------- 이미지 수정 UI ---------- */
+
+export const ImageEditPanel = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+
+  background: ${({ theme }) => theme.PALLETE.white};
+  padding: 24px 64px 22px 28px;
+
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ImageEditHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+export const ImageEditTitle = styled.div`
+  ${FONT_STYLE.PRETENDARD.H6_SEMIBOLD};
+  color: ${({ theme }) => theme.PALLETE.mainblack};
+`;
+
+export const ImageEditCount = styled.div`
+  ${FONT_STYLE.PRETENDARD.H8_REGULAR};
+  color: ${({ theme }) => theme.PALLETE.gray[600]};
+`;
+
+export const ImageEditGrid = styled.div`
+  flex: 1;
+
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+
+  align-items: center;
+
+  margin-top: 18px;
+  margin-bottom: 16px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow-y: auto;
+  }
+`;
+
+export const ImageEditItem = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  border-radius: 10px;
+  overflow: hidden;
+
+  background: ${({ theme }) => theme.PALLETE.gray[100]};
+  border: 1px solid ${({ theme }) => theme.PALLETE.gray[200]};
+`;
+
+export const ImageEditThumb = styled.img`
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  display: block;
+`;
+
+export const ImageRemoveButton = styled.button`
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  width: 26px;
+  height: 26px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 17px;
+  line-height: 1;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.82);
+  }
+`;
+
+export const ImageAddButton = styled.button`
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  border: 1.5px dashed ${({ theme }) => theme.PALLETE.gray[400]};
+  border-radius: 10px;
+
+  background: ${({ theme }) => theme.PALLETE.gray[100]};
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  color: ${({ theme }) => theme.PALLETE.gray[600]};
+
+  &:hover {
+    border-color: ${({ theme }) => theme.PALLETE.primary.main};
+    color: ${({ theme }) => theme.PALLETE.primary.main};
+    background: ${({ theme }) => theme.PALLETE.primary.sub};
+  }
+`;
+
+export const ImageAddPlus = styled.span`
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 300;
+`;
+
+export const ImageAddText = styled.span`
+  ${FONT_STYLE.PRETENDARD.H8_REGULAR};
+`;
+
+export const ImageEditFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+export const ImageEditHint = styled.div`
+  ${FONT_STYLE.PRETENDARD.H8_REGULAR};
+  color: ${({ theme }) => theme.PALLETE.gray[600]};
+`;
+
+export const ImageEditActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 /* ---------- body ---------- */
 
 export const Body = styled.div`
@@ -195,7 +344,6 @@ export const Body = styled.div`
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
-
 `;
 
 export const Left = styled.div`
