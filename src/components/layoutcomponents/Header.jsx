@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as S from "./style";
 import ProfilePopUp from "./ProfilePopUp";
 // import useAuthStore from "../../store/useAuthStore";
@@ -13,6 +13,40 @@ const Header = ({ onSearch }) => {
   const [keyword, setKeyword] = useState("");
   const [isError, setIsError] = useState(false);
   const [triedSubmit, setTriedSubmit] = useState(false); // 검색 시도여부
+
+  // 💡 [핵심 추가] 컴포넌트 마운트 시 (소셜로그인 리다이렉트 포함) 백엔드 쿠키 검증 및 유저정보 조회
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:10000/auth/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // 👈 백엔드가 보낸 httpOnly 쿠키를 전송하기 위해 필수!
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          // 백엔드 ApiResponse 구조: { message: "...", data: foundMember }
+          if (result.data) {
+            setIsAuthenticated(true);
+            setMember(result.data); // Zustand 스토어에 회원 정보 저장
+          }
+        } else {
+          // 쿠키가 없거나 만료되었을 때
+          setIsAuthenticated(false);
+          setMember(null);
+        }
+      } catch (error) {
+        console.error("인증 상태 확인 실패:", error);
+        setIsAuthenticated(false);
+        setMember(null);
+      }
+    };
+
+    checkAuthStatus();
+  }, [setIsAuthenticated, setMember]);
 
   const handleLogout = async () => {
     try {

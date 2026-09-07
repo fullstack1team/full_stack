@@ -14,6 +14,14 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
   const closeModal = () => setActiveModal(null);
 
+  // socials 배열에서 LOCAL 여부 확인
+const hasLocalSocial = member?.socials?.some(
+  (social) => social.memberProvider === "LOCAL"
+);
+
+  // LOCAL(일반 가입) 유저인지 확인하는 변수 추가
+  const isLocalUser = hasLocalSocial || member?.memberProvider === "LOCAL";
+
   const getProfileImage = () => {
     return (
       member?.memberProfile ||
@@ -111,9 +119,11 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
               <S.ChangeButton onClick={() => setActiveModal("nickname")}>
                 닉네임 변경
               </S.ChangeButton>
-              <S.ChangeButton onClick={() => setActiveModal("password")}>
-                비밀번호 변경
-              </S.ChangeButton>
+              {isLocalUser && (
+                <S.ChangeButton onClick={() => setActiveModal("password")}>
+                  비밀번호 변경
+                </S.ChangeButton>
+              )}
               {/* 로그아웃을 S.ChangeButton 스타일로 통일 */}
               <S.ChangeButton onClick={handleLogout}>로그아웃</S.ChangeButton>
             </S.ProfileContainer>
@@ -142,8 +152,11 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
                 onSuccess={closeModal}
               />
             )}
-            {activeModal === "password" && (
-              <PasswordChange onSuccess={closeModal} />
+            {activeModal === "password" && isLocalUser && (
+              <PasswordChange 
+                member={member} 
+                onSuccess={closeModal}
+                />
             )}
           </ChangeInfoFrame>
         )}
