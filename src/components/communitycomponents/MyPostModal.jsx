@@ -75,7 +75,6 @@ const MyPostModal = ({
   onDeletePost, // (postId) => {}
   onEditPostImage, // (postId, index, fileOrUrl) => {}
   onDeleteSelectedComments, // (postId, selectedKeysOrIndexes) => {}
-  
 }) => {
   // 이미지/댓글
   const [activeIndex, setActiveIndex] = useState(0);
@@ -473,9 +472,9 @@ const MyPostModal = ({
 
     const totalCount = editExistingImages.length + newImageItems.length;
 
-    if(totalCount === 0) {
-      alert("이미지를 최소 1장 등록해주세요.")
-      return
+    if (totalCount === 0) {
+      alert("이미지를 최소 1장 등록해주세요.");
+      return;
     }
 
     if (totalCount > 5) {
@@ -531,7 +530,7 @@ const MyPostModal = ({
       setActiveIndex(0);
 
       // 커뮤니티 게시글 목록도 다시 불러오게 함
-      await onImageUpdated?.()
+      await onImageUpdated?.();
 
       alert("이미지가 수정되었습니다.");
 
@@ -554,7 +553,7 @@ const MyPostModal = ({
     newImageItems,
     deletedImageIds,
     isImageSaving,
-    onImageUpdated
+    onImageUpdated,
   ]);
 
   // ===== 게시글 수정 저장/취소 =====
@@ -730,13 +729,13 @@ const MyPostModal = ({
   const count = commentText.length;
 
   return (
-    <S.Backdrop
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose?.();
-      }}
-    >
+    <S.Backdrop>
       <S.Modal
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          setOpenCommentAdminMenu(false);
+          setOpenPostMenu(false);
+          e.stopPropagation();
+        }}
         role="dialog"
         aria-modal="true"
       >

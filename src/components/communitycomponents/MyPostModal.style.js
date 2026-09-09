@@ -612,7 +612,7 @@ export const EmptyComment = styled.div`
 export const CommentItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0px;
 `;
 
 export const CommentTop = styled.div`
@@ -623,7 +623,7 @@ export const CommentTop = styled.div`
 `;
 
 export const CommentTextWrap = styled.div`
-  padding: 6px 0 2px;
+  padding: 0;
 
   border-bottom: ${({ theme, $editing }) =>
     $editing

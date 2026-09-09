@@ -353,11 +353,7 @@ const CommunityPostModal = ({
   };
 
   return (
-    <S.Backdrop
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose?.();
-      }}
-    >
+    <S.Backdrop>
       <S.Modal
         onClick={(e) => e.stopPropagation()}
         role="dialog"
@@ -514,7 +510,9 @@ const CommunityPostModal = ({
                             </S.CommentNickname>
 
                             <S.CommentMeta>
-                              <S.CommentTime>{formatRelativeTime(c.createdAt)}</S.CommentTime>
+                              <S.CommentTime>
+                                {formatRelativeTime(c.createdAt)}
+                              </S.CommentTime>
                               {mine && <S.MineTag>나</S.MineTag>}
                             </S.CommentMeta>
                           </S.CommentLeft>
