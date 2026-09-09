@@ -13,7 +13,6 @@ const GAP = 22;
 const VISIBLE = 4;
 
 // 트랜딩 캐러셀에 관련 상수
-const TRENDING_DAYS = 30;
 const TRENDING_TOP_N = 8;
 
 const TrendingCarousel = ({
@@ -41,14 +40,12 @@ const TrendingCarousel = ({
 
   /**
    * 트렌딩 기준
-   * - 좋아요 5개 이상 우선
-   * - 좋아요 내림차순 정렬
+   * - 전체 게시글 기준
+   * - 좋아요 내림차순
+   * - 좋아요가 같으면 최신 게시글 우선
    * - 최대 8개 노출
-   * - 좋아요 5개 이상이 없으면 전체 중 TOP 8
    */
   const items = useMemo(() => {
-    const now = Date.now();
-
     const list = (posts ?? []).map((p) => {
       const d = parseDate(p?.createdAt);
 
@@ -58,35 +55,34 @@ const TrendingCarousel = ({
         nickname:
           String(p.author?.nickname ?? p.nickname ?? "").trim() || "익명",
         level: p.author?.level ?? p.level ?? 1,
-        likes: p.likes ?? 0,
+
+        likes: Number(p.likes ?? 0),
         liked: p.liked ?? false,
+
         images: p.images ?? [],
         content: p.content ?? "",
         ingredients: p.ingredients ?? [],
         createdAt: p.createdAt,
         comments: p.comments ?? [],
         xp: p.xp ?? 0,
-        _createdTime: d ? d.getTime() : null,
+
+        _createdTime: d ? d.getTime() : 0,
       };
     });
 
-    // 최근 30일 필터
-    const recent30 = list.filter((x) => {
-      if (!x._createdTime) return false;
-      const diffDays = (now - x._createdTime) / (1000 * 60 * 60 * 24);
-      return diffDays <= TRENDING_DAYS;
+    const sorted = [...list].sort((a, b) => {
+      // 1순위: 좋아요 많은 순
+      const likeDiff = b.likes - a.likes;
+
+      if (likeDiff !== 0) {
+        return likeDiff;
+      }
+
+      // 좋아요 수가 같으면 최신글 우선
+      return b._createdTime - a._createdTime;
     });
 
-    const trendingSource = recent30.length > 0 ? recent30 : list
-
-    const sorted = [...trendingSource].sort(
-      (a, b) => (b.likes ?? 0) - (a.likes ?? 0),
-    );
-
-    console.log("트렌딩 원본 posts:", posts);
-    console.log("트렌딩 list:", list);
-    console.log("최근 30일 recent30:", recent30);
-    console.log("트렌딩 sorted:", sorted);
+    console.log("🔥 트렌딩 좋아요순:", sorted);
 
     return sorted.slice(0, TRENDING_TOP_N);
   }, [posts]);
@@ -139,7 +135,7 @@ const TrendingCarousel = ({
   return (
     <S.CarouselSection>
       <S.SectionHeader>
-        <S.SectionTitle>🔥 인기 급상승 요리</S.SectionTitle>
+        <S.SectionTitle>🔥 인기 요리</S.SectionTitle>
         <S.SectionDesc>좋아요가 많은 인기 게시물 TOP 8</S.SectionDesc>
       </S.SectionHeader>
 

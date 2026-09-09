@@ -455,7 +455,7 @@ export const EmptyComment = styled.div`
 export const CommentItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0px;
 `;
 
 export const CommentTop = styled.div`
@@ -466,8 +466,7 @@ export const CommentTop = styled.div`
 `;
 
 export const CommentTextWrap = styled.div`
-  /* padding: 6px 0 2px; */
-  padding: 6px 0 0px;
+  padding: 0;
 
   border-bottom: ${({ theme, $editing }) =>
     $editing
@@ -519,7 +518,7 @@ export const CommentLeft = styled.div`
   align-items: center;
   gap: 10px;
   min-width: 0;
-  margin-bottom: -20px;
+  /* margin-bottom: -20px; */
 `;
 
 export const CommentNickname = styled.div`
