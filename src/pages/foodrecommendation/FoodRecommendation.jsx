@@ -3,6 +3,7 @@ import S from "./style";
 import { useNavigate } from "react-router-dom";
 import MyRecipeCard from "../../components/myrecipecomponents/MyRecipeCard";
 import { savedRecipe } from "../../api/aiSavedRecipe";
+import useAuthStore from "../../store/authStore";
 
 const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -71,7 +72,18 @@ const FoodRecommendation = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const authState = useAuthStore();
+
+  const currentUser = authState.member ?? authState.user ?? null;
+  const isLoggedIn = authState.isAuthenticated || !!currentUser;
+
   useEffect(() => {
+    if (!isLoggedIn) {
+      setRecipes([]);
+      setLoading(false);
+      return;
+    }
+
     const fetchRecommend = async () => {
       try {
         setLoading(true);
@@ -105,7 +117,7 @@ const FoodRecommendation = () => {
     };
 
     fetchRecommend();
-  }, []);
+  }, [isLoggedIn]);
 
   const getSaveIngredients = (ingredients = []) => {
     const result = {
@@ -216,9 +228,23 @@ const FoodRecommendation = () => {
 
       <S.Container>
         <S.FeedGridSection>
-          <S.FeedGridWrap>
-            {loading ? (
-              <div>🍳 레시피 생성 중...</div>
+          <S.FeedGridWrap $loginRequired={!isLoggedIn}>
+            {!isLoggedIn ? (
+              <S.LoginRequiredWrap>
+                <S.LoginRequiredTitle>
+                  로그인이 필요합니다.
+                </S.LoginRequiredTitle>
+
+                <S.LoginRequiredDesc>
+                  추천 요리를 확인하려면 로그인해주세요.
+                </S.LoginRequiredDesc>
+
+                <S.LoginRequiredButton onClick={() => navigate("/login")}>
+                  로그인하러 가기
+                </S.LoginRequiredButton>
+              </S.LoginRequiredWrap>
+            ) : loading ? (
+              <S.LoadingText>🍳 레시피 생성 중...</S.LoadingText>
             ) : (
               recipes.map((item, index) => (
                 <MyRecipeCard

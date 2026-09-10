@@ -60,63 +60,53 @@ export const ButtonRow = styled.div`
   justify-content: center;
   gap: 16px;
   margin-bottom: 10px;
-
 `;
 
 export const CancelButton = styled.button`
   height: 48px;
   width: 140px;
-  border-radius: 5px;
-
-  border: 1px solid ${({ theme }) => theme.PALLETE.gray.footerSub};
-  background: ${({ theme }) => theme.PALLETE.white};
-
-  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
-  color: ${({ theme }) => theme.PALLETE.headerandfooter};
-  font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
-
+  border-radius: 8px;
   cursor: pointer;
 
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
+
+  border: 1px solid ${({ theme }) => theme.PALLETE.gray[300]};
+  background: transparent;
+  color: ${({ theme }) => theme.PALLETE.gray[700]};
+
   &:hover {
-    background: ${({ theme }) => theme.PALLETE.gray[200]};
+    background: ${({ theme }) => theme.PALLETE.gray[100]};
   }
 
   &:active {
-    background: ${({ theme }) => theme.PALLETE.gray[900]};
-    color: ${({ theme }) => theme.PALLETE.white};
-
+    background: ${({ theme }) => theme.PALLETE.gray[200]};
   }
 `;
 
 export const ConfirmButton = styled.button`
   height: 48px;
   width: 140px;
-  border-radius: 5px;
-
-  border: 1px solid #ff4e37;
-
-  background: ${({ theme }) => theme.PALLETE.white};
-  color: ${({ theme }) => theme.PALLETE.mainblack};
+  border-radius: 8px;
+  cursor: pointer;
 
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
 
-  cursor: pointer;
+  border: none;
+  background: ${({ theme }) => theme.PALLETE.primary.main};
+  color: ${({ theme }) => theme.PALLETE.white};
 
   &:hover {
-    background: ${({ theme }) => theme.PALLETE.primary.sub};
-    color: ${({ theme }) => theme.PALLETE.mainblack};
+    opacity: 0.88;
   }
 
-  &:active{
-    background: ${({ theme }) => theme.PALLETE.primary.main};
-    color: ${({ theme }) => theme.PALLETE.white};
-    transform: translateY(-2px);
-
+  &:active {
+    opacity: 1;
   }
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.PALLETE.primary.main};
-    outline-offset: 4px;
+    outline-offset: 3px;
   }
 `;

@@ -44,8 +44,6 @@ S.SectionTitle = styled.h2`
   margin-bottom: 16px;
 `;
 
-
-
 /* 검색 + 정렬 Row */
 S.SearchRow = styled.div`
   ${flexBetweenRow};
@@ -74,13 +72,13 @@ S.SearchInput = styled.input`
 
   &::placeholder {
     color: ${({ theme }) => theme.PALLETE.gray[800]};
-  };
+  }
 
   &:focus {
     outline: none;
     border-color: ${({ theme }) => theme.PALLETE.primary.main};
     background-color: ${({ theme }) => theme.PALLETE.background.white};
-  };
+  }
 `;
 
 S.SearchButton = styled.button`
@@ -108,8 +106,8 @@ S.SearchIcon = styled.img`
 S.SortButton = styled.button`
   height: 40px;
   width: 130px;
-  padding: 0 10px;   
-  white-space: nowrap;  
+  padding: 0 10px;
+  white-space: nowrap;
 
   ${flexCenter}
   gap: 6px;
@@ -119,18 +117,18 @@ S.SortButton = styled.button`
   background-color: ${({ theme }) => theme.PALLETE.background.white};
 
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
-  color: ${({ theme, $active }) => $active ? theme.PALLETE.primary.main : theme.PALLETE.mainblack};
-  font-weight: ${({ $active }) => $active? 600 : 400};
- 
+  color: ${({ theme, $active }) =>
+    $active ? theme.PALLETE.primary.main : theme.PALLETE.mainblack};
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+
   cursor: pointer;
-   
 `;
 
 // 필터 아이콘
 S.FilterIcon = styled.img`
   width: 24px;
   height: 24px;
-`
+`;
 
 /* ===================================================
    구분선 (커뮤니티 동일)
@@ -155,8 +153,6 @@ S.FeedGridSection = styled.section`
 
 S.FeedGridWrap = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 30px;
 
   @media (max-width: 1320px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -169,6 +165,64 @@ S.FeedGridWrap = styled.div`
   @media (max-width: 520px) {
     grid-template-columns: 1fr;
   }
+`;
+
+S.LoginRequiredWrap = styled.div`
+  width: 100%;
+  min-height: 380px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+`;
+
+S.LoginRequiredTitle = styled.h3`
+  ${FONT_STYLE.PRETENDARD.H5_BOLD};
+
+  color: ${({ theme }) => theme.PALLETE.mainblack};
+
+  margin-bottom: 12px;
+`;
+
+S.LoginRequiredDesc = styled.p`
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+
+  color: ${({ theme }) => theme.PALLETE.gray[600]};
+
+  margin-bottom: 28px;
+`;
+
+S.LoginRequiredButton = styled.button`
+  min-width: 160px;
+  height: 48px;
+
+  padding: 0 24px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: ${({ theme }) => theme.PALLETE.primary.main};
+  color: ${({ theme }) => theme.PALLETE.white};
+
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.PALLETE.primary.dark ?? "#e8432e"};
+  }
+`;
+
+S.LoadingText = styled.div`
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+
+  color: ${({ theme }) => theme.PALLETE.gray[700]};
 `;
 
 S.Title = styled.h6`
@@ -223,23 +277,13 @@ S.DropdownItem = styled.button`
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
 
   color: ${({ theme, $active }) =>
-    $active
-      ? theme.PALLETE.primary.main
-      : theme.PALLETE.mainblack};
+    $active ? theme.PALLETE.primary.main : theme.PALLETE.mainblack};
 
   &:hover {
     color: ${({ theme }) => theme.PALLETE.primary.main};
     background: ${({ theme }) => theme.PALLETE.gray[50]};
   }
 `;
-
-
-
-
-
-
-
-
 
 /* ===================================================
    FoodComplete 전용
@@ -341,7 +385,7 @@ S.FCUploadBox = styled.div`
   font-size: 13px;
   color: #888;
   cursor: pointer;
-    &:hover {
+  &:hover {
     border-color: #ff4d37;
   }
 `;
@@ -393,18 +437,15 @@ S.FCIngredientItem = styled.div`
 
   transition: all 0.2s ease;
 
-  background-color: ${(props) =>
-    props.$active ? "#ff4d37" : "#f5f5f5"};
+  background-color: ${(props) => (props.$active ? "#ff4d37" : "#f5f5f5")};
 
-  color: ${(props) =>
-    props.$active ? "#ffffff" : "#333"};
+  color: ${(props) => (props.$active ? "#ffffff" : "#333")};
 
-  border: ${(props) =>
-    props.$active ? "none" : "1px solid #ddd"};
+  border: ${(props) => (props.$active ? "none" : "1px solid #ddd")};
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -508,8 +549,5 @@ S.FCCompleteButton = styled.button`
     color: #fff;
   }
 `;
-
-
-
 
 export default S;
