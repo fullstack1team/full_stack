@@ -77,9 +77,8 @@ const CommunityMain = () => {
 
   // 게시글 fetch
   useEffect(() => {
-    if (!isLoggedIn) return;
     fetchPosts();
-  }, [fetchPosts, isLoggedIn]);
+  }, [fetchPosts]);
 
   const normalizeFromStore = useCallback((raw) => {
     const nicknameRaw =
