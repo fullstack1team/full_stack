@@ -69,8 +69,8 @@ S.RatingBadge = styled.div`
   padding: 6px 12px;
   border-radius: 6px;
 
-  background: #fff2e8;     /* FFF2E8 */
-  color: #ff4d26;          /* FF4D26 */
+  background: #fff2e8; /* FFF2E8 */
+  color: #ff4d26; /* FF4D26 */
   font-weight: 600;
   font-size: 14px;
 `;
@@ -82,8 +82,8 @@ S.XpBadge = styled.div`
   padding: 6px 14px;
   border-radius: 6px;
 
-  background: #dff7f1;     /* DFF7F1 */
-  color: #018264;          /* 018264 */
+  background: #dff7f1; /* DFF7F1 */
+  color: #018264; /* 018264 */
   font-weight: 700;
   font-size: 14px;
 `;
@@ -305,7 +305,7 @@ S.IngredientCard = styled.div`
   border-radius: 12px;
   padding: 16px;
   min-height: 140px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 `;
 
 S.CardTitle = styled.h4`
@@ -345,7 +345,7 @@ S.StepCard = styled.div`
   border-radius: 12px;
   padding: 16px;
   position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 `;
 
 S.StepNumber = styled.div`
@@ -384,6 +384,55 @@ S.PrimaryButton = styled.button`
 
   &:hover {
     background: #e63e2e;
+  }
+`;
+
+// 로그인 요구 텍스트
+
+S.LoginRequired = styled.div`
+  min-height: 600px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  padding: 40px 20px;
+`;
+
+S.LoginRequiredTitle = styled.h2`
+  ${FONT_STYLE.PRETENDARD.H5_BOLD};
+
+  color: ${({ theme }) => theme.PALLETE.mainblack};
+  margin-bottom: 12px;
+`;
+
+S.LoginRequiredDesc = styled.p`
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+
+  color: ${({ theme }) => theme.PALLETE.gray[600]};
+  margin-bottom: 28px;
+`;
+
+S.LoginButton = styled.button`
+  min-width: 160px;
+  height: 48px;
+
+  padding: 0 24px;
+  border: none;
+  border-radius: 8px;
+
+  background: ${({ theme }) => theme.PALLETE.primary.main};
+  color: ${({ theme }) => theme.PALLETE.white};
+
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  font-weight: 600;
+
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
   }
 `;
 
