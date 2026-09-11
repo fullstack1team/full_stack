@@ -60,6 +60,7 @@ const CommunityPostModal = ({
   onToggleLike,
   requireLogin,
   isAuthenticated,
+  loginModalOpen,
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [commentText, setCommentText] = useState("");
@@ -276,7 +277,12 @@ const CommunityPostModal = ({
   useEffect(() => {
     if (!open) return;
 
+    // esc 처리
     const onKeyDown = (e) => {
+      // 로그인 요구 모달이 위에 떠 있으면
+      // 상세모달은 키보드 이벤트를 처리하지 않음
+      if (loginModalOpen) return;
+
       if (e.key === "Escape") {
         if (editingKeyRef.current) {
           cancelEdit();
@@ -291,12 +297,21 @@ const CommunityPostModal = ({
       }
       if (e.key === "ArrowLeft") handlePrev();
       if (e.key === "ArrowRight") handleNext();
+
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") handleSend();
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose, handlePrev, handleNext, handleSend, cancelEdit]);
+  }, [
+    open,
+    onClose,
+    handlePrev,
+    handleNext,
+    handleSend,
+    cancelEdit,
+    loginModalOpen,
+  ]);
 
   useEffect(() => {
     if (!open) return;
@@ -618,14 +633,21 @@ const CommunityPostModal = ({
               <S.CommentComposer>
                 <S.Textarea
                   value={commentText}
-                  onFocus={() => {
+                  readOnly={!isAuthenticated}
+                  onFocus={(e) => {
                     if (!isAuthenticated) {
+                      e.currentTarget.blur();
                       requireLogin?.(() => {});
                       return;
                     }
+
                     setIsCommentComposeOpen(true);
                   }}
-                  onChange={(e) => setCommentText(e.target.value.slice(0, 300))}
+                  onChange={(e) => {
+                    if (!isAuthenticated) return;
+
+                    setCommentText(e.target.value.slice(0, 300));
+                  }}
                   placeholder="댓글을 입력하세요(최대 300자)"
                 />
                 <S.SendButton

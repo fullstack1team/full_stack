@@ -958,6 +958,7 @@ const CommunityMain = () => {
         onToggleLike={handleLikeToggle}
         requireLogin={requireLogin}
         isAuthenticated={isLoggedIn}
+        loginModalOpen={loginModalOpen}
       />
 
       <MyPostModal
