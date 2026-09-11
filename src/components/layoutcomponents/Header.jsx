@@ -3,11 +3,12 @@ import * as S from "./style";
 import ProfilePopUp from "./ProfilePopUp";
 // import useAuthStore from "../../store/useAuthStore";
 import useAuthStore from "../../store/authStore";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Header = ({ onSearch }) => {
   const { isAuthenticated, setIsAuthenticated, setMember } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
@@ -122,7 +123,17 @@ const Header = ({ onSearch }) => {
         <S.BottomRow>
           <S.Nav>
             <S.NavItem to="/myfridge">나의 냉장고</S.NavItem>
-            <S.NavItem to="/foodrecommendation">추천 요리</S.NavItem>
+            <S.NavItem
+              to="/foodrecommendation"
+              onClick={(e) => {
+                if (location.pathname === "/foodrecommendation") {
+                  e.preventDefault();
+                  window.location.reload();
+                }
+              }}
+            >
+              추천 요리
+            </S.NavItem>
             <S.NavItem to="/communitymain">커뮤니티</S.NavItem>
             <S.NavItem to="/levelandbadge">레벨&뱃지</S.NavItem>
             <S.NavItem to="/reportandchallenge">리포트&챌린지</S.NavItem>

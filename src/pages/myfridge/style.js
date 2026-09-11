@@ -434,8 +434,14 @@ S.AddButton = styled.button`
   border: none;
   cursor: pointer;
 
+  transition: opacity 0.2s ease;
+
   &:hover {
-    background: #e8432e;
+    opacity: 0.88;
+  }
+
+  &:active {
+    opacity: 1;
   }
 `;
 

@@ -153,6 +153,8 @@ S.FeedGridSection = styled.section`
 
 S.FeedGridWrap = styled.div`
   display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px;
 
   @media (max-width: 1320px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -208,14 +210,23 @@ S.LoginRequiredButton = styled.button`
   color: ${({ theme }) => theme.PALLETE.white};
 
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
-  font-weight: 600;
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
 
   cursor: pointer;
 
-  transition: background 0.2s ease;
+  transition: opacity 0.2s ease;
 
-  &:hover {
-    background: ${({ theme }) => theme.PALLETE.primary.dark ?? "#e8432e"};
+   &:hover {
+    opacity: 0.88;
+  }
+
+  &:active {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.PALLETE.primary.main};
+    outline-offset: 3px;
   }
 `;
 

@@ -70,6 +70,7 @@ const normalizeRecipe = (recipe) => {
 const FoodRecommendation = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [emptyFridge, setEmptyFridge] = useState(false);
   const navigate = useNavigate();
 
   const authState = useAuthStore();
@@ -87,6 +88,7 @@ const FoodRecommendation = () => {
     const fetchRecommend = async () => {
       try {
         setLoading(true);
+        setEmptyFridge(false);
 
         const res = await fetch("http://localhost:10000/fridge/recommend/", {
           credentials: "include",
@@ -98,6 +100,14 @@ const FoodRecommendation = () => {
         if (!res.ok || data?.statusCode >= 400) {
           console.error("추천 API 실패:", data);
           setRecipes([]);
+
+          if (
+            res.status === 404 &&
+            data?.message === "냉장고에 등록된 재료가 없습니다."
+          ) {
+            setEmptyFridge(true);
+          }
+
           return;
         }
 
@@ -107,7 +117,8 @@ const FoodRecommendation = () => {
           ...normalizedRecipe,
           saved: false,
         });
-
+        
+        setEmptyFridge(false)
         setRecipes([recipeWithXp]);
       } catch (e) {
         console.error("추천 실패:", e);
@@ -228,34 +239,46 @@ const FoodRecommendation = () => {
 
       <S.Container>
         <S.FeedGridSection>
-          <S.FeedGridWrap $loginRequired={!isLoggedIn}>
-            {!isLoggedIn ? (
-              <S.LoginRequiredWrap>
-                <S.LoginRequiredTitle>
-                  로그인이 필요합니다.
-                </S.LoginRequiredTitle>
+          {!isLoggedIn ? (
+            <S.LoginRequiredWrap>
+              <S.LoginRequiredTitle>로그인이 필요합니다.</S.LoginRequiredTitle>
 
-                <S.LoginRequiredDesc>
-                  추천 요리를 확인하려면 로그인해주세요.
-                </S.LoginRequiredDesc>
+              <S.LoginRequiredDesc>
+                추천 요리를 확인하려면 로그인해주세요.
+              </S.LoginRequiredDesc>
 
-                <S.LoginRequiredButton onClick={() => navigate("/login")}>
-                  로그인하러 가기
-                </S.LoginRequiredButton>
-              </S.LoginRequiredWrap>
-            ) : loading ? (
-              <S.LoadingText>🍳 레시피 생성 중...</S.LoadingText>
-            ) : (
-              recipes.map((item, index) => (
+              <S.LoginRequiredButton onClick={() => navigate("/login")}>
+                로그인하러 가기
+              </S.LoginRequiredButton>
+            </S.LoginRequiredWrap>
+          ) : loading ? (
+            <S.LoadingText>🍳 레시피 생성 중...</S.LoadingText>
+          ) : emptyFridge ? (
+            <S.LoginRequiredWrap>
+              <S.LoginRequiredTitle>
+                냉장고에 등록된 재료가 없습니다.
+              </S.LoginRequiredTitle>
+
+              <S.LoginRequiredDesc>
+                재료를 등록하면 맞춤 요리를 추천해드려요.
+              </S.LoginRequiredDesc>
+
+              <S.LoginRequiredButton onClick={() => navigate("/myfridge")}>
+                냉장고에 재료 추가하기
+              </S.LoginRequiredButton>
+            </S.LoginRequiredWrap>
+          ) : (
+            <S.FeedGridWrap>
+              {recipes.map((item, index) => (
                 <MyRecipeCard
                   key={item.id ?? item.recipeId ?? index}
                   item={item}
                   onClick={() => handleClickCard(item)}
                   onToggleBookmark={() => handleToggleBookmark(item)}
                 />
-              ))
-            )}
-          </S.FeedGridWrap>
+              ))}
+            </S.FeedGridWrap>
+          )}
         </S.FeedGridSection>
       </S.Container>
     </S.Page>
