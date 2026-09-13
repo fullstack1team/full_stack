@@ -35,7 +35,7 @@ export const TochallengeWrapper = styled.div`
   transform: translate(-50%, -50%);
   width: 750px;
   height: 520px;
-  zindex: 3;
+  z-index: 3;
 
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(0.5px);
@@ -43,13 +43,14 @@ export const TochallengeWrapper = styled.div`
   border-radius: 110px;
 
   ${flexCenterColumn}
-  gap:20px;
+  gap: 20px;
 `;
 
 export const BannerH1 = styled.h1`
   ${FONT_STYLE.GIANTS.H1_REGULAR};
-  color: ${theme.PALLETE.hederandfooter};
+  color: ${theme.PALLETE.headerandfooter};
 `;
+
 export const BannerP = styled.p`
   ${FONT_STYLE.PRETENDARD.H5_MEDIUM};
 `;
@@ -114,8 +115,9 @@ export const MyLevelProgress = styled.div`
 export const ExpText = styled.div`
   ${FONT_STYLE.PRETENDARD.H7_BOLD};
   color: ${theme.PALLETE.headerandfooter};
-  width: calc(100%-600px);
-  text-align: right;
+  display: block;
+  text-align: right; 
+  width: 100%;
 `;
 
 export const MyLevelProfileWrap = styled.div`
@@ -128,6 +130,7 @@ export const MyLevelProfileWrap = styled.div`
 export const MyLevelProfileContainer = styled.img`
   position: absolute;
   width: 165px;
+  height: auto;
   z-index: 2;
 `;
 
@@ -135,6 +138,8 @@ export const MyLevelProfileImg = styled.img`
   position: absolute;
   border-radius: 9999px;
   width: 145px;
+  height: 145px; /* 💡 프로필 이미지 높이 지정 */
+  object-fit: cover;
   z-index: 1;
   top: 88px;
 `;
@@ -142,6 +147,9 @@ export const MyLevelProfileImg = styled.img`
 export const LevelLabel = styled.div`
   ${FONT_STYLE.PRETENDARD.H5_BOLD};
   color: ${theme.PALLETE.headerandfooter};
+
+  white-space: nowrap;
+  word-break: keep-all;
 `;
 
 export const LevelCurrent = styled.div`
@@ -155,7 +163,7 @@ export const LevelCurrent = styled.div`
 `;
 
 export const LevelInfoWrap = styled.div`
-  width: calc(100%-600px);
+  width: calc(100% - 600px);
   display: flex;
   align-items: center;
   gap: 15px;
@@ -169,6 +177,8 @@ export const LevelProgressContainer = styled.div`
 
 export const LevelNextMedal = styled.img`
   width: 145px;
+  height: auto; /* 💡 다음 메달 이미지 크기 정상화 */
+  object-fit: contain;
 `;
 
 export const NextMedalInfo = styled.div`
@@ -218,6 +228,7 @@ export const BadgeDiv = styled.div`
 
 export const BadgeName = styled.span`
   ${FONT_STYLE.PRETENDARD.H6_SEMIBOLD};
+  margin-top: 10px;
 `;
 
 export const BadgeExp = styled.div`
@@ -231,15 +242,37 @@ export const BadgeExp = styled.div`
   ${FONT_STYLE.PRETENDARD.H6_BOLD};
 `;
 
+/* 💡 [핵심 수정] 뱃지 원형 이미지 크기 및 렌더링 옵션 보완 */
 export const BadgeImg = styled.img`
-  opacity: 0.9;
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+  opacity: 0.95;
 `;
 
+/* 💡 [핵심 수정] 우측 상단 자물쇠/해금 리본 이미지 크기 및 위치 보완 */
 export const BadgeLockImg = styled.img`
   position: absolute;
-  opacity: 0.9;
-  right: 0%;
-  top: -33px;
+  top: 0px;
+  z-index: 2;
+  height: auto;
+  object-fit: contain;
+
+  /* 💡 해금(금색)과 미해금(회색)을 완전히 분리 */
+  ${(props) =>
+    props.$isUnlocked
+      ? `
+        /* [해금 - 금색 리본] */
+        width: 48px;
+        right: 32px;
+      `
+      : `
+        /* [미해금 - 회색 리본] 이미지 여백이 크므로 수치를 크게 설정 */
+        width: 70px;
+        right: 18px;
+        top: -21px;
+      `}
 `;
 
 export const TooltipBox = styled.div`
@@ -263,6 +296,12 @@ export const TooltipIconBox = styled.div`
   background: ${theme.PALLETE.gray[200]};
   border-radius: 10px 10px 0 0;
   ${flexCenter};
+
+  /* 툴팁 내부 뱃지 이미지 크기 오버라이딩 */
+  & > img {
+    width: 140px;
+    height: 140px;
+  }
 `;
 
 export const TooltipName = styled.div`
@@ -273,18 +312,17 @@ export const TooltipName = styled.div`
 `;
 
 export const TooltipDecription = styled.div`
-  whitespace: "pre-wrap";
+  white-space: pre-wrap; /* 💡 오타 수정 (whitespace -> white-space) */
   ${FONT_STYLE.PRETENDARD.H7_MEDIUM};
   width: 90%;
   height: 20%;
 `;
 
 export const GetBadgeAt = styled.div`
-width: 90%;
-height: 10%;
-display:flex;
-align-items:center;
-gap:5px;
-
-opacity:0;
+  width: 90%;
+  height: 10%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 1; /* 💡 툴팁 하단 해금 날짜 문구가 보이도록 opacity 수정 */
 `;

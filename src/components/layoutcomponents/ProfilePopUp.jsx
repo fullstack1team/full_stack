@@ -15,28 +15,52 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
   const closeModal = () => setActiveModal(null);
 
   // socials 배열에서 LOCAL 여부 확인
-const hasLocalSocial = member?.socials?.some(
-  (social) => social.memberProvider === "LOCAL"
-);
+  const hasLocalSocial = member?.socials?.some(
+    (social) => social.memberProvider === "LOCAL"
+  );
 
-  // LOCAL(일반 가입) 유저인지 확인하는 변수 추가
+  // LOCAL(일반 가입) 유저인지 확인하는 변수
   const isLocalUser = hasLocalSocial || member?.memberProvider === "LOCAL";
 
+  // 💡 [프로필 이미지 URL 안전하게 가져오기]
   const getProfileImage = () => {
-    return (
+    const rawImg =
       member?.memberProfile ||
+      member?.profileImg ||
       member?.profileImage ||
       member?.profileImageUrl ||
-      ""
-    );
+      "";
+
+    if (!rawImg) return "";
+
+    // http:// 처리 (보안 차단 방지)
+    if (rawImg.startsWith("http://") || rawImg.startsWith("https://")) {
+      return rawImg.replace("http://", "https://");
+    }
+
+    return rawImg;
   };
 
   const getProfileInitial = () => {
-    const name = member?.memberName || "사용자";
+    const name = member?.memberNickname || member?.memberName || "사용자";
     return name.trim().charAt(0);
   };
 
   const profileImage = getProfileImage();
+
+  // 💡 [실제 연동 데이터 추출]
+  const memberLevel = member?.memberLevel ?? 1;
+  const memberXp = member?.memberXp ?? member?.currentXp ?? 0;
+  const cookCount = member?.cookCount ?? 0;
+
+  // 💡 [획득한 뱃지 개수 계산]
+  // badges 배열이 존재하면 획득 상태인 뱃지만 필터링 (필요에 따라 조건 수정 가능)
+  const earnedBadgesCount = Array.isArray(member?.badges)
+    ? member.badges.filter(
+        (badge) =>
+          badge.isUnlocked || badge.isEarned || badge.status === "ACHIEVED"
+      ).length
+    : 0;
 
   const handleLogout = async () => {
     try {
@@ -77,15 +101,18 @@ const hasLocalSocial = member?.socials?.some(
           <>
             <S.ProfileContainer>
               <S.ProfileUserInfoContainer>
-                {/* 닉네임 연동 */}
+                {/* 닉네임 우선 연동 */}
                 <S.ProfileUserName>
                   {member?.memberName || "사용자"} 님
                 </S.ProfileUserName>
+                
+                {/* 💡 레벨 & XP 연동 */}
                 <S.ProfileUserLevel>
                   <img src="/assets/icons/star.svg" alt="별" />
-                  LV.1
+                  LV.{memberLevel}
                 </S.ProfileUserLevel>
-                <S.ProfileUserXp>XP 0</S.ProfileUserXp>
+                <S.ProfileUserXp>XP {memberXp}</S.ProfileUserXp>
+                
                 <S.ProfileUserCreateAt>
                   가입일 :{" "}
                   {member?.memberCreateAt
@@ -95,10 +122,11 @@ const hasLocalSocial = member?.socials?.some(
               </S.ProfileUserInfoContainer>
             </S.ProfileContainer>
 
+            {/* 💡 활동 요약 연동 (총 인증 / 획득한 뱃지) */}
             <S.ProfileContainer>
               <S.ProfileTitles>활동 요약</S.ProfileTitles>
-              <p>총 인증: 0</p>
-              <p>획득한 뱃지: 0</p>
+              <p>총 인증: {cookCount}</p>
+              <p>획득한 뱃지: {earnedBadgesCount}</p>
             </S.ProfileContainer>
 
             <S.ProfileContainer>
@@ -124,7 +152,6 @@ const hasLocalSocial = member?.socials?.some(
                   비밀번호 변경
                 </S.ChangeButton>
               )}
-              {/* 로그아웃을 S.ChangeButton 스타일로 통일 */}
               <S.ChangeButton onClick={handleLogout}>로그아웃</S.ChangeButton>
             </S.ProfileContainer>
             <div>회원탈퇴</div>
@@ -153,10 +180,10 @@ const hasLocalSocial = member?.socials?.some(
               />
             )}
             {activeModal === "password" && isLocalUser && (
-              <PasswordChange 
-                member={member} 
+              <PasswordChange
+                member={member}
                 onSuccess={closeModal}
-                />
+              />
             )}
           </ChangeInfoFrame>
         )}
