@@ -1,59 +1,106 @@
-import {
-  LEVEL_SETTINGS,
-  DEFAULT_USER_DATA,
-  FarFromNextLevel,
-} from "./levelFunction";
+import React from "react";
 import * as S from "../../pages/levelandbadge/style";
+import { LEVEL_SETTINGS, DEFAULT_USER_DATA, FarFromNextLevel } from "./levelFunction.js";
 
-const LevelComponent = ({ userLevel, userCurrentExp}) => {
-  // 1. 값이 없으면 기본값(0, 1)을 사용하도록 강제 형변환
-  const level = Number(userLevel) || DEFAULT_USER_DATA.level;
-  const currentExp = Number(userCurrentExp) || DEFAULT_USER_DATA.currentExp;
+const LevelComponent = ({ userData }) => {
+  const publicUrl = process.env.PUBLIC_URL;
 
-  // 2. 현재 레벨에 맞는 설정 가져오기 (레벨이 범위를 벗어나면 1레벨 데이터 사용)
-  const levelInfo = LEVEL_SETTINGS[level] || LEVEL_SETTINGS[1];
-  const maxExp = levelInfo.maxExp;
+  const level = userData?.memberLevel || DEFAULT_USER_DATA.level;
+  const currentExp = userData?.memberXp || DEFAULT_USER_DATA.currentExp;
 
-  // 3. 퍼센트 계산 (안전하게 0~100 사이로 제한)
-  const progressPercent = Math.min(
-    Math.max((currentExp / maxExp) * 100, 0),
-    100,
-  );
+  const currentSettings = LEVEL_SETTINGS[level] || LEVEL_SETTINGS[1];
+  const maxExp = currentSettings.maxExp;
+  const label = currentSettings.label;
+
+  const expPercentage = Math.min(Math.round((currentExp / maxExp) * 100), 100);
+
+  // 💡 [소셜/일반 프로필 이미지 URL 처리]
+  const rawProfileImg = userData?.memberProfile || userData?.memberProfileImg;
+  const defaultProfileImg = `${publicUrl}/assets/images/pinggu.png`;
+
+  const getProfileImageSrc = () => {
+    if (!rawProfileImg) return defaultProfileImg;
+
+    // 💡 카카오 등 외부 소셜 이미지 URL 처리 (http:// -> https:// 변환으로 차단 방지)
+    if (rawProfileImg.startsWith("http://") || rawProfileImg.startsWith("https://")) {
+      return rawProfileImg.replace("http://", "https://");
+    }
+
+    if (rawProfileImg.startsWith("blob:")) {
+      return rawProfileImg;
+    }
+
+    // 상대 경로인 경우 publicUrl 결합
+    return `${publicUrl}${rawProfileImg.startsWith("/") ? "" : "/"}${rawProfileImg}`;
+  };
+
+  // 레벨별 프레임 & 메달
+  const getLevelAssets = (currentLevel) => {
+    if (currentLevel >= 26) {
+      return {
+        profileFrame: `${publicUrl}/assets/images/gold_frame.png`,
+        nextMedal: `${publicUrl}/assets/images/gold_medal.png`,
+      };
+    } else if (currentLevel >= 16) {
+      return {
+        profileFrame: `${publicUrl}/assets/images/silver_frame.png`,
+        nextMedal: `${publicUrl}/assets/images/gold_medal.png`,
+      };
+    } else {
+      return {
+        profileFrame: `${publicUrl}/assets/images/bronze_frame.png`,
+        nextMedal: `${publicUrl}/assets/images/silver_medal.png`,
+      };
+    }
+  };
+
+  const { profileFrame, nextMedal } = getLevelAssets(level);
 
   return (
     <S.MyLevelProgressWrap>
+      {/* 1. 좌측 프로필 영역 */}
       <S.MyLevelProfileWrap>
-        <S.MyLevelProfileContainer
-          src="\assets\images\bronze_frame.png"
-          alt="레벨 프로필 테두리"
+        {/* 프로필 이미지 (소셜 프로필 URL 적용) */}
+        <S.MyLevelProfileImg 
+          src={getProfileImageSrc()} 
+          alt="profile" 
+          onError={(e) => {
+            // 외부 이미지 로드 실패 시 fallback
+            e.target.src = defaultProfileImg;
+          }}
         />
-        <S.MyLevelProfileImg
-          src="\assets\images\pinggu.png"
-          alt="예시 프로필 이미지"
+
+        {/* 원형 테두리 프레임 */}
+        <S.MyLevelProfileContainer 
+          src={profileFrame} 
+          alt="level frame" 
         />
       </S.MyLevelProfileWrap>
 
+      {/* 2. 중앙 레벨 & 프로그래스 바 */}
       <S.LevelProgressContainer>
         <S.LevelInfoWrap>
-          <S.LevelLabel>{levelInfo.label}</S.LevelLabel>
-          <S.LevelCurrent>현재 LV. {level}</S.LevelCurrent>
+          <S.LevelLabel>{label}</S.LevelLabel>
+          <S.LevelCurrent>LV. {level}</S.LevelCurrent>
         </S.LevelInfoWrap>
+
         <S.MyLevelProgressContainer>
-          <S.MyLevelProgress width={progressPercent}/>
+          <S.MyLevelProgress width={expPercentage} />
         </S.MyLevelProgressContainer>
+
         <S.ExpText>
-          {currentExp.toLocaleString()} / {maxExp.toLocaleString()} EXP (
-          {progressPercent.toFixed(0)}%)
+          {currentExp} / {maxExp} EXP ({expPercentage}%)
         </S.ExpText>
       </S.LevelProgressContainer>
 
+      {/* 3. 우측 메달 안내 영역 */}
       <S.MedalWrap>
-        <S.LevelNextMedal
-          src="\assets\images\silver_medal.png"
-          alt="다음 메달"
+        <S.LevelNextMedal 
+          src={nextMedal} 
+          alt="next medal" 
         />
         <S.NextMedalInfo>
-          다음 메달까지{<br />}남은 레벨: {FarFromNextLevel({level})}LV
+          다음 메달까지 남은 레벨: <FarFromNextLevel level={level} />LV
         </S.NextMedalInfo>
       </S.MedalWrap>
     </S.MyLevelProgressWrap>
