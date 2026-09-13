@@ -35,6 +35,7 @@ const MyRecipe = () => {
   const [keyword, setKeyword] = useState("");
   const [sortKey, setSortKey] = useState("saved_latest");
   const [savedList, setSavedList] = useState([]);
+  const [isLoadingSavedList, setIsLoadingSavedList] = useState(true);
   const [page, setPage] = useState(1);
 
   const pageSize = 12;
@@ -57,41 +58,36 @@ const MyRecipe = () => {
     try {
       if (!member?.id) return;
 
+      setIsLoadingSavedList(true);
+
       const res = await getSavedRecipes();
+
       console.log("저장 레시피 조회 결과", res);
 
-      // 백엔드 구조에 맞게 바꿔야함
       const list = Array.isArray(res) ? res : [];
+
 
       const mapped = list.map((item) => ({
         id: item.id,
-        title: item.title ?? item.recipeTitle ?? "",
-        description: item.description ?? item.recipeDesc ?? "",
-        imageUrl:
-          item.imageUrl ??
-          item.recipeImageUrl ??
-          "/assets/images/default-recipe.png",
-
-        cookTime: item.cookTime ?? item.cookTimeMin ?? 0,
-        difficulty: item.difficulty ?? item.recipeDifficulty,
-        category: item.category ?? item.recipeCategory,
-        xp: item.xp ?? item.recipeXp,
-
+        title: item.title,
+        description: item.description ?? "",
+        imageUrl: item.imageUrl ?? "",
+        cookTime: item.cookTime ?? 0,
+        difficulty: item.difficulty,
+        category: item.category,
+        xp: item.xp,
         createdAt: item.createdAt,
         saved: true,
-
         ingredients: item.ingredients ?? { main: [], sub: [] },
         steps: item.steps ?? [],
-
-        missingIngredients: Array.isArray(item.missingIngredients)
-          ? item.missingIngredients
-          : [],
       }));
 
       setSavedList(mapped);
     } catch (error) {
       console.log(error);
       setSavedList([]);
+    } finally {
+      setIsLoadingSavedList(false);
     }
   }, [member]);
 
@@ -146,7 +142,6 @@ const MyRecipe = () => {
 
         // 혹시 상세페이지에서 recipe 필드명 기대할 수도 있어서 같이 맞춰주기
         recipe: Array.isArray(recipe.steps) ? recipe.steps.join("\n") : "",
-
       };
 
       navigate(`/foodrecommendation/recommendRecipe/${recipeId}`, {
@@ -249,6 +244,7 @@ const MyRecipe = () => {
           defaultSortKey={sortKey}
           onSortChange={(opt) => setSortKey(opt.key)}
           onSearch={({ keyword: k }) => setKeyword(k)}
+          onKeywordChange={setKeyword}
         />
       </S.Container>
 
@@ -271,6 +267,10 @@ const MyRecipe = () => {
             desc="로그인하고 나만의 레시피를 저장해보세요!"
             showCta={true}
           />
+        ) : isLoadingSavedList ? (
+          <S.LoadingWrapper>
+            <S.LoadingSpinner>🍳 레시피를 불러오는 중...</S.LoadingSpinner>
+          </S.LoadingWrapper>
         ) : filteredAndSorted.length === 0 ? (
           isSearching ? (
             <S.EmptyState>

@@ -1,5 +1,6 @@
 import { styled } from "styled-components";
 import { FONT_STYLE } from "../../styles/common";
+import { keyframes } from "framer-motion";
 
 /* ===========================
    Layout (CommunityMain 컨셉과 동일)
@@ -28,6 +29,21 @@ export const FullDivider = styled.div`
   margin: 30px 0 0;
   background-color: ${({ theme }) => theme.PALLETE.gray[100]};
 `;
+
+export const LoadingWrapper = styled.div`
+  min-height: calc(100vh - 260px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const LoadingSpinner = styled.div`
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  color: ${({ theme }) => theme.PALLETE.gray[700]};
+`;
+
+
 
 /* ===========================
    Empty State

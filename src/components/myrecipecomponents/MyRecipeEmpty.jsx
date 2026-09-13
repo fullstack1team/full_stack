@@ -14,10 +14,11 @@ const MyRecipeEmpty = ({
 
   const handleGoExplore = () => {
     if (!isLoggedIn) {
-      setOpenLoginModal(true);
+      navigate("/login");
       return;
     }
-    navigate("/foodrecommendation"); // 추천요리 페이지로 이동
+
+    navigate("/foodrecommendation");
   };
 
   const handleConfirmLogin = () => {
@@ -37,7 +38,7 @@ const MyRecipeEmpty = ({
 
         {showCta && (
           <S.MyRecipeEmptyButton onClick={handleGoExplore}>
-            레시피 살펴보기
+            {isLoggedIn ? "레시피 살펴보기" : "로그인 하러가기"}
           </S.MyRecipeEmptyButton>
         )}
       </S.MyRecipeEmptyWrapper>

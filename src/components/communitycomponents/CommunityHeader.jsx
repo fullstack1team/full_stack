@@ -15,6 +15,7 @@ export const CommunityHeader = ({
   defaultSortKey,
   onSearch, // ({ keyword, sort }) => void
   onSortChange, // (option) => void
+  onKeywordChange,
 }) => {
   const dropdownRef = useRef(null);
 
@@ -75,7 +76,11 @@ export const CommunityHeader = ({
           <S.SearchInput
             value={keyword}
             onChange={(e) => {
+              const nextKeyword = e.target.value
+
               setKeyword(e.target.value);
+              onKeywordChange?.(nextKeyword)
+
               if (triedSubmit) setIsError(false);
             }}
             placeholder={placeholder}
