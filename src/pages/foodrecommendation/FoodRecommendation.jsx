@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import MyRecipeCard from "../../components/myrecipecomponents/MyRecipeCard";
 import { savedRecipe } from "../../api/aiSavedRecipe";
 import useAuthStore from "../../store/authStore";
+import SavedRecipeModal from "./savedrecipemodal/SavedRecipeModal";
 
 const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -71,6 +72,8 @@ const FoodRecommendation = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [emptyFridge, setEmptyFridge] = useState(false);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const authState = useAuthStore();
@@ -117,8 +120,8 @@ const FoodRecommendation = () => {
           ...normalizedRecipe,
           saved: false,
         });
-        
-        setEmptyFridge(false)
+
+        setEmptyFridge(false);
         setRecipes([recipeWithXp]);
       } catch (e) {
         console.error("추천 실패:", e);
@@ -200,9 +203,6 @@ const FoodRecommendation = () => {
         ingredients: getSaveIngredients(item.ingredients),
         steps: getSaveSteps(item),
 
-        missingIngredients: Array.isArray(item.ingredients),
-        steps: getSaveSteps(item),
-
         missingIngredients: Array.isArray(item.missingIngredients)
           ? item.missingIngredients
           : [],
@@ -220,7 +220,7 @@ const FoodRecommendation = () => {
         ),
       );
 
-      alert("레시피가 저장되었습니다.");
+      setSaveModalOpen(true);
     } catch (error) {
       console.error("레시피 저장 실패:", error);
       alert("레시피 저장에 실패했습니다.");
@@ -281,6 +281,15 @@ const FoodRecommendation = () => {
           )}
         </S.FeedGridSection>
       </S.Container>
+
+      <SavedRecipeModal
+        open={saveModalOpen}
+        onClose={() => setSaveModalOpen(false)}
+        onConfirm={() => {
+          setSaveModalOpen(false);
+          navigate("/myrecipe");
+        }}
+      />
     </S.Page>
   );
 };
