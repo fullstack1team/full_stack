@@ -154,7 +154,11 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
               )}
               <S.ChangeButton onClick={handleLogout}>로그아웃</S.ChangeButton>
             </S.ProfileContainer>
-            <div>회원탈퇴</div>
+            <S.DangerZoneContainer>
+              <S.DeleteAccountButton onClick={() => setActiveModal("deleteAccount")}>
+                회원탈퇴
+              </S.DeleteAccountButton>
+            </S.DangerZoneContainer>
           </>
         ) : (
           <S.ProfileContainer>

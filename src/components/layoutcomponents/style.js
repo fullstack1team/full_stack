@@ -563,3 +563,31 @@ export const ChangeButton = styled.button`
   text-align: left;
 `;
 
+export const DangerZoneContainer = styled.div`
+  margin-top: auto; /* 사이드바 하단으로 밀어내기 (선택) */
+  padding: 16px 0;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: flex-start;
+`;
+
+export const DeleteAccountButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 8px; /* 다른 ChangeButton들과 간격 동일화 (필요시 조정) */
+  
+  /* 기존 ChangeButton과 폰트 스타일 동일하게 통일 */
+  font-size: 17px; 
+  font-weight: 500;
+  color: #646972; /* 연한 회색 (위험 요소 구분) */
+  text-decoration: none; /* 밑줄 제거 */
+  
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #ef4444; /* 마우스 호버 시에만 강조 붉은색 */
+  }
+`;
