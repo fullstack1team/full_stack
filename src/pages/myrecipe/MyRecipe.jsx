@@ -66,7 +66,6 @@ const MyRecipe = () => {
 
       const list = Array.isArray(res) ? res : [];
 
-
       const mapped = list.map((item) => ({
         id: item.id,
         title: item.title,
@@ -251,11 +250,13 @@ const MyRecipe = () => {
       <S.FullDivider />
 
       <S.Container>
-        <SortTab
-          options={MYRECIPE_SORT_OPTIONS}
-          value={sortKey}
-          onChange={(key) => setSortKey(key)}
-        />
+        <S.SortRow>
+          <SortTab
+            options={MYRECIPE_SORT_OPTIONS}
+            value={sortKey}
+            onChange={(key) => setSortKey(key)}
+          />
+        </S.SortRow>
 
         {/* 그리드 상단 앵커 */}
         <div ref={gridTopRef} />

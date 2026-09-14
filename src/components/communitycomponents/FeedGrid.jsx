@@ -11,8 +11,17 @@ import PostCard from "./PostCard";
 
 const PAGE_SIZE = 12;
 
-const FeedGrid = ({ items = [], isSearching=false, searchKeyword="", onCardClick, meNickname, onLikeToggle }) => {
-  const showEmpty = isSearching && items.length === 0;
+const FeedGrid = ({
+  items = [],
+  isSearching = false,
+  searchKeyword = "",
+  onCardClick,
+  meNickname,
+  onLikeToggle,
+  onEmptyAction,
+}) => {
+  const showSearchEmpty = isSearching && items.length === 0;
+  const showCommunityEmpty = !isSearching && items.length === 0;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [isLoading, setIsLoading] = useState(false);
   const sentinelRef = useRef(null);
@@ -107,10 +116,21 @@ const FeedGrid = ({ items = [], isSearching=false, searchKeyword="", onCardClick
   return (
     <S.FeedGridSection>
       <S.FeedGridWrap>
-        {showEmpty ? (
+        {showSearchEmpty ? (
           <S.EmptyState>
             <S.EmptyTitle>“{searchKeyword}” 검색 결과가 없습니다.</S.EmptyTitle>
             <S.EmptyDesc>다른 키워드로 다시 검색해보세요.</S.EmptyDesc>
+          </S.EmptyState>
+        ) : showCommunityEmpty ? (
+          <S.EmptyState>
+            <S.EmptyTitle>아직 등록된 게시글이 없습니다.</S.EmptyTitle>
+            <S.EmptyDesc>
+              요리를 완성하고 첫 번째 인증 게시글을 남겨보세요!
+            </S.EmptyDesc>
+
+            <S.EmptyButton onClick={onEmptyAction}>
+              추천 요리 보러가기
+            </S.EmptyButton>
           </S.EmptyState>
         ) : (
           visibleItems.map((item) => (

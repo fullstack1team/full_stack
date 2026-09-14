@@ -6,6 +6,7 @@ import { CommunityHeader } from "../../components/communitycomponents/CommunityH
 import TrendingCarousel from "../../components/communitycomponents/TrendingCarousel";
 import FeedGrid from "../../components/communitycomponents/FeedGrid";
 import FloatingActions from "../../components/layoutcomponents/FloatingActions";
+import SortTab from "../../components/myrecipecomponents/SortTab";
 
 import CommunityPostModal from "../../components/communitycomponents/CommunityPostModal";
 import MyPostModal from "../../components/communitycomponents/MyPostModal";
@@ -74,6 +75,12 @@ const CommunityMain = () => {
     },
     [currentUser],
   );
+
+  // 피드 최신순 인기순
+  const COMMUNITY_SORT_OPTIONS = [
+    { key: "latest", label: "최신순" },
+    { key: "popular", label: "인기순" },
+  ];
 
   // 게시글 fetch
   useEffect(() => {
@@ -229,6 +236,7 @@ const CommunityMain = () => {
     keyword: "",
     sort: "latest",
   });
+  const isSearching = searchState.keyword.trim().length > 0;
 
   // 간단 텍스트 검색 (레시피명/본문/재료/닉네임)
   const matchesKeyword = useCallback((item, keyword) => {
@@ -374,8 +382,8 @@ const CommunityMain = () => {
         console.error("게시글 상세 조회 실패:", error);
 
         if (error.status === 401) {
-          setLoginModalOpen(true)
-          return
+          setLoginModalOpen(true);
+          return;
         }
         alert(error.message);
       }
@@ -828,6 +836,19 @@ const CommunityMain = () => {
     [currentUser, fetchPosts],
   );
 
+  // 정렬 변경 핸들러(최신순/인기순)
+  const handleSortChange = useCallback((key) => {
+    setSearchState((prev) => ({
+      ...prev,
+      sort: key,
+    }));
+  }, []);
+
+  // 빈화면일 때 버튼
+  const handleEmptyAction = useCallback(() => {
+    navigate("/foodrecommendation");
+  }, [navigate]);
+
   // ===== 트렌딩 카드 클릭 =====
   const handleTrendingCardClick = useCallback(
     (item) => {
@@ -917,10 +938,22 @@ const CommunityMain = () => {
       <S.Container>
         <CommunityHeader
           initialKeyword={searchState.keyword}
-          initialSort={searchState.sort}
-          onSearch={({ keyword, sort }) => {
-            setSearchState({ keyword, sort });
+          showSort={false}
+          onSearch={({ keyword }) => {
+            setSearchState((prev) => ({
+              ...prev,
+              keyword,
+            }));
+
             window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          onKeywordChange={(value) => {
+            if (!value.trim()) {
+              setSearchState((prev) => ({
+                ...prev,
+                keyword: "",
+              }));
+            }
           }}
         />
       </S.Container>
@@ -928,21 +961,37 @@ const CommunityMain = () => {
       <S.FullDivider />
 
       <S.Container>
-        <TrendingCarousel
-          posts={displayItems}
-          onCardClick={handleTrendingCardClick}
-          meNickname={meNickname}
-          onLikeToggle={handleLikeToggle}
-        />
-        <S.SectionDivider />
+        {!isSearching && displayItems.length > 0 && (
+          <>
+            <TrendingCarousel
+              posts={displayItems}
+              onCardClick={handleTrendingCardClick}
+              meNickname={meNickname}
+              onLikeToggle={handleLikeToggle}
+            />
+
+            <S.SectionDivider />
+          </>
+        )}
+
+        {displayItems.length > 0 && (
+          <S.FeedSortRow>
+            <SortTab
+              options={COMMUNITY_SORT_OPTIONS}
+              value={searchState.sort}
+              onChange={handleSortChange}
+            />
+          </S.FeedSortRow>
+        )}
 
         <FeedGrid
           items={displayItems}
-          isSearching={searchState.keyword.trim().length > 0}
+          isSearching={isSearching}
           searchKeyword={searchState.keyword}
           onCardClick={handleOpenAnyPostModal}
           meNickname={meNickname}
           onLikeToggle={handleLikeToggle}
+          onEmptyAction={handleEmptyAction}
         />
       </S.Container>
 
@@ -975,6 +1024,7 @@ const CommunityMain = () => {
         onDeleteAllComments={handleDeleteAllComments}
         onDeleteSelectedComments={handleDeleteSelectedComments}
         onImageUpdated={fetchPosts}
+        onToggleLike={handleLikeToggle}
       />
 
       <FloatingActions targetId="community-top" />

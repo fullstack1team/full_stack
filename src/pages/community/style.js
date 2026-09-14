@@ -591,19 +591,31 @@ export const CardDesc = styled.p`
 // export const BadgeChip = styled.\
 
 // 트렌딩 크러셀 ↔ 피드 그리드 구분선
+// export const SectionDivider = styled.div`
+//   width: 100%;
+//   height: 1px;
+//   margin: 50px 0 80px 0;
+
+//   background-color: ${({ theme }) => theme.PALLETE.gray[200]};
+// `;
 export const SectionDivider = styled.div`
   width: 100%;
   height: 1px;
-  margin: 50px 0 80px 0;
+  margin: 32px 0 0;
 
   background-color: ${({ theme }) => theme.PALLETE.gray[200]};
 `;
 
 // ** FeedGrid 부분
 // 피드 그리드(파란 박스)
+// export const FeedGridSection = styled.section`
+//   width: 100%;
+//   margin-top: 52px; /* 캐러셀 아래 간격 */
+//   padding-bottom: 24px;
+// `;
 export const FeedGridSection = styled.section`
   width: 100%;
-  margin-top: 52px; /* 캐러셀 아래 간격 */
+  margin-top: 0;
   padding-bottom: 24px;
 `;
 
@@ -631,20 +643,31 @@ export const FeedGridWrap = styled.div`
 `;
 
 export const EmptyState = styled.div`
+  grid-column: 1 / -1;
+
   width: 100%;
-  padding: 48px 0;
+  min-height: 420px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
   text-align: center;
+  padding: 0;
 `;
 
 export const EmptyTitle = styled.div`
-  font-size: 18px;
-  font-weight: 700;
+  ${FONT_STYLE.PRETENDARD.H6_REGULAR};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.SEMIBOLD};
+  color: ${({ theme }) => theme.PALLETE.mainblack};
+  margin: 0 0 10px;
 `;
 
 export const EmptyDesc = styled.div`
-  margin-top: 8px;
-  font-size: 14px;
-  color: #999;
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  color: ${({ theme }) => theme.PALLETE.gray[600]};
+  margin: 0;
 `;
 
 export const FeedGridSentinel = styled.div`
@@ -663,4 +686,51 @@ export const FeedGridEnd = styled.p`
   text-align: center;
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
   color: ${({ theme }) => theme.PALLETE.gray[700]};
+`;
+
+// 피드 정렬(최신순/인기순)
+// export const FeedSortRow = styled.div`
+//   width: 100%;
+//   display: flex;
+//   justify-content: flex-end;
+//   align-items: center;
+//   margin-bottom: 24px;
+// `;
+export const FeedSortRow = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  padding-top: 36px;
+  padding-bottom: 16px;
+  margin: 0;
+`;
+
+// 빈화면 일때
+export const EmptyButton = styled.button`
+  min-width: 160px;
+  height: 48px;
+  padding: 0 24px;
+  margin-top: 24px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: ${({ theme }) => theme.PALLETE.primary.main};
+  color: ${({ theme }) => theme.PALLETE.white};
+
+  ${FONT_STYLE.PRETENDARD.H7_REGULAR};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
+
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.88;
+  }
+
+  &:active {
+    opacity: 1;
+  }
 `;

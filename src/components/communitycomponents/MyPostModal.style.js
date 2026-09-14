@@ -409,6 +409,7 @@ export const LikeBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
 
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
@@ -1081,3 +1082,5 @@ export const SelectActionBar = styled.div`
   justify-content: flex-end;
   gap: 8px;
 `;
+
+
