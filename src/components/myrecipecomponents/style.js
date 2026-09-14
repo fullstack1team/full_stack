@@ -9,8 +9,8 @@ export const SortTabWrapper = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 2px;
-  margin-top: 40px;
-  margin-bottom: 60px;
+
+  margin: 0;
 `;
 
 export const SortTabButton = styled.button`

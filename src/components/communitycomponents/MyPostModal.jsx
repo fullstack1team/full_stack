@@ -69,6 +69,7 @@ const MyPostModal = ({
   onEditComment, // (comment, nextText) => {}
   onDeleteComment, // (comment) => {}
   onImageUpdated,
+  onToggleLike,
 
   // 내 게시글/댓글 관리용 (부모에서 연결)
   onEditPost, // (postId, patch) => {}
@@ -724,6 +725,14 @@ const MyPostModal = ({
     return () => window.removeEventListener("click", handleWindowClick);
   }, [open]);
 
+  const handleLikeClick = async () => {
+    try {
+      await onToggleLike?.(post.id, post.liked);
+    } catch (error) {
+      console.error("좋아요 처리 실패:", error);
+    }
+  };
+
   if (!open) return null;
 
   const count = commentText.length;
@@ -909,7 +918,7 @@ const MyPostModal = ({
                     <span>Lv.{post?.author?.level ?? 1}</span>
                   </S.LevelBadge>
 
-                  <S.LikeBadge>
+                  <S.LikeBadge onClick={handleLikeClick}>
                     <S.HeartIcon
                       src={
                         post?.liked

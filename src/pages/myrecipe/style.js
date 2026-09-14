@@ -69,3 +69,15 @@ export const EmptyDesc = styled.p`
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
   color: ${({ theme }) => theme.PALLETE.gray[700]};
 `;
+
+//
+export const SortRow = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  padding-top: 36px;
+  padding-bottom: 16px;
+  margin: 0;
+`;

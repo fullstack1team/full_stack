@@ -122,7 +122,17 @@ const Header = ({ onSearch }) => {
 
         <S.BottomRow>
           <S.Nav>
-            <S.NavItem to="/myfridge">나의 냉장고</S.NavItem>
+            <S.NavItem
+              to="/myfridge"
+              onClick={(e) => {
+                if (location.pathname === "/myfridge") {
+                  e.preventDefault();
+                  window.location.reload();
+                }
+              }}
+            >
+              나의 냉장고
+            </S.NavItem>
             <S.NavItem
               to="/foodrecommendation"
               onClick={(e) => {
@@ -134,9 +144,39 @@ const Header = ({ onSearch }) => {
             >
               추천 요리
             </S.NavItem>
-            <S.NavItem to="/communitymain">커뮤니티</S.NavItem>
-            <S.NavItem to="/levelandbadge">레벨&뱃지</S.NavItem>
-            <S.NavItem to="/reportandchallenge">리포트&챌린지</S.NavItem>
+            <S.NavItem
+              to="/community"
+              onClick={(e) => {
+                if (location.pathname === "/community") {
+                  e.preventDefault();
+                  window.location.reload();
+                }
+              }}
+            >
+              커뮤니티
+            </S.NavItem>
+            <S.NavItem
+              to="/levelandbadge"
+              onClick={(e) => {
+                if (location.pathname === "/levelandbadge") {
+                  e.preventDefault();
+                  window.location.reload();
+                }
+              }}
+            >
+              레벨&뱃지
+            </S.NavItem>
+            <S.NavItem
+              to="/reportandchallenge"
+              onClick={(e) => {
+                if (location.pathname === "/reportandchallenge") {
+                  e.preventDefault();
+                  window.location.reload();
+                }
+              }}
+            >
+              리포트&챌린지
+            </S.NavItem>
           </S.Nav>
 
           <S.RightArea>
