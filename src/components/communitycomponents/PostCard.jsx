@@ -144,13 +144,14 @@ const PostCard = ({
   const recipeName = item?.recipeName ?? item?.recipeTitle ?? "요리명 없음";
 
   // 닉네임 방어 (memberName, member.memberName, nickname 등 백엔드 응답 필드 대응)
-  const nickname = (
-    item?.memberName ||
-    item?.member?.memberName ||
-    item?.member?.memberNickname ||
-    item?.nickname ||
-    ""
-  ).trim() || "닉네임 없음";
+  const nickname =
+    (
+      item?.memberName ||
+      item?.member?.memberName ||
+      item?.member?.memberNickname ||
+      item?.nickname ||
+      ""
+    ).trim() || "닉네임 없음";
   const profileInitial = getProfileInitial(nickname);
 
   const avatarColor = useMemo(() => {
@@ -175,7 +176,7 @@ const PostCard = ({
   }, [allItems, item, nickname]);
 
   const level = item?.level ?? 1;
-  const xp = item?.xp ?? 0;
+  const memberXp = item?.memberXp ?? 0;
 
   const createdAtText = useMemo(() => {
     const d = parseDate(item?.createdAt);
@@ -281,7 +282,7 @@ const PostCard = ({
               <S.BadgeChipIcon src="/assets/icons/star.svg" alt="별 아이콘" />
               Lv.{level}
             </S.BadgeChip>
-            <S.BadgeChip2>XP {xp}</S.BadgeChip2>
+            <S.BadgeChip2>XP {memberXp}</S.BadgeChip2>
           </S.MetaCenter>
         </S.CardMetaRow>
 
