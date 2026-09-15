@@ -141,6 +141,10 @@ const CommunityMain = () => {
             memberId: c.memberId,
           }))
         : [],
+      memberXp:
+        raw?.member?.memberXp ?? raw?.author?.memberXp ?? raw?.memberXp ?? 0,
+
+        // 이 게시글에서 획득한 XP
       xp: raw?.postXp ?? raw?.xp ?? 0,
     };
   }, []);
@@ -213,6 +217,7 @@ const CommunityMain = () => {
       author: {
         nickname: item.nickname ?? "익명",
         level: item.level ?? 1,
+        xp: item.memberXp ?? 0,
       },
       likes: item.likes ?? 0,
       liked: item.liked ?? false,
@@ -352,6 +357,8 @@ const CommunityMain = () => {
               detail.memberLevel ??
               detail.level ??
               1,
+
+            xp: detail.member?.memberXp ?? detail.memberXp ?? 0,
           },
           likes: detail.likes ?? 0,
           liked: detail.liked ?? false,
@@ -360,7 +367,7 @@ const CommunityMain = () => {
           content: detail.postContent ?? "",
           ingredients: detail.ingredients ?? [],
           postIngredientUsed: detail.postIngredientUsed ?? [],
-          xp: detail.postXp ?? 0,
+          xp: detail.postXp ?? 0, // 게시글 획득 XP
           comments: detail.comment ?? [],
         };
 

@@ -175,7 +175,20 @@ const FoodComplete = () => {
         await createPostImageFiles(postId, [imageFile]);
       }
 
-      alert("커뮤니티에 업로드되었습니다!");
+      const meResponse = await fetch("http://localhost:10000/auth/me", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (meResponse.ok) {
+        const meResult = await meResponse.json();
+
+        if (meResult?.data) {
+          authStore.setMember(meResult.data);
+        }
+      }
+
+      alert("커뮤니티에 업로드 되었습니다!");
 
       setReview("");
       setPreviewImage(null);
