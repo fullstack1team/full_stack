@@ -55,6 +55,7 @@ const TrendingCarousel = ({
         nickname:
           String(p.author?.nickname ?? p.nickname ?? "").trim() || "익명",
         level: p.author?.level ?? p.level ?? 1,
+        memberXp: p.memberXp ?? 0,
 
         likes: Number(p.likes ?? 0),
         liked: p.liked ?? false,
