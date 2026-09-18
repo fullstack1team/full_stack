@@ -112,7 +112,7 @@ const Header = ({ onSearch }) => {
               />
               <S.SearchBtn type="submit" aria-label="검색">
                 <S.SearchIcon
-                  src="/assets/icons/search.svg"
+                  src="/assets/icons/Search.svg"
                   alt="검색 아이콘"
                 />
               </S.SearchBtn>

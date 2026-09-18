@@ -38,24 +38,10 @@ const CommunityMain = () => {
   // authStore 현재 상태
   const authState = useAuthStore();
 
-  // localStorage fallback
-  const persistedAuth = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("auth-storage") || "{}");
-    } catch (error) {
-      console.error("auth-storage 파싱 실패:", error);
-      return {};
-    }
-  }, []);
 
-  const persistedMember = persistedAuth?.state?.member ?? null;
-  const persistedUser = persistedAuth?.state?.user ?? null;
+  const currentUser = authState.member ?? authState.user ?? null;
 
-  // 로그인 담당 파트가 user로 저장하든 member로 저장하든 둘 다 대응
-  const currentUser =
-    authState.user ?? persistedUser ?? persistedMember ?? null;
-
-  const isLoggedIn = authState.isAuthenticated || !!currentUser;
+  const isLoggedIn = Boolean(authState.isAuthenticated && currentUser);
 
   // 로그인 유저 닉네임(없으면 게스트)
   const meNickname = currentUser?.memberName || "";
@@ -66,7 +52,7 @@ const CommunityMain = () => {
   // "로그인 필요 행동" 공통 래퍼
   const requireLogin = useCallback(
     (action) => {
-      if (!currentUser) {
+      if (!isLoggedIn) {
         setLoginModalOpen(true);
         return false;
       }
@@ -144,7 +130,7 @@ const CommunityMain = () => {
       memberXp:
         raw?.member?.memberXp ?? raw?.author?.memberXp ?? raw?.memberXp ?? 0,
 
-        // 이 게시글에서 획득한 XP
+      // 이 게시글에서 획득한 XP
       xp: raw?.postXp ?? raw?.xp ?? 0,
     };
   }, []);
@@ -248,11 +234,16 @@ const CommunityMain = () => {
     const q = keyword.trim().toLowerCase();
     if (!q) return true;
 
+    const usedIngredientNames = (item.postIngredientUsed ?? [])
+      .map((used) => used?.ingredient?.ingredientName)
+      .filter(Boolean);
+
     const hay = [
       item.recipeName,
       item.content,
       item.nickname,
       ...(item.ingredients ?? []),
+      ...usedIngredientNames,
     ]
       .filter(Boolean)
       .join(" ")
