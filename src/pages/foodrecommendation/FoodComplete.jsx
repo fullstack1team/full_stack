@@ -11,6 +11,7 @@ const FoodComplete = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [review, setReview] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [animatedOrange, setAnimatedOrange] = useState(0);
   const [animatedBlue, setAnimatedBlue] = useState(0);
   const xpRef = useRef(null);
@@ -117,6 +118,9 @@ const FoodComplete = () => {
   // 완료 버튼 클릭
   // ✅ 추가된 부분
   const handleSubmit = async () => {
+    // 연속 클릭 방지
+    if (isSubmitting) return;
+
     if (!imageFile) {
       alert("사진을 업로드해주세요.");
       return;
@@ -144,12 +148,6 @@ const FoodComplete = () => {
       ingredientNames: selectedIngredientNames,
     };
 
-    console.log(recipe.ingredients);
-    console.log("authStore:", authStore);
-    console.log("user:", user);
-    console.log("recipe:", recipe);
-    console.log("payload:", payload);
-
     if (!payload.memberId) {
       alert("로그인 정보가 없습니다.");
       return;
@@ -160,7 +158,10 @@ const FoodComplete = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
+      // 1. 게시글 생성
       const createdPost = await createPost(payload);
 
       console.log("생성된 게시글 응답:", createdPost);
@@ -168,24 +169,36 @@ const FoodComplete = () => {
       const postId = createdPost?.id ?? createdPost?.postId;
 
       if (!postId) {
-        console.warn(
-          "생성된 게시글 id를 받지 못해서 이미지 등록을 건너뜁니다.",
-        );
-      } else {
-        await createPostImageFiles(postId, [imageFile]);
+        throw new Error("생성된 게시글 ID를 받지 못했습니다.");
       }
 
-      const meResponse = await fetch("http://localhost:10000/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
+      // 2. 이미지 업로드
+      await createPostImageFiles(postId, [imageFile]);
 
-      if (meResponse.ok) {
-        const meResult = await meResponse.json();
+      // 3. 회원 정보 갱신
+      // localhost에서는 10000번 포트,
+      // 배포에서는 같은 도메인의 nginx proxy 사용
+      try {
+        const API_BASE_URL =
+          window.location.hostname === "localhost"
+            ? "http://localhost:10000"
+            : "";
 
-        if (meResult?.data) {
-          authStore.setMember(meResult.data);
+        const meResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (meResponse.ok) {
+          const meResult = await meResponse.json();
+
+          if (meResult?.data) {
+            authStore.setMember(meResult.data);
+          }
         }
+      } catch (authError) {
+        // 회원정보 갱신 실패가 게시글 업로드 실패로 처리되지 않도록 분리
+        console.warn("회원 정보 갱신 실패:", authError);
       }
 
       alert("커뮤니티에 업로드 되었습니다!");
@@ -199,6 +212,8 @@ const FoodComplete = () => {
     } catch (error) {
       console.error("게시글 생성 또는 이미지 등록 실패:", error);
       alert(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   //
@@ -400,8 +415,8 @@ const FoodComplete = () => {
           </S.FCSection>
 
           {/* 완료 버튼 */}
-          <S.FCCompleteButton onClick={handleSubmit}>
-            완료 인증하기
+          <S.FCCompleteButton onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? "업로드 중..." : "완료 인증하기"}
           </S.FCCompleteButton>
         </S.FCContent>
       </S.FCWrapper>

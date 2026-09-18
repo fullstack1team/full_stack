@@ -9,7 +9,7 @@ const DEFAULT_SORT_OPTIONS = [
 
 export const CommunityHeader = ({
   title = "요리 인증 커뮤니티",
-  placeholder = "요리명, 코멘트, 재료로 검색...",
+  placeholder = "요리명, 닉네임, 재료로 검색...",
   showSort = true,
   sortOptions = DEFAULT_SORT_OPTIONS,
   defaultSortKey,
@@ -86,7 +86,7 @@ export const CommunityHeader = ({
             placeholder={placeholder}
           />
           <S.SearchButton as="button" type="submit" aria-label="검색">
-            <S.SearchIcon src="/assets/icons/search.svg" alt="검색 아이콘" />
+            <S.SearchIcon src="/assets/icons/Search.svg" alt="검색 아이콘" />
           </S.SearchButton>
         </S.SearchWrap>
 
