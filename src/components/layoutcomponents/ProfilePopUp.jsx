@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import * as S from "./style";
 import ChangeInfoFrame from "../joincomponents/ChangeInfoFrame";
 import NicknameChange from "../joincomponents/NicknameChange";
 import PasswordChange from "../joincomponents/PasswordChange";
-import useAuthStore from "../../store/authStore"; // Zustand 스토어 임포트
+import useAuthStore from "../../store/authStore";
 
 const ProfilePopUp = ({ isOpen, onClose }) => {
   const [activeModal, setActiveModal] = useState(null);
@@ -14,15 +15,65 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
   const closeModal = () => setActiveModal(null);
 
+  // 💡 회원 탈퇴 API 함수
+  const withdrawMember = async (id) => {
+    const response = await fetch(`http://localhost:10000/members/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "회원 탈퇴 처리에 실패했습니다.");
+    }
+
+    return true;
+  };
+
+  // 💡 회원 탈퇴 Mutation
+  const withdrawMutation = useMutation({
+    mutationFn: withdrawMember,
+    onSuccess: () => {
+      alert("회원 탈퇴가 완료되었습니다. 이용해 주셔서 감사합니다.");
+      setIsAuthenticated(false);
+      setMember(null);
+      onClose();
+      navigate("/", { replace: true });
+    },
+    onError: (error) => {
+      console.error("회원 탈퇴 오류:", error);
+      alert(error.message || "회원 탈퇴 중 오류가 발생했습니다.");
+    },
+  });
+
+  // 💡 회원 탈퇴 버튼 핸들러
+  const handleWithdraw = () => {
+    const memberId = member?.id;
+
+    if (!memberId) {
+      alert("로그인 정보를 찾을 수 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    const isConfirmed = window.confirm(
+      "정말로 탈퇴하시겠습니까?\n탈퇴 시 작성한 모든 게시글 및 정보가 삭제되며 복구할 수 없습니다."
+    );
+
+    if (isConfirmed) {
+      withdrawMutation.mutate(memberId);
+    }
+  };
+
   // socials 배열에서 LOCAL 여부 확인
   const hasLocalSocial = member?.socials?.some(
     (social) => social.memberProvider === "LOCAL"
   );
 
-  // LOCAL(일반 가입) 유저인지 확인하는 변수
   const isLocalUser = hasLocalSocial || member?.memberProvider === "LOCAL";
 
-  // 💡 [프로필 이미지 URL 안전하게 가져오기]
   const getProfileImage = () => {
     const rawImg =
       member?.memberProfile ||
@@ -33,7 +84,6 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
     if (!rawImg) return "";
 
-    // http:// 처리 (보안 차단 방지)
     if (rawImg.startsWith("http://") || rawImg.startsWith("https://")) {
       return rawImg.replace("http://", "https://");
     }
@@ -48,13 +98,10 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
   const profileImage = getProfileImage();
 
-  // 💡 [실제 연동 데이터 추출]
   const memberLevel = member?.memberLevel ?? 1;
   const memberXp = member?.memberXp ?? member?.currentXp ?? 0;
   const cookCount = member?.cookCount ?? 0;
 
-  // 💡 [획득한 뱃지 개수 계산]
-  // badges 배열이 존재하면 획득 상태인 뱃지만 필터링 (필요에 따라 조건 수정 가능)
   const earnedBadgesCount = Array.isArray(member?.badges)
     ? member.badges.filter(
         (badge) =>
@@ -83,7 +130,6 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
       <S.SidebarContainer $isOpen={isOpen}>
         <S.ProfileImgWrap>
-          {/* 실제 유저 프로필 이미지 연동 */}
           {profileImage ? (
             <img src={profileImage} alt="프로필 이미지" />
           ) : (
@@ -101,12 +147,10 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
           <>
             <S.ProfileContainer>
               <S.ProfileUserInfoContainer>
-                {/* 닉네임 우선 연동 */}
                 <S.ProfileUserName>
                   {member?.memberName || "사용자"} 님
                 </S.ProfileUserName>
                 
-                {/* 💡 레벨 & XP 연동 */}
                 <S.ProfileUserLevel>
                   <img src="/assets/icons/star.svg" alt="별" />
                   LV.{memberLevel}
@@ -122,7 +166,6 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
               </S.ProfileUserInfoContainer>
             </S.ProfileContainer>
 
-            {/* 💡 활동 요약 연동 (총 인증 / 획득한 뱃지) */}
             <S.ProfileContainer>
               <S.ProfileTitles>활동 요약</S.ProfileTitles>
               <p>총 인증: {cookCount}</p>
@@ -154,9 +197,13 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
               )}
               <S.ChangeButton onClick={handleLogout}>로그아웃</S.ChangeButton>
             </S.ProfileContainer>
+
             <S.DangerZoneContainer>
-              <S.DeleteAccountButton onClick={() => setActiveModal("deleteAccount")}>
-                회원탈퇴
+              <S.DeleteAccountButton 
+                onClick={handleWithdraw}
+                disabled={withdrawMutation.isPending}
+              >
+                {withdrawMutation.isPending ? "탈퇴 처리 중..." : "회원탈퇴"}
               </S.DeleteAccountButton>
             </S.DangerZoneContainer>
           </>
