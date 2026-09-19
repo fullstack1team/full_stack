@@ -72,13 +72,17 @@ const MyRecipe = () => {
         description: item.description ?? "",
         imageUrl: item.imageUrl ?? "",
         cookTime: item.cookTime ?? 0,
-        difficulty: item.difficulty,
+        difficulty: item.difficulty ?? item.level ?? "",
         category: item.category,
         xp: item.xp,
         createdAt: item.createdAt,
         saved: true,
         ingredients: item.ingredients ?? { main: [], sub: [] },
         steps: item.steps ?? [],
+
+        missingIngredients: Array.isArray(item.missingIngredients)
+          ? item.missingIngredients
+          : [],
       }));
 
       setSavedList(mapped);
@@ -162,20 +166,22 @@ const MyRecipe = () => {
       }
 
       if (sortKey === "difficulty_low") {
-        const rank = {
-          하: 0,
-          쉬움: 0,
-          easy: 0,
+        const getDifficultyRank = (recipe) => {
+          const value = String(recipe?.difficulty ?? recipe?.level ?? "")
+            .trim()
+            .toLowerCase();
 
-          중: 1,
-          보통: 1,
-          medium: 1,
+          if (["하", "쉬움", "easy"].includes(value)) return 0;
 
-          상: 2,
-          어려움: 2,
-          hard: 2,
+          if (["중", "보통", "중간", "medium"].includes(value)) return 1;
+
+          if (["상", "어려움", "hard"].includes(value)) return 2;
+
+          return 99;
         };
-        const diff = (rank[a.difficulty] ?? 99) - (rank[b.difficulty] ?? 99);
+
+        const diff = getDifficultyRank(a) - getDifficultyRank(b);
+
         return diff !== 0 ? diff : tieBreaker();
       }
 

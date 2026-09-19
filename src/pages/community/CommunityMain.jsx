@@ -38,7 +38,6 @@ const CommunityMain = () => {
   // authStore 현재 상태
   const authState = useAuthStore();
 
-
   const currentUser = authState.member ?? authState.user ?? null;
 
   const isLoggedIn = Boolean(authState.isAuthenticated && currentUser);
@@ -913,21 +912,21 @@ const CommunityMain = () => {
   );
 
   // keyword 를 URL에서 읽어서 searchState에 동기화
-  useEffect(() => {
-    const keywordFromUrl = searchParams.get("keyword") || "";
-    const sortFromUrl = searchParams.get("sort") || "latest";
+  // useEffect(() => {
+  //   const keywordFromUrl = searchParams.get("keyword") || "";
+  //   const sortFromUrl = searchParams.get("sort") || "latest";
 
-    setSearchState((prev) => {
-      if (prev.keyword === keywordFromUrl && prev.sort === sortFromUrl) {
-        return prev;
-      }
-      return {
-        ...prev,
-        keyword: keywordFromUrl,
-        sort: sortFromUrl,
-      };
-    });
-  }, [searchParams]);
+  //   setSearchState((prev) => {
+  //     if (prev.keyword === keywordFromUrl && prev.sort === sortFromUrl) {
+  //       return prev;
+  //     }
+  //     return {
+  //       ...prev,
+  //       keyword: keywordFromUrl,
+  //       sort: sortFromUrl,
+  //     };
+  //   });
+  // }, [searchParams]);
 
   return (
     <S.Page>
@@ -946,13 +945,13 @@ const CommunityMain = () => {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           onKeywordChange={(value) => {
-            if (!value.trim()) {
+            
               setSearchState((prev) => ({
                 ...prev,
-                keyword: "",
+                keyword: value,
               }));
             }
-          }}
+          }
         />
       </S.Container>
 
