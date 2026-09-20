@@ -264,14 +264,15 @@ export const BadgeLockImg = styled.img`
     props.$isUnlocked
       ? `
         /* [해금 - 금색 리본] */
-        width: 48px;
-        right: 32px;
+        width: 50px;
+        right: 27px;
+        top: -3px;
       `
       : `
         /* [미해금 - 회색 리본] 이미지 여백이 크므로 수치를 크게 설정 */
         width: 70px;
         right: 18px;
-        top: -21px;
+        top: -22px;
       `}
 `;
 
