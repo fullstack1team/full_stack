@@ -48,13 +48,16 @@ export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 30px;
+  align-items: start;
 
   @media (max-width: 1320px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
   @media (max-width: 900px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   @media (max-width: 520px) {
     grid-template-columns: 1fr;
   }
@@ -72,6 +75,9 @@ export const Card = styled.button`
   padding: 0;
   text-align: left;
   cursor: pointer;
+
+  display: block;
+  align-self: start;
 
   /* 버튼 기본 스타일 제거 */
   appearance: none;
@@ -183,6 +189,7 @@ export const Desc = styled.p`
   color: ${({ theme }) => theme.PALLETE.primary.mainblack};
   margin: 6px 0 14px;
   line-height: 22px;
+  height: 44px;
 
   /* 두 줄에서 ... 처리 */
   display: -webkit-box;
@@ -386,8 +393,7 @@ export const MyRecipeEmptyButton = styled.button`
 
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
 
-  font-weight: ${({ theme }) =>
-    theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.PRETENDARD.MEDIUM};
 
   cursor: pointer;
   transition: opacity 0.2s ease;
