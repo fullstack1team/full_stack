@@ -109,6 +109,7 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
           alt={title || "추천 레시피 이미지"}
           loading="lazy"
           onError={(e) => {
+            e.currentTarget.onerror = null;
             e.currentTarget.src = DEFAULT_RECIPE_IMAGE;
           }}
         />
@@ -130,9 +131,9 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
       <S.Body>
         <S.Title title={title}>{title}</S.Title>
 
-        {(recipe || description) && (
-          <S.Desc title={recipe || description}>{recipe || description}</S.Desc>
-        )}
+        <S.Desc title={recipe || description || ""}>
+          {recipe || description || "\u00A0"}
+        </S.Desc>
 
         <S.BadgeRow>
           {/* 왼쪽: 별점 */}
