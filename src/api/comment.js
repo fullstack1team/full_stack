@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:10000";
+
+import { API_BASE_URL as BASE_URL } from "../config/api";
+
 
 // 댓글 생성
 export const createComment = async ({ postId, content }) => {

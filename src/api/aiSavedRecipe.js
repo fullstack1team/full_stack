@@ -1,6 +1,10 @@
 // 중복적인 데이터를 불러오는 함수들은 api 폴더에 모아둠
 
-const BASE_URL = "http://localhost:10000"
+// 로컬 주소
+// const BASE_URL = "http://localhost:10000"
+
+// 배포 주소
+import { API_BASE_URL as BASE_URL } from "../config/api";
 
 // 저장 레시피 전체 목록 조회
 export const getSavedRecipes = async (memberId) => {

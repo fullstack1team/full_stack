@@ -5,6 +5,7 @@ import MyRecipeCard from "../../components/myrecipecomponents/MyRecipeCard";
 import { savedRecipe } from "../../api/aiSavedRecipe";
 import useAuthStore from "../../store/authStore";
 import SavedRecipeModal from "./savedrecipemodal/SavedRecipeModal";
+import { API_BASE_URL } from "../../config/api";
 
 const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -93,7 +94,7 @@ const FoodRecommendation = () => {
         setLoading(true);
         setEmptyFridge(false);
 
-        const res = await fetch("http://localhost:10000/fridge/recommend/", {
+        const res = await fetch(`${API_BASE_URL}/fridge/recommend/`, {
           credentials: "include",
         });
         const data = await res.json();

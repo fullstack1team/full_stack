@@ -1,4 +1,5 @@
-const BASE_URL = "http://localhost:10000";
+
+import { API_BASE_URL as BASE_URL } from "../config/api";
 
 // 게시글 전체 조회
 export const getPosts = async () => {

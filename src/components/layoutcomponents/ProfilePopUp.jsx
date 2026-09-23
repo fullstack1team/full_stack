@@ -6,6 +6,7 @@ import ChangeInfoFrame from "../joincomponents/ChangeInfoFrame";
 import NicknameChange from "../joincomponents/NicknameChange";
 import PasswordChange from "../joincomponents/PasswordChange";
 import useAuthStore from "../../store/authStore";
+import { API_BASE_URL } from "../../config/api";
 
 const ProfilePopUp = ({ isOpen, onClose }) => {
   const [activeModal, setActiveModal] = useState(null);
@@ -17,7 +18,7 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
   // 💡 회원 탈퇴 API 함수
   const withdrawMember = async (id) => {
-    const response = await fetch(`http://localhost:10000/members/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/members/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -111,7 +112,7 @@ const ProfilePopUp = ({ isOpen, onClose }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:10000/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

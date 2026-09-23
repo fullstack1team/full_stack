@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as S from "./style";
 import usePostStore from "../../store/postStore";
+import { API_BASE_URL } from "../../config/api";
 
 
 const NicknameChange = ({ onSuccess, member, setMember }) => {
@@ -28,7 +29,7 @@ const NicknameChange = ({ onSuccess, member, setMember }) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:10000/members/${member.id}/nickname`,
+        `${API_BASE_URL}/members/${member.id}/nickname`,
         {
           memberName: nickname,
         },

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams, Link } from "react-router-dom";
 import S from "./recommendrecipe.style";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/api";
 
 const RecommendRecipe = () => {
   const { foodId } = useParams();
@@ -17,7 +18,7 @@ const RecommendRecipe = () => {
     if (location.state?.recipe) {
       setRecipe(location.state.recipe);
     } else {
-      fetch(`http://localhost:10000/fridge/recommend/1`)
+      fetch(`${API_BASE_URL}/fridge/recommend/1`)
         .then((res) => res.json())
         .then((data) => {
           setRecipe(data);

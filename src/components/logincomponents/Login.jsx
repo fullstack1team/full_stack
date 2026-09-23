@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import S from "./style";
 import useAuthStore from "../../store/authStore";
+import { API_BASE_URL } from "../../config/api";
 
 // 💡 이미지 파일 없이 사용할 눈 아이콘 SVG 컴포넌트
 const EyeIcon = ({ show }) => {
@@ -57,7 +58,7 @@ const Login = () => {
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[!@#])[\da-zA-Z!@#]{8,}$/;
 
   const login = async (member) => {
-    const response = await fetch("http://localhost:10000/auth/login", {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
