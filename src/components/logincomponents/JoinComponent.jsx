@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import S from "./style";
+import { API_BASE_URL } from "../../config/api";
 
 // 로그인에서 사용했던 동일한 EyeIcon SVG 컴포넌트
 const EyeIcon = ({ show }) => {
@@ -60,7 +61,7 @@ const JoinComponent = () => {
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[!@#$%^&*])[\da-zA-Z!@#$\%^&*]{8,}$/;
 
   const join = async (member) => {
-    const response = await fetch("http://localhost:10000/members/join", {
+    const response = await fetch(`${API_BASE_URL}/members/join`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

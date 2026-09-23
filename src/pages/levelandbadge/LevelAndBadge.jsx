@@ -3,6 +3,7 @@ import * as S from "./style";
 import ToChallengeComponent from "../../components/levelbadgecomponents/ToChallengeComponent";
 import MyLevelComponent1 from "../../components/levelbadgecomponents/MyLevelComponent1";
 import MyBadges from "../../components/levelbadgecomponents/MyBadges";
+import { API_BASE_URL } from "../../config/api";
 
 const LevelAndBadge = () => {
   const [userData, setUserData] = useState(null);
@@ -15,7 +16,7 @@ const LevelAndBadge = () => {
     const fetchData = async () => {
       try {
         // 1. 내 프로필 정보 조회
-        const userRes = await fetch("http://localhost:10000/auth/me", {
+        const userRes = await fetch(`${API_BASE_URL}/auth/me`, {
           method: "GET",
           credentials: "include",
         });
@@ -29,7 +30,7 @@ const LevelAndBadge = () => {
         }
 
         // 2. 뱃지 목록 조회
-        const badgeRes = await fetch("http://localhost:10000/badges/me", {
+        const badgeRes = await fetch(`${API_BASE_URL}/badges/me`, {
           method: "GET",
           credentials: "include",
         });

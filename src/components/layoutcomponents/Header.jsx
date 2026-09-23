@@ -4,6 +4,7 @@ import ProfilePopUp from "./ProfilePopUp";
 // import useAuthStore from "../../store/useAuthStore";
 import useAuthStore from "../../store/authStore";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/api";
 
 const Header = ({ onSearch }) => {
   const { isAuthenticated, setIsAuthenticated, setMember } = useAuthStore();
@@ -19,7 +20,7 @@ const Header = ({ onSearch }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch("http://localhost:10000/auth/me", {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -51,7 +52,7 @@ const Header = ({ onSearch }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:10000/auth/logout", {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

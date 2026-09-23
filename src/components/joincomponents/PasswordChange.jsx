@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import * as S from "./style";
 import useAuthStore from "../../store/authStore";
+import { API_BASE_URL } from "../../config/api";
 
 const PasswordChange = ({ onSuccess }) => {
   const { member } = useAuthStore();
@@ -35,7 +36,7 @@ const PasswordChange = ({ onSuccess }) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:10000/members/${member?.id}/password`,
+        `${API_BASE_URL}/members/${member?.id}/password`,
         {
           currentPassword: form.currentPw,
           newPassword: form.newPw,

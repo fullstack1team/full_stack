@@ -1,6 +1,7 @@
 // 중복적인 데이터를 불러오는 함수들은 api 폴더에 모아둠
 
-const BASE_URL = "http://localhost:10000";
+
+import { API_BASE_URL as BASE_URL } from "../config/api";
 
 // 프론트 -> postId만 보냄
 // 백엔드 -> req.user에서 memberId 꺼냄 (JWT)

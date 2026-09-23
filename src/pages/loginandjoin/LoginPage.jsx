@@ -7,6 +7,7 @@ import Login from "../../components/logincomponents/Login";
 // import useAuthStore from "../../store/useAuthStore";
 import useAuthStore from "../../store/authStore";
 import S from "./style";
+import { API_BASE_URL } from "../../config/api";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const LoginPage = () => {
 
     const checkLogin = async () => {
       try {
-        const response = await fetch("http://localhost:10000/auth/test-jwt", {
+        const response = await fetch(`${API_BASE_URL}/auth/test-jwt`, {
           method: "GET",
           credentials: "include",
         });

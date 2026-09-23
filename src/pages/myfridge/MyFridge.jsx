@@ -4,6 +4,7 @@ import AddIngredientModal from "../../components/myfridgecomponents/AddIngredien
 import IngredientList from "../../components/myfridgecomponents/IngredientList";
 import AddIngredientDetailModal from "../../components/myfridgecomponents/AddIngredientDetailModal";
 import S from "./style";
+import { API_BASE_URL } from "../../config/api";
 
 /* 카테고리 → 아이콘 */
 const CATEGORY_ICONS = {
@@ -43,7 +44,7 @@ const MyFridge = () => {
     try {
       console.log("현재 페이지 origin:", window.location.origin);
 
-      const res = await fetch("http://localhost:10000/fridge", {
+      const res = await fetch(`${API_BASE_URL}/fridge`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -120,7 +121,7 @@ const MyFridge = () => {
   const addIngredient = async (items) => {
     const item = items[0];
 
-    await fetch("http://localhost:10000/fridge", {
+    await fetch(`${API_BASE_URL}/fridge`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +141,7 @@ const MyFridge = () => {
 
   /* ------------------ 🔥 삭제 ------------------ */
   const deleteItem = async (id) => {
-    await fetch(`http://localhost:10000/fridge/${id}`, {
+    await fetch(`${API_BASE_URL}/fridge/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -168,7 +169,7 @@ const MyFridge = () => {
         body.expireDate = item.expiredAt;
       }
 
-      await fetch(`http://localhost:10000/fridge/${item.fridgeId}`, {
+      await fetch(`${API_BASE_URL}/fridge/${item.fridgeId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
