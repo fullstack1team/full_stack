@@ -166,7 +166,8 @@ const FoodComplete = () => {
 
       console.log("생성된 게시글 응답:", createdPost);
 
-      const postId = createdPost?.id ?? createdPost?.postId;
+      const postId =
+        createdPost?.data?.id ?? createdPost?.id ?? createdPost?.postId;
 
       if (!postId) {
         throw new Error("생성된 게시글 ID를 받지 못했습니다.");

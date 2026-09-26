@@ -223,6 +223,7 @@ export const Badge = styled.span`
     background: #dff7f1;
     color: ${({ theme }) => theme.PALLETE.secondary};
   }
+
 `;
 
 export const BadgeStar = styled.i`

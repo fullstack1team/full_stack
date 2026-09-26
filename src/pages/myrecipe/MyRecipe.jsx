@@ -17,6 +17,7 @@ import MyRecipeEmpty from "../../components/myrecipecomponents/MyRecipeEmpty";
 import useAuthStore from "../../store/authStore";
 import LoginRequireModal from "../../components/layoutcomponents/loginrequiremodal/LoginRequireModal";
 import { deleteSavedRecipe, getSavedRecipes } from "../../api/aiSavedRecipe";
+import { getRecipeRating } from "../../utils/recipeRating";
 
 export const MYRECIPE_SORT_OPTIONS = [
   { key: "saved_latest", label: "최신순" },
@@ -180,9 +181,25 @@ const MyRecipe = () => {
           return 99;
         };
 
-        const diff = getDifficultyRank(a) - getDifficultyRank(b);
+        const difficultyDiff = getDifficultyRank(a) - getDifficultyRank(b);
 
-        return diff !== 0 ? diff : tieBreaker();
+        if (difficultyDiff !== 0) {
+          return difficultyDiff;
+        }
+
+        const ratingA = getRecipeRating(
+          a.difficulty || a.level || "쉬움",
+          a.xp ?? 0,
+        );
+
+        const ratingB = getRecipeRating(
+          b.difficulty || b.level || "쉬움",
+          b.xp ?? 0,
+        );
+
+        const ratingDiff = ratingA - ratingB;
+
+        return ratingDiff !== 0 ? ratingDiff : tieBreaker();
       }
 
       return tieBreaker();

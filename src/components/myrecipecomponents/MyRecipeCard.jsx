@@ -136,7 +136,6 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
         </S.Desc>
 
         <S.BadgeRow>
-          {/* 왼쪽: 별점 */}
           <S.Badge className="star">
             <img
               src="/assets/icons/star.svg"
@@ -148,7 +147,6 @@ const MyRecipeCard = ({ item, onClick, onToggleBookmark }) => {
             {displayRating}
           </S.Badge>
 
-          {/* 오른쪽: XP */}
           <S.Badge className="xp">XP {xp ?? 0}</S.Badge>
         </S.BadgeRow>
 
