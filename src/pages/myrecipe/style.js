@@ -17,9 +17,17 @@ export const Container = styled.div`
   margin: 0 auto;
   padding: 24px 0 80px;
 
+  
+  /* 데스크탑 */
   @media (max-width: 1920px) {
     width: 100%;
     padding: 24px 20px 80px;
+  }
+  
+  /* 모바일 */
+  @media (max-width: 520px) {
+    padding: ${({ $header }) => 
+      $header ? "8px 20px 0" : "20px 20px 40px"};
   }
 `;
 
@@ -28,6 +36,10 @@ export const FullDivider = styled.div`
   height: 1px;
   margin: 30px 0 0;
   background-color: ${({ theme }) => theme.PALLETE.gray[100]};
+
+  @media (max-width: 520px) {
+    margin-top: 8px;
+  }
 `;
 
 export const LoadingWrapper = styled.div`
@@ -42,8 +54,6 @@ export const LoadingSpinner = styled.div`
   ${FONT_STYLE.PRETENDARD.H7_REGULAR};
   color: ${({ theme }) => theme.PALLETE.gray[700]};
 `;
-
-
 
 /* ===========================
    Empty State
@@ -80,4 +90,9 @@ export const SortRow = styled.div`
   padding-top: 36px;
   padding-bottom: 16px;
   margin: 0;
+
+  /* 모바일에선 최신순 | 조리 빠른순 | 난이도 낮은순 사라짐 */
+  @media (max-width: 520px) {
+    display: none;
+  }
 `;

@@ -257,7 +257,7 @@ const MyRecipe = () => {
       {/* FloatingActions 스크롤 타겟 */}
       <div id="community-top" />
 
-      <S.Container>
+      <S.Container $header>
         <CommunityHeader
           title="저장한 레시피"
           placeholder="요리명, 코멘트, 재료로 검색..."
