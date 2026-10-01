@@ -29,6 +29,10 @@ export const Container = styled.div`
     width: 100%;
     padding: 24px 20px 80px;
   } // 1920보다 화면이 작으면 생기는 가로 스크롤 방지
+
+  @media (max-width: 520px) {
+    padding: 16px 20px 24px;
+  }
 `;
 
 // **헤더 영역**
@@ -40,7 +44,16 @@ export const HeaderSection = styled.section`
   /* 좌우 여백 추가 */
   padding-left: 130px;
   padding-right: 130px;
+
+  /* 모바일 */
+  @media (max-width: 520px) {
+    margin-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+  }
 `;
+
 // 타이틀
 export const Title = styled.h6`
   ${FONT_STYLE.GIANTS.H6_REGULAR};
@@ -51,6 +64,10 @@ export const Title = styled.h6`
 export const SearchRow = styled.div`
   ${flexBetweenRow};
   gap: 20px;
+
+  @media (max-width: 520px) {
+    gap: 10px;
+  }
 `;
 // 검색 인풋
 export const SearchInput = styled.input`
@@ -110,6 +127,11 @@ export const SearchWrap = styled.form`
       border-color: ${theme.PALLETE.error};
       background-color: ${theme.PALLETE.background.white};
     `}
+
+  @media (max-width: 520px) {
+    width: 100%;
+    min-width: 0;
+  }
 `;
 
 export const SearchButton = styled.button`
@@ -154,6 +176,14 @@ export const FilterButton = styled.button`
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
 
   cursor: pointer;
+
+  @media (max-width: 520px) {
+    width: auto;
+    min-width: 110px;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 5px;
+  }
 `;
 
 // 필터 아이콘
@@ -225,6 +255,10 @@ export const FullDivider = styled.div`
   height: 1px;
   margin: 30px 0 0; // 피그마상에선 70px이지만 실제 구현시 공간 낭비가 심해 30px로 줄임
   background-color: ${({ theme }) => theme.PALLETE.gray[100]};
+
+  @media (max-width: 520px) {
+    margin-top: 12px;
+  }
 `;
 
 // **트랜딩 케러셀 영역**
