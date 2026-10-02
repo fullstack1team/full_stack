@@ -338,6 +338,15 @@ S.StepGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 `;
 
 S.StepCard = styled.div`
@@ -346,6 +355,10 @@ S.StepCard = styled.div`
   padding: 16px;
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 600px) {
+    padding: 18px;
+  }
 `;
 
 S.StepNumber = styled.div`

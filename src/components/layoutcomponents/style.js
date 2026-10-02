@@ -56,12 +56,22 @@ export const HeaderInner = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
+
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+    gap: 0;
+  }
 `;
 
 export const TopRow = styled.div`
   display: flex;
   align-items: center;
   gap: 18px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    gap: 0;
+  }
 `;
 
 export const LogoArea = styled(Link)`
@@ -71,6 +81,10 @@ export const LogoArea = styled(Link)`
   text-decoration: none;
   color: #111;
   white-space: nowrap;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const LogoWrap = styled.div`
@@ -92,12 +106,12 @@ export const LogoText = styled.span`
 export const SearchArea = styled.div`
   flex: 1;
   max-width: 485px;
-  /* height: 44px;
-  border: 2px solid #ff3b30;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px 0 14px; */
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 100%;
+  }
 `;
 
 export const MainSearchWrap = styled.form`
@@ -117,19 +131,13 @@ export const MainSearchWrap = styled.form`
     $error &&
     css`
       animation: ${shake} 0.35s ease;
-    `}/* position: relative;
-  width: 1028px;
-  height: 40px;
+    `}
 
-  ${({ $error }) =>
-    $error &&
-    css`
-      animation: ${shake} 0.35s ease;
-      border: 2px solid
-        ${({ theme, $error }) =>
-          $error ? theme.PALLETE.error : theme.PALLETE.gray[200]};
-      border-radius: 5px;
-    `} */
+  @media (max-width: 768px) {
+    height: 48px;
+    padding: 0 12px 0 16px;
+    border-radius: 12px;
+  }
 `;
 
 export const SearchInput = styled.input`
@@ -190,7 +198,6 @@ export const ProfileButton = styled.button`
   color: #111;
   cursor: pointer;
   padding: 0;
-
 `;
 
 export const RightIcon = styled.img`
@@ -211,6 +218,10 @@ export const RightText = styled.span`
 
 export const BottomRow = styled.div`
   ${flexBetweenRow}
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 export const Nav = styled.nav`
@@ -576,13 +587,13 @@ export const DeleteAccountButton = styled.button`
   border: none;
   padding: 0;
   margin-top: 8px; /* 다른 ChangeButton들과 간격 동일화 (필요시 조정) */
-  
+
   /* 기존 ChangeButton과 폰트 스타일 동일하게 통일 */
-  font-size: 17px; 
+  font-size: 17px;
   font-weight: 500;
   color: #646972; /* 연한 회색 (위험 요소 구분) */
   text-decoration: none; /* 밑줄 제거 */
-  
+
   cursor: pointer;
   text-align: left;
   transition: color 0.2s ease;
@@ -590,4 +601,219 @@ export const DeleteAccountButton = styled.button`
   &:hover {
     color: #ef4444; /* 마우스 호버 시에만 강조 붉은색 */
   }
+`;
+
+// MobileBottomNav.jsx style
+export const MobileBottomNav = styled.nav`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100vw;
+    height: 68px;
+
+    box-sizing: border-box;
+    background: #fff;
+    border-top: 1px solid #eaeaea;
+
+    align-items: center;
+
+    z-index: 9999;
+
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+`;
+
+export const MobileNavButton = styled.button`
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  max-width: 25%;
+  height: 68px;
+
+  margin: 0;
+  padding: 7px 0 6px;
+
+  border: none;
+  background: transparent;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+
+  cursor: pointer;
+
+  span {
+    font-size: 11px;
+    line-height: 14px;
+    white-space: nowrap;
+    color: #555;
+    font-weight: 500;
+  }
+
+  span.active {
+    color: #ff4d37;
+    font-weight: 700;
+  }
+`;
+
+export const MobileNavImg = styled.img`
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+`;
+
+// MobileMenu.jsx style
+export const MobileMenuOverlay = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 68px;
+
+    background: #fff;
+    z-index: 9000;
+
+    padding: 24px 22px 0;
+
+    overflow: hidden;
+  }
+`;
+
+export const MobileMenuHeader = styled.div`
+  flex-shrink: 0;
+
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 4px;
+`;
+
+export const MobileMenuTitle = styled.h2`
+  margin: 0;
+
+  font-size: 23px;
+  font-weight: 800;
+  color: #111;
+`;
+
+export const MobileMenuClose = styled.button`
+  width: 40px;
+  height: 40px;
+
+  border: none;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1;
+  color: #111;
+
+  cursor: pointer;
+`;
+
+export const MobileMenuList = styled.div`
+  width: 100%;
+
+  flex: 1;
+  min-height: 0;
+
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+`;
+
+export const MobileMenuItem = styled.button`
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+
+  padding: 0 4px;
+
+  border: none;
+  border-bottom: 1px solid #eeeeee;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+
+  text-align: left;
+  cursor: pointer;
+`;
+
+export const MobileMenuIconWrap = styled.div`
+  flex-shrink: 0;
+
+  width: 70px;
+  height: 70px;
+
+  border-radius: 50%;
+  background: #fff0ec;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 20px;
+`;
+
+export const MobileMenuIcon = styled.img`
+  width: 36px;
+  height: 36px;
+
+  object-fit: contain;
+`;
+
+export const MobileMenuText = styled.div`
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  strong {
+    font-size: 19px;
+    font-weight: 700;
+    color: #111;
+  }
+
+  span {
+    font-size: 14px;
+    color: #999;
+  }
+`;
+
+export const MobileMenuArrow = styled.span`
+  flex-shrink: 0;
+
+  margin-left: 12px;
+
+  font-size: 32px;
+  font-weight: 300;
+  color: #888;
 `;

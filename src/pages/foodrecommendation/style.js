@@ -333,24 +333,30 @@ S.FCHeroOverlay = styled.div`
   inset: 0;
   display: flex;
   align-items: center;
+  background: rgba(0, 0, 0, 0.28);
 `;
 
 S.FCHeroInner = styled.div`
   max-width: 1420px;
   margin: 0 auto;
   padding: 0 20px;
+  position: relative;
+  z-index: 1;
 `;
 
 S.FCTitle = styled.h1`
   ${FONT_STYLE.GIANTS.H7_REGULAR};
   font-size: 24px;
   font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 `;
 
 S.FCSubText = styled.p`
   font-size: 13px;
   margin-top: 8px;
-  color: #444;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 `;
 
 /* ================= Content ================= */

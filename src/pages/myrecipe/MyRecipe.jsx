@@ -260,7 +260,7 @@ const MyRecipe = () => {
       <S.Container $header>
         <CommunityHeader
           title="저장한 레시피"
-          placeholder="요리명, 코멘트, 재료로 검색..."
+          placeholder="요리명, 재료 검색..."
           showSort={true}
           sortOptions={MYRECIPE_SORT_OPTIONS}
           defaultSortKey={sortKey}
