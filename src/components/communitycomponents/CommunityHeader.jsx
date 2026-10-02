@@ -9,7 +9,7 @@ const DEFAULT_SORT_OPTIONS = [
 
 export const CommunityHeader = ({
   title = "요리 인증 커뮤니티",
-  placeholder = "요리명, 닉네임, 재료로 검색...",
+  placeholder = "요리명, 재료 검색...",
   showSort = true,
   sortOptions = DEFAULT_SORT_OPTIONS,
   defaultSortKey,

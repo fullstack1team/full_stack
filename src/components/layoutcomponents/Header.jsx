@@ -5,6 +5,8 @@ import ProfilePopUp from "./ProfilePopUp";
 import useAuthStore from "../../store/authStore";
 import { useLocation, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/api";
+import MobileBottomNav from "./MobileBottomNav";
+import MobileMenu from "./MobileMenu";
 
 const Header = ({ onSearch }) => {
   const { isAuthenticated, setIsAuthenticated, setMember } = useAuthStore();
@@ -15,6 +17,7 @@ const Header = ({ onSearch }) => {
   const [keyword, setKeyword] = useState("");
   const [isError, setIsError] = useState(false);
   const [triedSubmit, setTriedSubmit] = useState(false); // 검색 시도여부
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // 💡 [핵심 추가] 컴포넌트 마운트 시 (소셜로그인 리다이렉트 포함) 백엔드 쿠키 검증 및 유저정보 조회
   useEffect(() => {
@@ -86,150 +89,165 @@ const Header = ({ onSearch }) => {
   const showError = triedSubmit && isError;
 
   return (
-    <S.HeaderOuter>
-      <S.HeaderInner>
-        <S.TopRow>
-          <S.LogoArea to="/">
-            <S.LogoWrap>
-              <S.LogoIcon
-                src="/assets/logos/frigogo_logo.svg"
-                alt="로고 아이콘"
-                aria-hidden
-              />
-              <S.LogoText>프리고고</S.LogoText>
-            </S.LogoWrap>
-          </S.LogoArea>
-
-          <S.SearchArea>
-            <S.MainSearchWrap onSubmit={handleSubmit} $error={showError}>
-              <S.SearchInput
-                value={keyword}
-                onChange={(e) => {
-                  setKeyword(e.target.value);
-                  if (triedSubmit) setIsError(false);
-                }}
-                placeholder="검색어를 입력해주세요"
-                aria-label="검색"
-              />
-              <S.SearchBtn type="submit" aria-label="검색">
-                <S.SearchIcon
-                  src="/assets/icons/Search.svg"
-                  alt="검색 아이콘"
-                />
-              </S.SearchBtn>
-            </S.MainSearchWrap>
-          </S.SearchArea>
-        </S.TopRow>
-
-        <S.BottomRow>
-          <S.Nav>
-            <S.NavItem
-              to="/myfridge"
-              onClick={(e) => {
-                if (location.pathname === "/myfridge") {
-                  e.preventDefault();
-                  window.location.reload();
-                }
-              }}
-            >
-              나의 냉장고
-            </S.NavItem>
-            <S.NavItem
-              to="/foodrecommendation"
-              onClick={(e) => {
-                if (location.pathname === "/foodrecommendation") {
-                  e.preventDefault();
-                  window.location.reload();
-                }
-              }}
-            >
-              추천 요리
-            </S.NavItem>
-            <S.NavItem
-              to="/community"
-              onClick={(e) => {
-                if (location.pathname === "/community") {
-                  e.preventDefault();
-                  window.location.reload();
-                }
-              }}
-            >
-              커뮤니티
-            </S.NavItem>
-            <S.NavItem
-              to="/levelandbadge"
-              onClick={(e) => {
-                if (location.pathname === "/levelandbadge") {
-                  e.preventDefault();
-                  window.location.reload();
-                }
-              }}
-            >
-              레벨&뱃지
-            </S.NavItem>
-            <S.NavItem
-              to="/reportandchallenge"
-              onClick={(e) => {
-                if (location.pathname === "/reportandchallenge") {
-                  e.preventDefault();
-                  window.location.reload();
-                }
-              }}
-            >
-              리포트&챌린지
-            </S.NavItem>
-          </S.Nav>
-
-          <S.RightArea>
-            {isAuthenticated ? (
-              // 로그인 상태일 때 -> 로그아웃 버튼
-              <S.ProfileButton type="button" onClick={handleLogout}>
-                <S.RightIcon
-                  src="/assets/icons/login.svg"
-                  alt="로그아웃 아이콘"
+    <>
+      <S.HeaderOuter>
+        <S.HeaderInner>
+          <S.TopRow>
+            <S.LogoArea to="/">
+              <S.LogoWrap>
+                <S.LogoIcon
+                  src="/assets/logos/frigogo_logo.svg"
+                  alt="로고 아이콘"
                   aria-hidden
                 />
-                <S.RightText>로그아웃</S.RightText>
-              </S.ProfileButton>
-            ) : (
-              // 비로그인 상태일 때 -> 로그인 버튼
-              <S.ProfileButton
-                type="button"
-                onClick={() => {
-                  console.log("로그인 버튼 클릭");
-                  navigate("/login");
-                  // window.location.href = "/login";
+                <S.LogoText>프리고고</S.LogoText>
+              </S.LogoWrap>
+            </S.LogoArea>
+
+            <S.SearchArea>
+              <S.MainSearchWrap onSubmit={handleSubmit} $error={showError}>
+                <S.SearchInput
+                  value={keyword}
+                  onChange={(e) => {
+                    setKeyword(e.target.value);
+                    if (triedSubmit) setIsError(false);
+                  }}
+                  placeholder="검색어를 입력해주세요"
+                  aria-label="검색"
+                />
+
+                <S.SearchBtn type="submit" aria-label="검색">
+                  <S.SearchIcon
+                    src="/assets/icons/Search.svg"
+                    alt="검색 아이콘"
+                  />
+                </S.SearchBtn>
+              </S.MainSearchWrap>
+            </S.SearchArea>
+          </S.TopRow>
+
+          <S.BottomRow>
+            <S.Nav>
+              <S.NavItem
+                to="/myfridge"
+                onClick={(e) => {
+                  if (location.pathname === "/myfridge") {
+                    e.preventDefault();
+                    window.location.reload();
+                  }
                 }}
               >
+                나의 냉장고
+              </S.NavItem>
+
+              <S.NavItem
+                to="/foodrecommendation"
+                onClick={(e) => {
+                  if (location.pathname === "/foodrecommendation") {
+                    e.preventDefault();
+                    window.location.reload();
+                  }
+                }}
+              >
+                추천 요리
+              </S.NavItem>
+
+              <S.NavItem
+                to="/community"
+                onClick={(e) => {
+                  if (location.pathname === "/community") {
+                    e.preventDefault();
+                    window.location.reload();
+                  }
+                }}
+              >
+                커뮤니티
+              </S.NavItem>
+
+              <S.NavItem
+                to="/levelandbadge"
+                onClick={(e) => {
+                  if (location.pathname === "/levelandbadge") {
+                    e.preventDefault();
+                    window.location.reload();
+                  }
+                }}
+              >
+                레벨&뱃지
+              </S.NavItem>
+
+              <S.NavItem
+                to="/reportandchallenge"
+                onClick={(e) => {
+                  if (location.pathname === "/reportandchallenge") {
+                    e.preventDefault();
+                    window.location.reload();
+                  }
+                }}
+              >
+                리포트&챌린지
+              </S.NavItem>
+            </S.Nav>
+
+            <S.RightArea>
+              {isAuthenticated ? (
+                <S.ProfileButton type="button" onClick={handleLogout}>
+                  <S.RightIcon
+                    src="/assets/icons/login.svg"
+                    alt="로그아웃 아이콘"
+                    aria-hidden
+                  />
+                  <S.RightText>로그아웃</S.RightText>
+                </S.ProfileButton>
+              ) : (
+                <S.ProfileButton
+                  type="button"
+                  onClick={() => {
+                    console.log("로그인 버튼 클릭");
+                    navigate("/login");
+                  }}
+                >
+                  <S.RightIcon
+                    src="/assets/icons/login.svg"
+                    alt="로그인 아이콘"
+                    aria-hidden
+                  />
+                  <S.RightText>로그인</S.RightText>
+                </S.ProfileButton>
+              )}
+
+              <S.ProfileButton
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+              >
                 <S.RightIcon
-                  src="/assets/icons/login.svg"
-                  alt="로그인 아이콘"
+                  src="/assets/icons/profile.svg"
+                  alt="프로필 아이콘"
                   aria-hidden
                 />
-                <S.RightText>로그인</S.RightText>
+                <S.RightText>프로필</S.RightText>
               </S.ProfileButton>
-            )}
+            </S.RightArea>
+          </S.BottomRow>
+        </S.HeaderInner>
+      </S.HeaderOuter>
 
-            <S.ProfileButton
-              type="button"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              <S.RightIcon
-                src="/assets/icons/profile.svg"
-                alt="프로필 아이콘"
-                aria-hidden
-              />
-              <S.RightText>프로필</S.RightText>
-            </S.ProfileButton>
+      <ProfilePopUp
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
-            <ProfilePopUp
-              isOpen={isSidebarOpen}
-              onClose={() => setIsSidebarOpen(false)}
-            />
-          </S.RightArea>
-        </S.BottomRow>
-      </S.HeaderInner>
-    </S.HeaderOuter>
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
+
+      <MobileBottomNav
+        onMenuClick={() => setIsMobileMenuOpen(true)}
+        onCloseMenu={() => setIsMobileMenuOpen(false)}
+        onMyClick={() => setIsSidebarOpen(true)}
+      />
+    </>
   );
 };
 
