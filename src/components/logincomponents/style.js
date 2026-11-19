@@ -1,7 +1,6 @@
 import styled, { css } from "styled-components";
 import theme from "../../styles/theme";
 import { flexCenter, FONT_STYLE } from "../../styles/common";
-import { Link } from "react-router-dom";
 
 const S = {};
 
@@ -109,7 +108,7 @@ S.Fieldset = styled.fieldset`
   padding: 20px;
 `;
 
-S.Link = styled(Link)`
+S.Link = styled.a`
   width: 48px;
   height: 48px;
 
